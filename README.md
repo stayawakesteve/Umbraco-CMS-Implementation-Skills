@@ -2,9 +2,7 @@
 
 > **Experimental Beta:** This project is an exploration of what's possible with Skills for Umbraco. It's evolving as we learn what works best.
 
-A Claude Code plugin marketplace with skills for Umbraco **content modelling** and **implementation**.
-
-> **Status:** Scaffold. The plugin `skills/` folders are empty and ready to be populated.
+A Claude Code plugin marketplace with skills for Umbraco **content modelling** and **implementation**, plus a committed [reference Umbraco instance](#reference-instance) for validating that skill output actually builds and runs.
 
 ## Plugins
 
@@ -78,6 +76,57 @@ Add it as a working directory in Claude Code:
 
 ---
 
+## Reference instance
+
+`Umbraco-CMS.Skills/` (with `Umbraco-CMS.Skills.sln` at the repo root) is a real Umbraco
+**17** web project used to validate that a skill's output actually compiles and serves — the
+runtime counterpart to the LLM-based `umbraco-skill-evaluator`.
+
+- Targets `net10.0`, `Umbraco.Cms 17.*` (matching the skills' "Umbraco 17+" target).
+- Installs **unattended** on first boot into a SQLite database.
+- Ships the **[Clean](https://github.com/prjseal/Clean-Starter-Kit-for-Umbraco-v9)** starter
+  kit, so there is real content (Document Types, templates, published pages) for skill output
+  to run against.
+
+Only the project scaffolding is committed — the runtime SQLite DB and build output are
+`.gitignore`d, and Clean re-installs on first boot.
+
+**How it was scaffolded** (via the [Package Script Writer CLI](https://github.com/prjseal/Package-Script-Writer-CLI), the same tool the backoffice skills use — regenerate with this if you ever need to rebuild it from scratch):
+
+```bash
+dotnet tool install --global PackageScriptWriter.Cli   # if not already installed
+psw --default \
+    -n "Umbraco-CMS.Skills" -s "Umbraco-CMS.Skills" \
+    -k "Clean|7.0.8" \
+    -da \
+    --database-type SQLite \
+    --template-version 17.5.3 \
+    --admin-email admin@example.com --admin-password 1234567890 \
+    --auto-run --build-only
+```
+
+Package versions are managed centrally in `Umbraco-CMS.Skills/Directory.Packages.props`.
+(The committed project also has the launch URL set to `https://localhost:44325`.)
+
+**Run it:**
+
+```bash
+cd Umbraco-CMS.Skills
+dotnet run
+```
+
+Then open the backoffice at **https://localhost:44325/umbraco** and log in with
+**admin@example.com** / **1234567890**.
+
+**Validate a skill against it.** The `umbraco-reference-instance` authoring skill (in
+`.claude/skills/`) boots the instance, materializes a skill's loose `assets/*.cs` into a
+sidecar library, references it, and lets you exercise the feature over HTTP — then tears
+down cleanly. For example, validating the `umbraco-sitemap` skill ends with
+`curl -sk https://localhost:44325/sitemap.xml` returning a valid `<urlset>`. See
+[`.claude/skills/umbraco-reference-instance/SKILL.md`](.claude/skills/umbraco-reference-instance/SKILL.md).
+
+---
+
 ## Project Structure
 
 ```
@@ -86,12 +135,14 @@ Umbraco-CMS-Implementation-Skills/
 ├── plugins/
 │   ├── content-modelling/               # Content modelling plugin
 │   │   ├── .claude-plugin/plugin.json
-│   │   └── skills/                      # Published skills (empty for now)
+│   │   └── skills/                      # Published skills
 │   └── implementation/                  # Implementation plugin
 │       ├── .claude-plugin/plugin.json
-│       └── skills/                      # Published skills (empty for now)
+│       └── skills/                      # Published skills
+├── Umbraco-CMS.Skills/                  # Reference Umbraco 17 instance (validation target)
+├── Umbraco-CMS.Skills.sln
 └── .claude/
-    └── skills/                          # Repo-authoring skills (e.g. skill-creator)
+    └── skills/                          # Repo-authoring skills (evaluator, reference-instance)
 ```
 
 ## Contributing

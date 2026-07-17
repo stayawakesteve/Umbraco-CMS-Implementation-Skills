@@ -21,6 +21,8 @@ plugins/<plugin>/
   .claude-plugin/plugin.json       # Per-plugin manifest
   skills/<skill-name>/SKILL.md      # Published skills (one folder per skill)
 .claude/skills/                    # Repo-authoring skills (NOT published) — e.g. skill-creator
+Umbraco-CMS.Skills/                # Reference Umbraco 17 instance (validation target)
+Umbraco-CMS.Skills.sln
 ```
 
 ### Published vs authoring skills
@@ -50,6 +52,25 @@ Changes land via **branch → pull request → squash-merge into `main`**:
 4. `git checkout main && git pull --ff-only`.
 
 Only commit/push/merge when explicitly asked.
+
+## Reference instance
+
+`Umbraco-CMS.Skills/` (+ `Umbraco-CMS.Skills.sln`) is a committed Umbraco **17** web project
+(`net10.0`, `Umbraco.Cms 17.5.3`, SQLite unattended install, **Clean** starter kit) used to
+validate that skill output compiles and serves. It was scaffolded with the **Package Script
+Writer CLI** (`psw`); the exact command is in the README, and package versions are centrally
+managed in `Umbraco-CMS.Skills/Directory.Packages.props`. Only the scaffolding is committed —
+the runtime SQLite DB, `bin/`, `obj/`, the `Umbraco.Skills.Sandbox/` scratch project, and
+`.local-nuget-feed/` are `.gitignore`d (the project's own nested `.gitignore` covers Umbraco
+runtime paths), and Clean re-installs on first boot. **Never commit** runtime data.
+
+The `umbraco-reference-instance` authoring skill (in `.claude/skills/`) is the entry point:
+it boots the instance (`admin@example.com` / `1234567890` at `https://localhost:44325`),
+materializes a skill's loose `assets/*.cs` into a referenced sidecar library, and validates
+the feature over HTTP + backoffice. It complements `umbraco-skill-evaluator` (which grades
+whether Claude *writes* the right code) by proving the code *runs*. The final packaging
+mechanism (NuGet vs `ProjectReference`) is not yet settled — the sidecar keeps it a one-line
+swap.
 
 ## Source references
 
