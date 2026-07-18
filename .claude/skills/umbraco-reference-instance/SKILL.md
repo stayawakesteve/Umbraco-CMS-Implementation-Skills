@@ -33,7 +33,7 @@ Same variable names as the backoffice test-runner, so tooling is interchangeable
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `UMBRACO_URL` | `https://localhost:44325` | Base URL the instance binds to (also `http://localhost:60290`). |
+| `UMBRACO_URL` | `https://localhost:44372` | Base URL the instance binds to (also `http://localhost:60372`). |
 | `UMBRACO_USER_LOGIN` | `admin@example.com` | Unattended admin email. |
 | `UMBRACO_USER_PASSWORD` | `1234567890` | Unattended admin password. |
 
@@ -69,8 +69,8 @@ HTTP.
 .claude/skills/umbraco-reference-instance/scripts/instance.sh boot
 
 # 3. Exercise the feature over HTTP (example: the sitemap skill)
-curl -sk https://localhost:44325/sitemap.xml            # expect a well-formed <urlset>
-curl -sk -o /dev/null -w '%{http_code}\n' https://localhost:44325/this-page-does-not-exist
+curl -sk https://localhost:44372/sitemap.xml            # expect a well-formed <urlset>
+curl -sk -o /dev/null -w '%{http_code}\n' https://localhost:44372/this-page-does-not-exist
 
 # 4. Tear down — remove the reference and delete the scratch project (leaves the repo clean)
 .claude/skills/umbraco-reference-instance/scripts/instance.sh reset

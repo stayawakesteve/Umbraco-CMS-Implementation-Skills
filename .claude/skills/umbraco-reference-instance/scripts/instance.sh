@@ -9,7 +9,7 @@
 #                               and reference it from the instance (build happens on boot).
 #   instance.sh reset           Remove the sidecar reference and delete the scratch project.
 #
-# Env: UMBRACO_URL (default https://localhost:44325), UMBRACO_USER_LOGIN, UMBRACO_USER_PASSWORD.
+# Env: UMBRACO_URL (default https://localhost:44372), UMBRACO_USER_LOGIN, UMBRACO_USER_PASSWORD.
 set -euo pipefail
 
 # --- locate the repo root (two levels up from .claude/skills/<name>/scripts) ---
@@ -23,7 +23,7 @@ SANDBOX="$SANDBOX_DIR/Umbraco.Skills.Sandbox.csproj"
 SANDBOX_NS="Umbraco.Skills.Sandbox"
 PIDFILE="$PROJECT_DIR/.instance.pid"
 
-UMBRACO_URL="${UMBRACO_URL:-https://localhost:44325}"
+UMBRACO_URL="${UMBRACO_URL:-https://localhost:44372}"
 
 log() { printf '\033[36m[instance]\033[0m %s\n' "$*"; }
 err() { printf '\033[31m[instance]\033[0m %s\n' "$*" >&2; }

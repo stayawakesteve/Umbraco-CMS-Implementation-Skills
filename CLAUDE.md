@@ -65,7 +65,7 @@ the runtime SQLite DB, `bin/`, `obj/`, the `Umbraco.Skills.Sandbox/` scratch pro
 runtime paths), and Clean re-installs on first boot. **Never commit** runtime data.
 
 The `umbraco-reference-instance` authoring skill (in `.claude/skills/`) is the entry point:
-it boots the instance (`admin@example.com` / `1234567890` at `https://localhost:44325`),
+it boots the instance (`admin@example.com` / `1234567890` at `https://localhost:44372`),
 materializes a skill's loose `assets/*.cs` into a referenced sidecar library, and validates
 the feature over HTTP + backoffice. It complements `umbraco-skill-evaluator` (which grades
 whether Claude *writes* the right code) by proving the code *runs*. The final packaging

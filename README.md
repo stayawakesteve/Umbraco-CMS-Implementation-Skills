@@ -106,7 +106,7 @@ psw --default \
 ```
 
 Package versions are managed centrally in `Umbraco-CMS.Skills/Directory.Packages.props`.
-(The committed project also has the launch URL set to `https://localhost:44325`.)
+(The committed project also has the launch URL set to `https://localhost:44372`.)
 
 **Run it:**
 
@@ -115,14 +115,14 @@ cd Umbraco-CMS.Skills
 dotnet run
 ```
 
-Then open the backoffice at **https://localhost:44325/umbraco** and log in with
+Then open the backoffice at **https://localhost:44372/umbraco** and log in with
 **admin@example.com** / **1234567890**.
 
 **Validate a skill against it.** The `umbraco-reference-instance` authoring skill (in
 `.claude/skills/`) boots the instance, materializes a skill's loose `assets/*.cs` into a
 sidecar library, references it, and lets you exercise the feature over HTTP — then tears
 down cleanly. For example, validating the `umbraco-sitemap` skill ends with
-`curl -sk https://localhost:44325/sitemap.xml` returning a valid `<urlset>`. See
+`curl -sk https://localhost:44372/sitemap.xml` returning a valid `<urlset>`. See
 [`.claude/skills/umbraco-reference-instance/SKILL.md`](.claude/skills/umbraco-reference-instance/SKILL.md).
 
 ---
