@@ -64,13 +64,27 @@ the runtime SQLite DB, `bin/`, `obj/`, the `Umbraco.Skills.Sandbox/` scratch pro
 `.local-nuget-feed/` are `.gitignore`d (the project's own nested `.gitignore` covers Umbraco
 runtime paths), and Clean re-installs on first boot. **Never commit** runtime data.
 
-The `umbraco-reference-instance` authoring skill (in `.claude/skills/`) is the entry point:
-it boots the instance (`admin@example.com` / `1234567890` at `https://localhost:44372`),
-materializes a skill's loose `assets/*.cs` into a referenced sidecar library, and validates
-the feature over HTTP + backoffice. It complements `umbraco-skill-evaluator` (which grades
-whether Claude *writes* the right code) by proving the code *runs*. The final packaging
-mechanism (NuGet vs `ProjectReference`) is not yet settled — the sidecar keeps it a one-line
-swap.
+**Deterministic validation (`dotnet test`).** Runtime proof that a skill's code compiles and
+serves correctly is a model-free `dotnet test` gate:
+- Each validated skill ships `plugins/implementation/skills/<skill>/example/` — a
+  `Microsoft.NET.Sdk.Razor` project compiling the skill's *chosen-approach* `assets/*.cs` with
+  the `<Namespace>` placeholder substituted for `Umbraco.Skills.Examples.<Skill>`. `assets/` stay
+  the source of truth; `scripts/generate-examples.sh [--check]` regenerates/verifies the example
+  (skips skills whose `assets/` aren't on the current branch). Host wiring a skill needs
+  (e.g. the 500 page's `UseExceptionHandler`) ships as an `IComposer`/`IUmbracoPipelineFilter`
+  **inside the example**, so the shared instance's `Program.cs` is never touched.
+- `Umbraco-CMS.Skills/Umbraco-CMS.Skills.csproj` `<ProjectReference>`s every example (one shared
+  host); `Program.cs` exposes `public partial class Program` for the test host.
+- `Umbraco-CMS.Skills.Tests/` (NUnit + `WebApplicationFactory`) boots the instance in-process
+  against an isolated test SQLite DB and HTTP-asserts each skill (`ReferenceSiteFactory` +
+  `WaitUntilContentInstalledAsync`; see `SitemapTests.cs`). Runs in CI
+  (`.github/workflows/validate-skills.yml`).
+
+The `umbraco-reference-instance` authoring skill (in `.claude/skills/`) documents this gate and
+also offers a manual boot/`try` harness (`https://localhost:44372`, `admin@example.com` /
+`1234567890`) for interactive poking and backoffice-dependent steps. It complements
+`umbraco-skill-evaluator` (which grades whether Claude *writes* the right code) by proving the
+code *runs*.
 
 ## Source references
 

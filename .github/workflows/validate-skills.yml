@@ -1,0 +1,34 @@
+name: Validate skills
+
+# Deterministic, model-free proof that skill output compiles and serves the right HTTP
+# responses: each skill's example project is compiled into the reference instance, which
+# Umbraco-CMS.Skills.Tests boots in-process (WebApplicationFactory) and asserts over HTTP.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # Fails if a committed example/ has drifted from its skill's assets/. Skills whose
+      # assets/ aren't present on this branch are skipped, so this is safe pre-merge.
+      - name: Examples in sync with skill assets
+        run: bash scripts/generate-examples.sh --check
+
+      - name: Restore
+        run: dotnet restore Umbraco-CMS.Skills.sln
+
+      # Boots the reference instance in-process (first run installs the Clean starter kit into a
+      # test SQLite DB) and asserts each skill's endpoints. Verdict is the dotnet test exit code.
+      - name: Test
+        run: dotnet test Umbraco-CMS.Skills.sln --no-restore -c Debug --logger "console;verbosity=normal"

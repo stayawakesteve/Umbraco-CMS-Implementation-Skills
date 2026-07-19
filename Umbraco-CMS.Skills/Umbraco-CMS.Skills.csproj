@@ -14,6 +14,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Skill example projects: compiled and loaded in-process so Umbraco-CMS.Skills.Tests can
+         assert their HTTP behaviour. Add one line per validated skill (mirrors the backoffice
+         reference instance referencing its example extensions). -->
+    <ProjectReference Include="../plugins/implementation/skills/umbraco-sitemap/example/Umbraco-Sitemap.Example.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Opt-in to app-local ICU to ensure consistent globalization APIs across different platforms -->
     <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" />
     <RuntimeHostConfigurationOption Include="System.Globalization.AppLocalIcu" Value="72.1.0.3" Condition="$(RuntimeIdentifier.StartsWith('linux')) or $(RuntimeIdentifier.StartsWith('win')) or ('$(RuntimeIdentifier)' == '' and !$([MSBuild]::IsOSPlatform('osx')))" />

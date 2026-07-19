@@ -54,63 +54,55 @@ script polls for up to ~4 minutes.
 Log in to the backoffice at `<UMBRACO_URL>/umbraco` with the credentials above. For
 clicking through the backoffice, use the `umbraco-chrome-navigation` skill.
 
-## Validate a skill's code end-to-end
+## Validate a skill deterministically (the CI gate)
 
-Skills ship loose `assets/*.cs` (controllers, composers, content finders, …) using a
-`namespace <Namespace>;` placeholder — not a `.csproj`. This harness turns those assets into
-a compilable unit, loads it into the running site, and lets you exercise the feature over
-HTTP.
+Runtime validation is a **`dotnet test` gate — no LLM, reproducible pass/fail**. Each validated
+skill ships a committed `example/` project that compiles its chosen-approach `assets/*.cs` with
+the `<Namespace>` placeholder substituted for a fixed namespace; the reference instance
+references every example, and `Umbraco-CMS.Skills.Tests` boots that one host in-process
+(`WebApplicationFactory`) and asserts each skill's endpoints over HTTP.
 
 ```bash
-# 1. Materialize the skill's assets into a sidecar library and reference it from the instance
-.claude/skills/umbraco-reference-instance/scripts/instance.sh try plugins/implementation/skills/umbraco-sitemap
-
-# 2. Boot (rebuilds with the referenced library)
-.claude/skills/umbraco-reference-instance/scripts/instance.sh boot
-
-# 3. Exercise the feature over HTTP (example: the sitemap skill)
-curl -sk https://localhost:44372/sitemap.xml            # expect a well-formed <urlset>
-curl -sk -o /dev/null -w '%{http_code}\n' https://localhost:44372/this-page-does-not-exist
-
-# 4. Tear down — remove the reference and delete the scratch project (leaves the repo clean)
-.claude/skills/umbraco-reference-instance/scripts/instance.sh reset
+dotnet test Umbraco-CMS.Skills.sln          # boots the instance in-process, asserts skill endpoints
+scripts/generate-examples.sh --check        # fail if any example/ drifted from its skill's assets/
 ```
 
-What `try` does:
+To add a skill to the gate:
 
-1. Creates `Umbraco.Skills.Sandbox/` — a Razor Class Library (`Microsoft.NET.Sdk.Razor`, so
-   its controllers/views register as an application part) referencing `Umbraco.Cms.Web.Website`
-   `17.*`.
-2. Copies the skill's `assets/*.cs` in, substituting `<Namespace>` → `Umbraco.Skills.Sandbox`
-   (so `namespace <Namespace>.Controllers;` becomes `Umbraco.Skills.Sandbox.Controllers`).
-   It **fails loudly** if any literal `<Namespace>` remains.
-3. Adds the sandbox as a `<ProjectReference>` on `Umbraco-CMS.Skills.csproj`. Umbraco's
-   `IComposer` and ASP.NET controllers in the referenced assembly are then discovered
-   automatically on boot.
+1. Create `plugins/implementation/skills/<skill>/example/` with:
+   - `<Skill>.Example.csproj` — `Microsoft.NET.Sdk.Razor`, `PackageReference Umbraco.Cms.Web.Website 17.*`.
+   - `.generate.json` — `{ "namespace": "Umbraco.Skills.Examples.<Skill>", "assets": [ …chosen files… ] }`.
+   - the generated `.cs` (run `scripts/generate-examples.sh`). Pick **one** approach for
+     mutually-exclusive assets — e.g. the sitemap skill's `SitemapController` and
+     `SitemapIndexController` both map `GET /sitemap.xml`, so the example lists only Approach A
+     (`SitemapController` + `SitemapComposer` + `SitemapCacheInvalidator`).
+   - a **host-wiring shim** if the skill needs `Program.cs`/config changes (e.g. the 500 page's
+     `UseExceptionHandler` + `ReservedPaths`): ship them as an `IComposer` + `IUmbracoPipelineFilter`
+     in the example so the shared instance is never edited.
+2. Add a `<ProjectReference>` to the example in `Umbraco-CMS.Skills/Umbraco-CMS.Skills.csproj`.
+3. Add an NUnit fixture in `Umbraco-CMS.Skills.Tests/` that uses `ReferenceSiteFactory` +
+   `WaitUntilContentInstalledAsync` and HTTP-asserts the skill's behaviour (see `SitemapTests.cs`).
 
-`reset` removes the reference and deletes `Umbraco.Skills.Sandbox/`, restoring the committed
-instance exactly.
+`assets/*.cs` stay the single source of truth; the committed `example/` is a reviewable
+projection kept honest by `generate-examples.sh --check` (which skips skills whose `assets/`
+aren't on the current branch, so it's safe pre-merge).
 
-> **Mutually-exclusive assets.** `try` copies *every* `assets/*.cs`. Some skills ship
-> alternatives that must not both be registered — e.g. the sitemap skill's
-> `SitemapController.cs` and `SitemapIndexController.cs` both map `GET /sitemap.xml`, which is
-> an ambiguous route at runtime. Copy only the chosen approach into a pruned folder and point
-> `try` at that (as the skill's own guidance dictates — Approach A is the three files
-> `SitemapController` + `SitemapComposer` + `SitemapCacheInvalidator`).
->
-> **Backoffice steps.** Some skills also need backoffice work (Approach B of the sitemap skill
-> needs a Document Type + content node). Do those via the `umbraco-chrome-navigation` skill
-> before the HTTP checks — the `try` harness only wires up the C# assets.
+## Explore interactively (manual boot)
 
-## Deferred: packaging mechanism (NuGet vs ProjectReference)
+For poking at a skill by hand, or for the parts a `dotnet test` can't cover (backoffice setup —
+e.g. sitemap Approach B's Document Type + content node, driven via `umbraco-chrome-navigation`),
+use the manual harness:
 
-The default is a `ProjectReference` to the sidecar library because it is reliable and needs
-no per-skill `.csproj`. The sidecar is deliberately **pack-ready**: to test the real NuGet
-distribution path instead, `dotnet pack Umbraco.Skills.Sandbox` into `.local-nuget-feed/`,
-then `dotnet add Umbraco-CMS.Skills reference` → `dotnet add package` from that feed. Whether
-the shipped artifact is a NuGet package (harness-materialized vs skill-authored `.csproj`) or
-stays a `ProjectReference`, and whether skills are validated one-at-a-time or all together, is
-not yet decided — the sidecar keeps every option a one-line change.
+```bash
+scripts/instance.sh try plugins/implementation/skills/umbraco-sitemap  # materialize assets → sidecar → reference
+scripts/instance.sh boot
+curl -sk https://localhost:44372/sitemap.xml
+scripts/instance.sh reset                                              # restore the committed instance
+```
+
+`try` copies **every** `assets/*.cs` into a sidecar library (namespace-substituted) — so for
+mutually-exclusive assets, point it at a pruned copy. This path is for exploration; the
+`dotnet test` gate above is the source of truth for whether a skill works.
 
 ## Relationship to other skills
 

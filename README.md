@@ -118,11 +118,19 @@ dotnet run
 Then open the backoffice at **https://localhost:44372/umbraco** and log in with
 **admin@example.com** / **1234567890**.
 
-**Validate a skill against it.** The `umbraco-reference-instance` authoring skill (in
-`.claude/skills/`) boots the instance, materializes a skill's loose `assets/*.cs` into a
-sidecar library, references it, and lets you exercise the feature over HTTP — then tears
-down cleanly. For example, validating the `umbraco-sitemap` skill ends with
-`curl -sk https://localhost:44372/sitemap.xml` returning a valid `<urlset>`. See
+**Validate a skill against it — deterministically.** Runtime validation is a **`dotnet test`
+gate** (no LLM, reproducible): each validated skill ships an `example/` project that compiles
+its assets into the reference instance, and `Umbraco-CMS.Skills.Tests` boots that instance
+in-process (`WebApplicationFactory`) and asserts the skill's endpoints over HTTP.
+
+```bash
+dotnet test Umbraco-CMS.Skills.sln       # e.g. asserts umbraco-sitemap's /sitemap.xml is a valid <urlset>
+scripts/generate-examples.sh --check     # ensures each example/ matches its skill's assets/
+```
+
+This runs in CI (`.github/workflows/validate-skills.yml`). For interactive poking or
+backoffice-dependent steps, the `umbraco-reference-instance` authoring skill (in
+`.claude/skills/`) also offers a manual boot/`try` harness. See
 [`.claude/skills/umbraco-reference-instance/SKILL.md`](.claude/skills/umbraco-reference-instance/SKILL.md).
 
 ---
@@ -138,9 +146,13 @@ Umbraco-CMS-Implementation-Skills/
 │   │   └── skills/                      # Published skills
 │   └── implementation/                  # Implementation plugin
 │       ├── .claude-plugin/plugin.json
-│       └── skills/                      # Published skills
-├── Umbraco-CMS.Skills/                  # Reference Umbraco 17 instance (validation target)
+│       └── skills/<skill>/
+│           ├── SKILL.md, assets/, …      # the skill (assets = the shipped source of truth)
+│           └── example/                  # compilable projection of assets/ (validation target)
+├── Umbraco-CMS.Skills/                  # Reference Umbraco 17 instance (references each example)
+├── Umbraco-CMS.Skills.Tests/            # dotnet test: boots the instance, HTTP-asserts each skill
 ├── Umbraco-CMS.Skills.sln
+├── scripts/generate-examples.sh         # keeps each example/ in sync with its skill's assets/
 └── .claude/
     └── skills/                          # Repo-authoring skills (evaluator, reference-instance)
 ```

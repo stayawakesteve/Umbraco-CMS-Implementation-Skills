@@ -27,3 +27,7 @@ app.UseUmbraco()
     });
 
 await app.RunAsync();
+
+// Exposes the implicit top-level Program type so Umbraco-CMS.Skills.Tests can boot this
+// host in-process via WebApplicationFactory<Program>. No effect on running the site.
+public partial class Program { }

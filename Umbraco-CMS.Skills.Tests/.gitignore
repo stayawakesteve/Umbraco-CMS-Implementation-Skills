@@ -1,0 +1,17 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# Umbraco / Clean build artifacts copied into this project by package MSBuild targets.
+# Only the test sources (*.cs, .csproj) belong in source control here — everything below
+# is regenerated on build (the tests use the web project's content root at runtime).
+appsettings-schema.json
+appsettings-schema.*.json
+umbraco-package-schema.json
+wwwroot/
+Views/
+App_Data/
+umbraco/
+*.sqlite.db
+*.sqlite.db-shm
+*.sqlite.db-wal
