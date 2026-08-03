@@ -26,4 +26,18 @@
     <ProjectReference Include="..\Umbraco-CMS.Skills\Umbraco-CMS.Skills.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!--
+      Each skill's tests live next to the example they exercise, but compile into THIS assembly.
+      That's deliberate: Umbraco keeps process-wide static state, so every fixture has to share one
+      host (see ReferenceSiteFixture) — a test project per skill would boot an Umbraco each.
+      So: feature-sliced on disk, single assembly at build time.
+
+      Adding a skill needs no change here. bin/obj are excluded because the SDK copies these files
+      into build output, and compiling those copies would duplicate every fixture.
+    -->
+    <Compile Include="..\plugins\**\examples\*\*Tests.cs"
+             Exclude="..\plugins\**\bin\**;..\plugins\**\obj\**" />
+  </ItemGroup>
+
 </Project>

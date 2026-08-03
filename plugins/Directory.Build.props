@@ -1,0 +1,19 @@
+<Project>
+
+  <!--
+    Applies to the skill example projects under plugins/.
+
+    Their tests sit in the same folder as the example code they exercise (feature-sliced), but they
+    are compiled by Umbraco-CMS.Skills.Tests, not by the example project itself — the example has no
+    test framework referenced, so compiling them here would just fail. Excluding them from the SDK's
+    default globs keeps that working without every example csproj having to remember a Compile
+    Remove.
+
+    DefaultItemExcludes rather than <Compile Remove> because this file is imported before the SDK
+    adds its default items, so there would be nothing to remove yet.
+  -->
+  <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);**/*Tests.cs</DefaultItemExcludes>
+  </PropertyGroup>
+
+</Project>
