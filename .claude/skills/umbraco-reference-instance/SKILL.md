@@ -61,16 +61,35 @@ Document Type alias (`FirstChildOfType("errorPage")`, "first child of the site r
 code only proves something if the alias it looks for exists in a shape it can reach — guessing
 produces either a mysteriously null lookup or, worse, a test that passes for the wrong reason.
 
-Boot the instance and inspect it through the **Umbraco Developer MCP**, which reads the content
-tree and Document Types over the versioned Management API. That's the supported route, and it's
-the same one the published skills already tell users to prefer for backoffice work.
+Boot the instance and inspect it with the **Umbraco Developer MCP's CLI**, which reads the content
+tree and Document Types over the versioned Management API. Use `--call`, not the MCP tools through
+a chat session: same data, but a command you can re-run and paste into a commit message. It needs
+the API user from above; credentials come from `.mcp.json`.
 
-Expect to make more than one call, because the API identifies types by **key and display name,
-not alias**: `get-document-root` / `get-document-children` give you each node's published state
-and its document type's GUID, and `get-all-document-types` maps that GUID to a name. Neither
-returns the alias your C# actually navigates by, so resolve it with `get-document-type-by-id` (or
-read it in the backoffice) rather than assuming it's the display name lowercased — Clean's "XML
-Sitemap" type has the alias `xMLSitemap`, which no naming rule would predict.
+```bash
+MCP="npx @umbraco-cms/mcp-dev@lts-17 --umbraco-base-url https://localhost:44372 --umbraco-readonly"
+export NODE_TLS_REJECT_UNAUTHORIZED=0 UMBRACO_CLIENT_ID=umbraco-back-office-mcp UMBRACO_CLIENT_SECRET=1234567890
+
+$MCP --list-tools                                             # what's available
+$MCP --call get-document-root      --call-args '{}'            # site root + published state
+$MCP --call get-document-children  --call-args '{"parentId":"<root-id>"}'
+$MCP --call get-document-type-by-id --call-args '{"id":"<type-id>"}'   # ...and its ALIAS
+```
+
+`--umbraco-readonly` keeps an inspection from mutating the instance. Note the last call is not
+optional: the API identifies types by **key and display name, not alias**, so the document and
+document-type listings give you a GUID and a name but never the alias your C# navigates by. Don't
+infer it from the name — Clean's "XML Sitemap" type has the alias `xMLSitemap`.
+
+For a quick look with no auth at all, the Delivery API answers the same question for *published*
+content and needs no API user:
+
+```bash
+curl -sk "https://localhost:44372/umbraco/delivery/api/v2/content?fetch=children:/&take=100"
+```
+
+That returns each child's `contentType` as its **alias** directly, which is why the precondition
+tests use it (see below). None of this is needed to run the `dotnet test` gate.
 
 The MCP server is configured in `.mcp.json` at the repo root, pinned to the v17 line
 (`@umbraco-cms/mcp-dev@lts-17`) to match the instance. It authenticates as an **API user**, which
@@ -130,7 +149,18 @@ To add a skill to the gate:
      deliberately-throwing endpoint so a 500 can be provoked. Keep such harness files out of
      `.generate.json` — the generator only rewrites the files it lists.
 2. Add a `<ProjectReference>` to the example in `Umbraco-CMS.Skills/Umbraco-CMS.Skills.csproj`.
-3. Add an NUnit fixture in `Umbraco-CMS.Skills.Tests/` that HTTP-asserts the skill's behaviour
+3. If the example needs particular content to exist — most content-driven skills do — declare it in
+   the manifest's `requires` block rather than asserting it by hand:
+   ```json
+   "requires": { "documentTypeAliasAtRoot": ["<ErrorPageAlias>"] }
+   ```
+   `ReferenceContentPreconditionsTests` discovers every manifest and turns each entry into its own
+   test case, so this needs no new test code. A `<Placeholder>` entry resolves through the same
+   manifest's `placeholders` map, so the alias is written once; an unresolvable token fails rather
+   than being tested literally. A declared *kind* the fixture doesn't recognise also fails — add a
+   case there instead of letting it pass vacuously. Skills needing no particular node omit
+   `requires` entirely.
+4. Add an NUnit fixture in `Umbraco-CMS.Skills.Tests/` that HTTP-asserts the skill's behaviour
    (see `SitemapTests.cs` / `CustomErrorPagesTests.cs`). Use the shared host via
    `ReferenceSiteFixture.Client` — **don't** `new ReferenceSiteFactory()` per fixture. Umbraco
    holds process-wide static state (`StaticServiceProvider`, which the `Umbraco.Extensions`
