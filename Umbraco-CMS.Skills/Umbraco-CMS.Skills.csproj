@@ -18,6 +18,7 @@
          assert their HTTP behaviour. Add one line per validated skill (mirrors the backoffice
          reference instance referencing its example extensions). -->
     <ProjectReference Include="../plugins/implementation/skills/umbraco-sitemap/example/Umbraco-Sitemap.Example.csproj" />
+    <ProjectReference Include="../plugins/implementation/skills/umbraco-custom-error-pages/example/Umbraco-CustomErrorPages.Example.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -68,7 +68,8 @@ runtime paths), and Clean re-installs on first boot. **Never commit** runtime da
 serves correctly is a model-free `dotnet test` gate:
 - Each validated skill ships `plugins/implementation/skills/<skill>/example/` — a
   `Microsoft.NET.Sdk.Razor` project compiling the skill's *chosen-approach* `assets/*.cs` with
-  the `<Namespace>` placeholder substituted for `Umbraco.Skills.Examples.<Skill>`. `assets/` stay
+  the `<Namespace>` placeholder substituted for `Umbraco.Skills.Examples.<Skill>` (plus any other
+  placeholder the assets carry, via the manifest's `placeholders` map). `assets/` stay
   the source of truth; `scripts/generate-examples.sh [--check]` regenerates/verifies the example
   (skips skills whose `assets/` aren't on the current branch). Host wiring a skill needs
   (e.g. the 500 page's `UseExceptionHandler`) ships as an `IComposer`/`IUmbracoPipelineFilter`
@@ -76,8 +77,10 @@ serves correctly is a model-free `dotnet test` gate:
 - `Umbraco-CMS.Skills/Umbraco-CMS.Skills.csproj` `<ProjectReference>`s every example (one shared
   host); `Program.cs` exposes `public partial class Program` for the test host.
 - `Umbraco-CMS.Skills.Tests/` (NUnit + `WebApplicationFactory`) boots the instance in-process
-  against an isolated test SQLite DB and HTTP-asserts each skill (`ReferenceSiteFactory` +
-  `WaitUntilContentInstalledAsync`; see `SitemapTests.cs`). Runs in CI
+  against an isolated test SQLite DB and HTTP-asserts each skill (see `SitemapTests.cs`,
+  `CustomErrorPagesTests.cs`). The host is booted **once per assembly** by `ReferenceSiteFixture`
+  and shared via `ReferenceSiteFixture.Client` — Umbraco's process-wide static state means a
+  second host in the same process breaks whichever fixture runs later. Runs in CI
   (`.github/workflows/validate-skills.yml`).
 
 The `umbraco-reference-instance` authoring skill (in `.claude/skills/`) documents this gate and

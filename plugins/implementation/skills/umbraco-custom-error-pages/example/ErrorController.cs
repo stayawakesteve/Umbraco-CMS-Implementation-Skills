@@ -9,7 +9,7 @@ using Umbraco.Cms.Core.Services.Navigation;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
 
-namespace <Namespace>.Controllers;
+namespace Umbraco.Skills.Examples.CustomErrorPages.Controllers;
 
 /// <summary>
 /// Handles 500 Internal Server Error responses by displaying a custom error page.
@@ -23,7 +23,7 @@ public class ErrorController : Controller
     private readonly ILogger<ErrorController> _logger;
 
     // Replace with your Document Type alias for the 500 error page (e.g., "ErrorPage500")
-    private const string ErrorPageAlias = "<ErrorPageAlias>";
+    private const string ErrorPageAlias = "error";
 
     public ErrorController(
         IUmbracoContextFactory umbracoContextFactory,

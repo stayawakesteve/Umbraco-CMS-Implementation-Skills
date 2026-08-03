@@ -55,10 +55,11 @@ the documented APIs used — don't stay silent on build correctness.
 If the error page isn't a direct child of the root, adapt the navigation:
 
 ```csharp
-// Under a "Settings" node:
-siteRoot?.FirstChild("Settings")?.FirstChild(ErrorPageAlias)
+// Under a "Settings" node (aliases, so FirstChildOfType — FirstChild's single-string
+// overload takes a culture and would match the first child of any type):
+siteRoot?.FirstChildOfType("settings")?.FirstChildOfType(ErrorPageAlias)
 // Deep search (slower, last resort):
-siteRoot?.Descendants().FirstOrDefault(x => x.ContentType.Alias == ErrorPageAlias)
+siteRoot?.DescendantsOfType(ErrorPageAlias).FirstOrDefault()
 ```
 
 ## Testing & troubleshooting

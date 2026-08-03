@@ -13,28 +13,15 @@ public class SitemapTests
 {
     private static readonly XNamespace Sm = "http://www.sitemaps.org/schemas/sitemap/0.9";
 
-    private ReferenceSiteFactory _factory = null!;
-    private HttpClient _client = null!;
-
-    [OneTimeSetUp]
-    public async Task OneTimeSetUp()
-    {
-        _factory = new ReferenceSiteFactory();
-        _client = _factory.CreateClient(); // first call boots Umbraco + installs Clean into the test DB
-        await _factory.WaitUntilContentInstalledAsync(_client); // don't race the install / cache an empty sitemap
-    }
-
-    [OneTimeTearDown]
-    public void OneTimeTearDown()
-    {
-        _client?.Dispose();
-        _factory?.Dispose();
-    }
+    // Shared, already-installed host — see ReferenceSiteFixture. Booting a second host in the same
+    // process would leave this fixture resolving services from a disposed provider. The wait for
+    // the install also happens there, so the sitemap can't cache an empty urlset.
+    private static HttpClient Client => ReferenceSiteFixture.Client;
 
     [Test]
     public async Task Get_sitemap_returns_ok_and_xml_content_type()
     {
-        HttpResponseMessage response = await _client.GetAsync("/sitemap.xml");
+        HttpResponseMessage response = await Client.GetAsync("/sitemap.xml");
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         Assert.That(response.Content.Headers.ContentType?.MediaType, Is.EqualTo("application/xml"));
@@ -43,7 +30,7 @@ public class SitemapTests
     [Test]
     public async Task Get_sitemap_root_is_urlset_listing_published_pages()
     {
-        HttpResponseMessage response = await _client.GetAsync("/sitemap.xml");
+        HttpResponseMessage response = await Client.GetAsync("/sitemap.xml");
         string body = await response.Content.ReadAsStringAsync();
         XDocument doc = XDocument.Parse(body);
 

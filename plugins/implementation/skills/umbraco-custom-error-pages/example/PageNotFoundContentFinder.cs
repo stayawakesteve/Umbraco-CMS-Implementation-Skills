@@ -8,7 +8,7 @@ using Umbraco.Cms.Core.Services.Navigation;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
 
-namespace <Namespace>.ContentFinders;
+namespace Umbraco.Skills.Examples.CustomErrorPages.ContentFinders;
 
 /// <summary>
 /// Finds and displays a custom 404 error page using structural discovery.
@@ -22,7 +22,7 @@ public class PageNotFoundContentFinder : IContentLastChanceFinder
     private readonly IDocumentNavigationQueryService _documentNavigationQueryService;
 
     // Replace with your Document Type alias for the 404 error page (e.g., "ErrorPage404")
-    private const string ErrorPageAlias = "<ErrorPageAlias>";
+    private const string ErrorPageAlias = "error";
 
     public PageNotFoundContentFinder(
         IUmbracoContextFactory umbracoContextFactory,

@@ -10,9 +10,11 @@
 #   (no args)   Regenerate every example's .cs in place (the assets/ are the source of truth).
 #   --check     Don't write; diff generated output against the committed files and FAIL on drift.
 #
-# Which files and which fixed namespace come from each example/.generate.json. A skill whose
-# assets/ folder is absent (e.g. the skill still lives on an unmerged branch) is SKIPPED — so
-# this is safe to run in CI before the skill PRs merge.
+# Which files and which fixed namespace come from each example/.generate.json, along with any
+# extra "placeholders" the skill's assets carry (e.g. umbraco-custom-error-pages' <ErrorPageAlias>,
+# which must resolve to a real Document Type alias for the example to do anything at runtime).
+# A skill whose assets/ folder is absent (e.g. the skill still lives on an unmerged branch) is
+# SKIPPED — so this is safe to run in CI before the skill PRs merge.
 set -euo pipefail
 
 MODE="write"
@@ -33,7 +35,17 @@ while IFS= read -r manifest; do
     continue
   fi
 
-  ns="$(python3 -c "import json;print(json.load(open('$manifest'))['namespace'])")"
+  # One sed program per skill: <Namespace> → the example's fixed namespace, plus every entry in
+  # the manifest's optional "placeholders" map.
+  sed_program="$(python3 - "$manifest" <<'PY'
+import json, sys
+manifest = json.load(open(sys.argv[1]))
+subs = {"<Namespace>": manifest["namespace"]}
+subs.update(manifest.get("placeholders") or {})
+for placeholder, value in subs.items():
+    print(f"s|{placeholder}|{value}|g")
+PY
+)"
 
   while IFS= read -r f; do
     src="$assets_dir/$f"
@@ -45,12 +57,12 @@ while IFS= read -r manifest; do
     fi
     checked=$((checked + 1))
     if [[ "$MODE" == "check" ]]; then
-      if ! sed "s/<Namespace>/$ns/g" "$src" | diff -u "$dst" - >/dev/null 2>&1; then
+      if ! sed -e "$sed_program" "$src" | diff -u "$dst" - >/dev/null 2>&1; then
         echo "DRIFT ($skill): $dst is out of sync with $src — run scripts/generate-examples.sh"
         status=1
       fi
     else
-      sed "s/<Namespace>/$ns/g" "$src" > "$dst"
+      sed -e "$sed_program" "$src" > "$dst"
       echo "wrote $dst"
     fi
   done < <(python3 -c "import json;[print(a) for a in json.load(open('$manifest'))['assets']]")
