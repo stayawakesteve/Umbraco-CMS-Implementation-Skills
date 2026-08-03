@@ -120,59 +120,24 @@ loudly when it does.
 ## Validate a skill deterministically (the CI gate)
 
 Runtime validation is a **`dotnet test` gate — no LLM, reproducible pass/fail**. Each validated
-skill ships a committed `example/` project that compiles its chosen-approach `assets/*.cs` with
-the `<Namespace>` placeholder substituted for a fixed namespace; the reference instance
-references every example, and `Umbraco-CMS.Skills.TestHost` boots that one host in-process
+approach ships a committed `examples/<approach>/` project that compiles that approach's
+`assets/*.cs` with its placeholders substituted for fixed values; the reference instance
+references the ones whose behaviour is asserted, and `Umbraco-CMS.Skills.TestHost` boots that one host in-process
 (`WebApplicationFactory`) and asserts each skill's endpoints over HTTP.
 
 ```bash
 dotnet test Umbraco-CMS.Skills.sln          # boots the instance in-process, asserts skill endpoints
-scripts/generate-examples.sh --check        # fail if any example/ drifted from its skill's assets/
+scripts/generate-examples.sh --check        # fail if any example drifted from its skill's assets/
 ```
 
-To add a skill to the gate:
+**Adding a skill to the gate is an authoring task**, so it's documented where authors work:
+[`umbraco-skill-author`'s runtime-validation reference](../umbraco-skill-author/references/runtime-validation.md)
+covers the `examples/<approach>/` layout, how `.generate.json` substitutes placeholders and declares
+content preconditions, how to write a fixture against the shared host, and how to prove the fixture
+can actually fail. It is the single source of truth for those mechanics — this file covers running
+and debugging the instance instead.
 
-1. Create `plugins/implementation/skills/<skill>/example/` with:
-   - `<Skill>.Example.csproj` — `Microsoft.NET.Sdk.Razor`, `PackageReference Umbraco.Cms.Web.Website 17.*`.
-   - `.generate.json` — `{ "namespace": "Umbraco.Skills.Examples.<Skill>", "assets": [ …chosen files… ] }`,
-     plus an optional `"placeholders"` map for any *other* placeholder the assets carry, resolved to
-     something that exists in the instance (e.g. umbraco-custom-error-pages maps
-     `<ErrorPageAlias>` → `error`, Clean's Error node, so the code has a real node to find).
-   - the generated `.cs` (run `scripts/generate-examples.sh`). Pick **one** approach for
-     mutually-exclusive assets — e.g. the sitemap skill's `SitemapController` and
-     `SitemapIndexController` both map `GET /sitemap.xml`, so the example lists only Approach A
-     (`SitemapController` + `SitemapComposer` + `SitemapCacheInvalidator`).
-   - a **host-wiring shim** if the skill needs `Program.cs`/config changes: ship them as an
-     `IComposer` + `IUmbracoPipelineFilter` in the example so the shared instance is never edited.
-     See `umbraco-custom-error-pages/example/ExampleHostWiring.cs`, which applies the 500 page's
-     `UseExceptionHandler` (via `PrePipeline`) and `ReservedPaths` entry that way, and adds a
-     deliberately-throwing endpoint so a 500 can be provoked. Keep such harness files out of
-     `.generate.json` — the generator only rewrites the files it lists.
-2. Add a `<ProjectReference>` to the example in `Umbraco-CMS.Skills/Umbraco-CMS.Skills.csproj`.
-3. If the example needs particular content to exist — most content-driven skills do — declare it in
-   the manifest's `requires` block rather than asserting it by hand:
-   ```json
-   "requires": { "documentTypeAliasAtRoot": ["<ErrorPageAlias>"] }
-   ```
-   `ReferenceContentPreconditionsTests` discovers every manifest and turns each entry into its own
-   test case, so this needs no new test code. A `<Placeholder>` entry resolves through the same
-   manifest's `placeholders` map, so the alias is written once; an unresolvable token fails rather
-   than being tested literally. A declared *kind* the fixture doesn't recognise also fails — add a
-   case there instead of letting it pass vacuously. Skills needing no particular node omit
-   `requires` entirely.
-4. Add an NUnit fixture in `Umbraco-CMS.Skills.TestHost/` that HTTP-asserts the skill's behaviour
-   (see `SitemapTests.cs` / `CustomErrorPagesTests.cs`). Use the shared host via
-   `ReferenceSiteFixture.Client` — **don't** `new ReferenceSiteFactory()` per fixture. Umbraco
-   holds process-wide static state (`StaticServiceProvider`, which the `Umbraco.Extensions`
-   friendly extension methods resolve through), so a second host booted after a first is disposed
-   makes skill code fail in whichever fixture runs later — a fixture that passes alone and fails in
-   a full run is this bug.
-
-Then check the test actually gates: change the skill's behaviour (e.g. point a `.generate.json`
-placeholder at a Document Type that doesn't exist), confirm the fixture goes red, and revert. A
-test that passes either way proves nothing about the skill.
-
-`assets/*.cs` stay the single source of truth; the committed `example/` is a reviewable
+`assets/*.cs` stay the single source of truth; each committed `examples/<approach>/` is a reviewable
 projection kept honest by `generate-examples.sh --check` (which skips skills whose `assets/`
 aren't on the current branch, so it's safe pre-merge).
 

@@ -37,6 +37,17 @@ fix anything that fails. A skill is ready only when every applicable item passes
 - [ ] `evals/evals.json` present with realistic, multi-step prompts (one per meaningful scenario)
 - [ ] `expectations[]` are objective/checkable, including a build-honesty expectation
 
+**Runtime gate (skip only if the skill ships no `assets/*.cs` — and say so)**
+- [ ] `examples/<approach>/` exists per approach, with a `<ProjectReference>` from the reference
+  instance for any approach whose behaviour is asserted
+- [ ] `.generate.json` maps **every** placeholder the assets carry — a missed one survives into the
+  generated code as a literal string, still compiles, and silently never matches
+- [ ] `scripts/generate-examples.sh --check` passes (example hasn't drifted from `assets/`)
+- [ ] Content the example depends on is declared via `requires`, not asserted by hand
+- [ ] Fixture uses `ReferenceSiteFixture.Client`, restores any content it mutates, and asserts
+  rendered content rather than just a status code
+- [ ] The test was **proven able to fail** — broken deliberately, seen red, reverted
+
 **Before shipping**
 - [ ] Passes `umbraco-skill-validator` and `umbraco-skill-code-analyzer` (if available)
 - [ ] Eval'd against a baseline with `umbraco-skill-evaluator`

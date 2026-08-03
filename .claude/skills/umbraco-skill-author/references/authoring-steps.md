@@ -73,7 +73,17 @@ Don't paste doc links here that already live in a reference file. Push per-appro
 - See the schema in [`skill-template.md`](../templates/skill-template.md), and `umbraco-sitemap`'s
   `evals/evals.json` for a worked example.
 
-## Step 7 — Audit and hand off
+## Step 7 — Add it to the runtime gate (if it ships `assets/*.cs`)
+
+Compiling the skill's own code and asserting its HTTP behaviour catches what evals can't: APIs that
+no longer exist, and output that never renders. Full detail — the `examples/<approach>/` layout, how
+`.generate.json` substitutes placeholders, and how to write a fixture that can actually fail — is in
+[`runtime-validation.md`](runtime-validation.md).
+
+Skills with no C# to ship (config-only or backoffice-only approaches) skip this; say so explicitly
+rather than leaving it ambiguous, so nobody assumes coverage that isn't there.
+
+## Step 8 — Audit and hand off
 
 - Run `umbraco-skill-validator` (links) and `umbraco-skill-code-analyzer` (code).
 - Self-audit against the [conformance checklist](conformance-checklist.md).

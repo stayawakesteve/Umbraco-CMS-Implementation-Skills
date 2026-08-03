@@ -27,10 +27,16 @@ is the current reference skill. When in doubt, open it and copy its shape.
 1. **Build** — walk [`references/authoring-steps.md`](references/authoring-steps.md): scope →
    scaffold → SKILL.md → references → assets → evals. Copy-paste skeletons are in
    [`templates/skill-template.md`](templates/skill-template.md).
-2. **Audit** — before shipping, self-check against
+2. **Prove it runs** — if the skill ships `assets/*.cs`, add it to the `dotnet test` gate:
+   [`references/runtime-validation.md`](references/runtime-validation.md).
+3. **Audit** — before shipping, self-check against
    [`references/conformance-checklist.md`](references/conformance-checklist.md).
-3. **Hand off** — pass the finished skill to `umbraco-skill-evaluator` to run with-skill vs.
+4. **Hand off** — pass the finished skill to `umbraco-skill-evaluator` to run with-skill vs.
    baseline and prove it earns its keep, then iterate from the results.
+
+Steps 2 and 4 answer different questions and neither covers for the other: the gate proves the code
+**compiles and serves**, the evals grade whether Claude **writes** it. A skill can pass one and fail
+the other.
 
 ## Core principles (what the checklist enforces)
 
