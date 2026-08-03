@@ -25,9 +25,12 @@ status=0
 checked=0
 
 while IFS= read -r manifest; do
+  # <skill>/examples/<approach>/.generate.json — one project per approach, all projecting the
+  # same skill's assets/, so the skill dir is two levels up from the manifest.
   ex_dir="$(dirname "$manifest")"
-  skill_dir="$(dirname "$ex_dir")"
-  skill="$(basename "$skill_dir")"
+  approach="$(basename "$ex_dir")"
+  skill_dir="$(dirname "$(dirname "$ex_dir")")"
+  skill="$(basename "$skill_dir")/$approach"
   assets_dir="$skill_dir/assets"
 
   if [[ ! -d "$assets_dir" ]]; then
@@ -66,7 +69,11 @@ PY
       echo "wrote $dst"
     fi
   done < <(python3 -c "import json;[print(a) for a in json.load(open('$manifest'))['assets']]")
-done < <(find "$REPO_ROOT/plugins" -path "*/example/.generate.json" 2>/dev/null | sort)
+# -path wildcards match across '/', so prune build output or the copies the SDK drops into
+# bin/ get picked up as if they were separate examples.
+done < <(find "$REPO_ROOT/plugins" \
+           \( -name bin -o -name obj \) -prune -o \
+           -path "*/examples/*/.generate.json" -print 2>/dev/null | sort)
 
 if [[ "$MODE" == "check" ]]; then
   if [[ "$status" -eq 0 ]]; then

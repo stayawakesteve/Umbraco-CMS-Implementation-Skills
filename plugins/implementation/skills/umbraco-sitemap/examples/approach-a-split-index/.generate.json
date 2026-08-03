@@ -1,0 +1,7 @@
+{
+  "_comment": "Compile-only projection of the sitemap skill's split-index option. Shares the skill's assets/ but is not loaded into the reference host, because SitemapIndexController maps the same /sitemap.xml route as SitemapController. No `requires` block: nothing asserts its behaviour, so it needs no content.",
+  "namespace": "Umbraco.Skills.Examples.SitemapSplitIndex",
+  "assets": [
+    "SitemapIndexController.cs"
+  ]
+}

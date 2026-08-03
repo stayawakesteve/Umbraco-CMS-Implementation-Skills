@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <!--
+    COMPILE-ONLY example project for the umbraco-sitemap skill's split sitemap-index option
+    (SitemapIndexController).
+
+    Deliberately NOT referenced by Umbraco-CMS.Skills: SitemapIndexController and
+    SitemapController both map GET /sitemap.xml, so loading both into one host would give two
+    endpoints for the same route. The skill says to register only one of them.
+
+    It is still in the solution, so `dotnet test`/`dotnet build` compiles it — which is what
+    catches API breaks in code the skill ships. Its runtime behaviour is not asserted; proving
+    that would need a second host with only this controller registered.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Umbraco.Skills.Examples.SitemapSplitIndex</RootNamespace>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.*" />
+  </ItemGroup>
+
+</Project>

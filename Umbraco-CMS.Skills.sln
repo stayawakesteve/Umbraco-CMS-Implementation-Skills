@@ -7,6 +7,20 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco-CMS.Skills", "Umbra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco-CMS.Skills.Tests", "Umbraco-CMS.Skills.Tests\Umbraco-CMS.Skills.Tests.csproj", "{BB123E16-2722-4255-989C-5CFF79057147}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{07D57EEB-2F50-60C4-C011-FE4FA775C9A8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "implementation", "implementation", "{614A4740-02C3-3521-C803-8D5230B940D2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "skills", "skills", "{2DE2A6A9-4D32-DEEF-535B-925581132E3E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "umbraco-sitemap", "umbraco-sitemap", "{44D02914-A48E-8ECE-DCC5-18A5EAA9998C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{433CF349-05A5-91CA-929C-30B6D696B345}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "approach-a-split-index", "approach-a-split-index", "{FA0AB323-CF5E-A345-7640-6FA5B3BDF858}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco-Sitemap.SplitIndex.Example", "plugins\implementation\skills\umbraco-sitemap\examples\approach-a-split-index\Umbraco-Sitemap.SplitIndex.Example.csproj", "{3C6E9224-B04D-4ABA-BD58-4657D7344E36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,8 +55,28 @@ Global
 		{BB123E16-2722-4255-989C-5CFF79057147}.Release|x64.Build.0 = Release|Any CPU
 		{BB123E16-2722-4255-989C-5CFF79057147}.Release|x86.ActiveCfg = Release|Any CPU
 		{BB123E16-2722-4255-989C-5CFF79057147}.Release|x86.Build.0 = Release|Any CPU
+		{3C6E9224-B04D-4ABA-BD58-4657D7344E36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C6E9224-B04D-4ABA-BD58-4657D7344E36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C6E9224-B04D-4ABA-BD58-4657D7344E36}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3C6E9224-B04D-4ABA-BD58-4657D7344E36}.Debug|x64.Build.0 = Debug|Any CPU
+		{3C6E9224-B04D-4ABA-BD58-4657D7344E36}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3C6E9224-B04D-4ABA-BD58-4657D7344E36}.Debug|x86.Build.0 = Debug|Any CPU
+		{3C6E9224-B04D-4ABA-BD58-4657D7344E36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C6E9224-B04D-4ABA-BD58-4657D7344E36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C6E9224-B04D-4ABA-BD58-4657D7344E36}.Release|x64.ActiveCfg = Release|Any CPU
+		{3C6E9224-B04D-4ABA-BD58-4657D7344E36}.Release|x64.Build.0 = Release|Any CPU
+		{3C6E9224-B04D-4ABA-BD58-4657D7344E36}.Release|x86.ActiveCfg = Release|Any CPU
+		{3C6E9224-B04D-4ABA-BD58-4657D7344E36}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{614A4740-02C3-3521-C803-8D5230B940D2} = {07D57EEB-2F50-60C4-C011-FE4FA775C9A8}
+		{2DE2A6A9-4D32-DEEF-535B-925581132E3E} = {614A4740-02C3-3521-C803-8D5230B940D2}
+		{44D02914-A48E-8ECE-DCC5-18A5EAA9998C} = {2DE2A6A9-4D32-DEEF-535B-925581132E3E}
+		{433CF349-05A5-91CA-929C-30B6D696B345} = {44D02914-A48E-8ECE-DCC5-18A5EAA9998C}
+		{FA0AB323-CF5E-A345-7640-6FA5B3BDF858} = {433CF349-05A5-91CA-929C-30B6D696B345}
+		{3C6E9224-B04D-4ABA-BD58-4657D7344E36} = {FA0AB323-CF5E-A345-7640-6FA5B3BDF858}
 	EndGlobalSection
 EndGlobal

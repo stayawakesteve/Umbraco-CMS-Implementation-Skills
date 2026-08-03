@@ -49,10 +49,15 @@ public class ReferenceContentPreconditionsTests
         return dir!;
     }
 
+    /// <summary>
+    /// Every <c>&lt;skill&gt;/examples/&lt;approach&gt;/.generate.json</c>. Build output is skipped:
+    /// the SDK copies the manifest into bin/, and those copies would otherwise look like extra
+    /// examples declaring the same requirements.
+    /// </summary>
     private static List<FileInfo> ExampleManifests() =>
         new DirectoryInfo(Path.Combine(RepoRoot().FullName, "plugins"))
             .GetFiles(".generate.json", SearchOption.AllDirectories)
-            .Where(f => f.Directory?.Name == "example")
+            .Where(f => f.Directory?.Parent?.Name == "examples")
             .OrderBy(f => f.FullName)
             .ToList();
 
@@ -64,8 +69,10 @@ public class ReferenceContentPreconditionsTests
     {
         foreach (FileInfo manifest in ExampleManifests())
         {
-            // The skill folder is the example/'s parent — used only for reporting.
-            string skill = manifest.Directory?.Parent?.Name ?? manifest.FullName;
+            // "<skill>/<approach>" — used only for reporting, so a failure names which example.
+            string skill = manifest.Directory?.Parent?.Parent?.Name is string s
+                ? $"{s}/{manifest.Directory!.Name}"
+                : manifest.FullName;
 
             using JsonDocument doc = JsonDocument.Parse(File.ReadAllText(manifest.FullName));
             if (!doc.RootElement.TryGetProperty("requires", out JsonElement requires))
