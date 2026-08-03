@@ -54,6 +54,50 @@ script polls for up to ~4 minutes.
 Log in to the backoffice at `<UMBRACO_URL>/umbraco` with the credentials above. For
 clicking through the backoffice, use the `umbraco-chrome-navigation` skill.
 
+## Find out what content the instance actually has
+
+Do this **before** writing an example or its assertions. Skill assets routinely navigate by
+Document Type alias (`FirstChildOfType("errorPage")`, "first child of the site root"), and such
+code only proves something if the alias it looks for exists in a shape it can reach — guessing
+produces either a mysteriously null lookup or, worse, a test that passes for the wrong reason.
+
+Boot the instance and inspect it through the **Umbraco Developer MCP**, which reads the content
+tree and Document Types over the versioned Management API. That's the supported route, and it's
+the same one the published skills already tell users to prefer for backoffice work.
+
+Expect to make more than one call, because the API identifies types by **key and display name,
+not alias**: `get-document-root` / `get-document-children` give you each node's published state
+and its document type's GUID, and `get-all-document-types` maps that GUID to a name. Neither
+returns the alias your C# actually navigates by, so resolve it with `get-document-type-by-id` (or
+read it in the backoffice) rather than assuming it's the display name lowercased — Clean's "XML
+Sitemap" type has the alias `xMLSitemap`, which no naming rule would predict.
+
+The MCP server is configured in `.mcp.json` at the repo root, pinned to the v17 line
+(`@umbraco-cms/mcp-dev@lts-17`) to match the instance. It authenticates as an **API user**, which
+the instance doesn't have until you create one:
+
+```bash
+.claude/skills/umbraco-reference-instance/scripts/instance.sh boot
+.claude/skills/umbraco-reference-instance/scripts/instance.sh api-user
+```
+
+`api-user` wraps `scripts/create-api-user.mjs`: it logs in as the unattended admin, gets a token
+via the Swagger OAuth client, and creates an API user holding the client credentials `.mcp.json`
+expects. Idempotent — re-running it when the credentials already authenticate just exits. The
+script is vendored from the MCP repo's **v17** branch because it ships in git only, not in the npm
+package; its header explains why the branch matters. The credentials are fixed local dev values
+for a throwaway instance, so **never point this config at a real site**.
+
+Both the MCP and this script talk HTTPS to the ASP.NET dev certificate, which Node won't trust —
+hence `NODE_TLS_REJECT_UNAUTHORIZED=0` in `.mcp.json`, and the same exemption inside `api-user`
+(scoped to localhost only). Claude Code reads `.mcp.json` at startup and asks you to approve the
+server, so a **new session** is needed before the Umbraco tools appear.
+
+Don't reach into the SQLite database for this. It works, but it couples to Umbraco's internal
+schema (`nodeObjectType` GUIDs, `cmsDocumentType`, the `umbracoContent`/`cmsContentType` join) —
+private, unversioned, and liable to change between majors, failing confusingly rather than
+loudly when it does.
+
 ## Validate a skill deterministically (the CI gate)
 
 Runtime validation is a **`dotnet test` gate — no LLM, reproducible pass/fail**. Each validated
@@ -101,6 +145,36 @@ test that passes either way proves nothing about the skill.
 `assets/*.cs` stay the single source of truth; the committed `example/` is a reviewable
 projection kept honest by `generate-examples.sh --check` (which skips skills whose `assets/`
 aren't on the current branch, so it's safe pre-merge).
+
+## When a skill's code doesn't compile
+
+Expect this. Umbraco's published-content API changed substantially across v13 → v15 → v17, and
+skills written from older docs or tutorials carry APIs that no longer exist. Catching that is the
+main thing this gate buys, so treat a red build as the gate working, not as a problem with the
+example. Two failure modes cost real time if you don't know them:
+
+**Fix declaration errors before believing the error count.** Roslyn resolves declarations first
+and won't report method-body diagnostics while any remain, so an unresolved type (`CS0246` on a
+missing `using`) hides every bad call in the file. `umbraco-custom-error-pages` reported 2 errors;
+adding the missing usings turned that into 8, and only then did the actually-interesting problems
+appear. If a line you're sure is wrong reports nothing, you have an earlier error to clear —
+don't conclude the call is fine.
+
+**Check API shape against the version you're compiling, not the source you have open.** The
+`Umbraco-CMS` working directory (see CLAUDE.md) is on whatever branch it happens to be on, which
+may be a different major than `Directory.Packages.props` pins — confirm with
+`git -C <umbraco-src> rev-parse --abbrev-ref HEAD`. Then let the compiler answer rather than
+grep: add a temporary probe file that calls the API with deliberately wrong arguments, and read
+which overload it binds to. That is how the `FirstChild(alias)` bug was pinned down — v17 has no
+alias overload, so the alias was silently binding to the `culture` parameter and matching the
+first child of any type. **Anything that compiles but binds a string to the wrong parameter is
+invisible to a compile check** and will only be caught by an assertion on real content, which is
+why the gate asserts behaviour and not just build success.
+
+Where an asset genuinely targets an older floor than the instance (e.g. a skill claiming 16.1+
+while the instance is 17), the gate can only prove the 17 end. Compiling the assets in a
+throwaway project pinned to the floor version (`Umbraco.Cms.Web.Website 16.1.*`, `net9.0`) checks
+the claim, but compile-only — it proves the APIs bind, not that behaviour matches.
 
 ## Explore interactively (manual boot)
 

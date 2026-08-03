@@ -4,6 +4,7 @@
 #
 #   instance.sh boot            Start the instance (idempotent) and wait until it answers.
 #   instance.sh status          Print whether the instance is up.
+#   instance.sh api-user        Create the API user the Umbraco MCP authenticates as (idempotent).
 #   instance.sh stop            Stop the instance if this script started it.
 #   instance.sh try <skill-dir> Materialize a skill's assets/*.cs into a sidecar library
 #                               and reference it from the instance (build happens on boot).
@@ -90,6 +91,33 @@ cmd_boot() {
   log "ready at $UMBRACO_URL (took ~${waited}s). Backoffice: $UMBRACO_URL/umbraco"
 }
 
+# Creates the API user that .mcp.json's client credentials authenticate as, so the Umbraco MCP can
+# read content, Document Types and templates over the Management API. Wraps create-api-user.mjs so
+# callers get one entry point and don't have to hand-manage the TLS exemption below.
+cmd_api_user() {
+  local script="$SCRIPT_DIR/create-api-user.mjs"
+  [[ -f "$script" ]] || { err "missing $script"; return 1; }
+  command -v node >/dev/null 2>&1 || { err "node not found — needed to create the API user."; return 1; }
+
+  if ! is_up; then
+    err "instance is not responding at $UMBRACO_URL — run 'instance.sh boot' first."
+    return 1
+  fi
+
+  local login="${UMBRACO_USER_LOGIN:-admin@example.com}"
+  local password="${UMBRACO_USER_PASSWORD:-1234567890}"
+  log "creating/verifying the MCP API user on ${UMBRACO_URL}…"
+
+  # The instance serves the ASP.NET dev certificate, which Node won't trust. Relax verification
+  # for localhost only, and only for this one process — never export it into the caller's shell,
+  # and never apply it to a remote host where a cert error would be a real signal.
+  if [[ "$UMBRACO_URL" == https://localhost* || "$UMBRACO_URL" == https://127.0.0.1* ]]; then
+    NODE_TLS_REJECT_UNAUTHORIZED=0 node "$script" "$UMBRACO_URL" "$login" "$password"
+  else
+    node "$script" "$UMBRACO_URL" "$login" "$password"
+  fi
+}
+
 cmd_stop() {
   local killed=0
   if [[ -f "$PIDFILE" ]] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
@@ -164,10 +192,11 @@ cmd_reset() {
 }
 
 case "${1:-}" in
-  boot)   cmd_boot ;;
-  status) cmd_status ;;
-  stop)   cmd_stop ;;
-  try)    shift; cmd_try "$@" ;;
-  reset)  cmd_reset ;;
-  *) err "usage: instance.sh {boot|status|stop|try <skill-dir>|reset}"; exit 2 ;;
+  boot)     cmd_boot ;;
+  status)   cmd_status ;;
+  api-user) cmd_api_user ;;
+  stop)     cmd_stop ;;
+  try)      shift; cmd_try "$@" ;;
+  reset)    cmd_reset ;;
+  *) err "usage: instance.sh {boot|status|api-user|stop|try <skill-dir>|reset}"; exit 2 ;;
 esac
