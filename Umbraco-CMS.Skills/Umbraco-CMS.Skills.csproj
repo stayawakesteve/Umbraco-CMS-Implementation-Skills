@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Skill example projects: compiled and loaded in-process so Umbraco-CMS.Skills.Tests can
+    <!-- Skill example projects: compiled and loaded in-process so Umbraco-CMS.Skills.TestHost can
          assert their HTTP behaviour. Add one line per validated skill (mirrors the backoffice
          reference instance referencing its example extensions). -->
     <ProjectReference Include="../plugins/implementation/skills/umbraco-sitemap/examples/approach-a-cached-controller/Umbraco-Sitemap.Example.csproj" />

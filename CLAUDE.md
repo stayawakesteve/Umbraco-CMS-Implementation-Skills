@@ -76,7 +76,7 @@ serves correctly is a model-free `dotnet test` gate:
   **inside the example**, so the shared instance's `Program.cs` is never touched.
 - `Umbraco-CMS.Skills/Umbraco-CMS.Skills.csproj` `<ProjectReference>`s every example (one shared
   host); `Program.cs` exposes `public partial class Program` for the test host.
-- `Umbraco-CMS.Skills.Tests/` (NUnit + `WebApplicationFactory`) boots the instance in-process
+- `Umbraco-CMS.Skills.TestHost/` (NUnit + `WebApplicationFactory`) boots the instance in-process
   against an isolated test SQLite DB and HTTP-asserts each skill (see `SitemapTests.cs`,
   `CustomErrorPagesTests.cs`). The host is booted **once per assembly** by `ReferenceSiteFixture`
   and shared via `ReferenceSiteFixture.Client` — Umbraco's process-wide static state means a

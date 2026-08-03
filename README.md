@@ -120,7 +120,7 @@ Then open the backoffice at **https://localhost:44372/umbraco** and log in with
 
 **Validate a skill against it — deterministically.** Runtime validation is a **`dotnet test`
 gate** (no LLM, reproducible): each validated skill ships an `example/` project that compiles
-its assets into the reference instance, and `Umbraco-CMS.Skills.Tests` boots that instance
+its assets into the reference instance, and `Umbraco-CMS.Skills.TestHost` boots that instance
 in-process (`WebApplicationFactory`) and asserts the skill's endpoints over HTTP.
 
 ```bash
@@ -150,7 +150,7 @@ Umbraco-CMS-Implementation-Skills/
 │           ├── SKILL.md, assets/, …      # the skill (assets = the shipped source of truth)
 │           └── example/                  # compilable projection of assets/ (validation target)
 ├── Umbraco-CMS.Skills/                  # Reference Umbraco 17 instance (references each example)
-├── Umbraco-CMS.Skills.Tests/            # dotnet test: boots the instance, HTTP-asserts each skill
+├── Umbraco-CMS.Skills.TestHost/            # dotnet test: boots the instance, HTTP-asserts each skill
 ├── Umbraco-CMS.Skills.sln
 ├── scripts/generate-examples.sh         # keeps each example/ in sync with its skill's assets/
 └── .claude/

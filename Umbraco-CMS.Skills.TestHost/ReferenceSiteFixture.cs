@@ -1,4 +1,4 @@
-namespace Umbraco_CMS.Skills.Tests;
+namespace Umbraco_CMS.Skills.TestHost;
 
 /// <summary>
 /// Boots the reference instance ONCE for the whole test assembly and shares it with every skill

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 
-namespace Umbraco_CMS.Skills.Tests;
+namespace Umbraco_CMS.Skills.TestHost;
 
 /// <summary>
 /// Boots the reference instance (Umbraco-CMS.Skills, with every skill example project

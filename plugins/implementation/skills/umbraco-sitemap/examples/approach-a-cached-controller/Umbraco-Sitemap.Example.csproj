@@ -7,7 +7,7 @@
     (SitemapController + SitemapComposer + SitemapCacheInvalidator) with the
     <Namespace> placeholder substituted for a fixed namespace. The reference
     instance (Umbraco-CMS.Skills) references this project so the code is compiled
-    and loaded in-process, and Umbraco-CMS.Skills.Tests asserts /sitemap.xml over
+    and loaded in-process, and Umbraco-CMS.Skills.TestHost asserts /sitemap.xml over
     HTTP. Regenerate the .cs files from the skill's assets/ with
     scripts/generate-examples.sh. Not shipped to users; not part of any plugin.
 

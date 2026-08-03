@@ -1,7 +1,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc.Testing;
 
-namespace Umbraco_CMS.Skills.Tests;
+namespace Umbraco_CMS.Skills.TestHost;
 
 /// <summary>
 /// Deterministic runtime validation of the umbraco-custom-error-pages skill — Approach A for 404s

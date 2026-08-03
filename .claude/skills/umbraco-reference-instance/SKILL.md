@@ -122,7 +122,7 @@ loudly when it does.
 Runtime validation is a **`dotnet test` gate — no LLM, reproducible pass/fail**. Each validated
 skill ships a committed `example/` project that compiles its chosen-approach `assets/*.cs` with
 the `<Namespace>` placeholder substituted for a fixed namespace; the reference instance
-references every example, and `Umbraco-CMS.Skills.Tests` boots that one host in-process
+references every example, and `Umbraco-CMS.Skills.TestHost` boots that one host in-process
 (`WebApplicationFactory`) and asserts each skill's endpoints over HTTP.
 
 ```bash
@@ -160,7 +160,7 @@ To add a skill to the gate:
    than being tested literally. A declared *kind* the fixture doesn't recognise also fails — add a
    case there instead of letting it pass vacuously. Skills needing no particular node omit
    `requires` entirely.
-4. Add an NUnit fixture in `Umbraco-CMS.Skills.Tests/` that HTTP-asserts the skill's behaviour
+4. Add an NUnit fixture in `Umbraco-CMS.Skills.TestHost/` that HTTP-asserts the skill's behaviour
    (see `SitemapTests.cs` / `CustomErrorPagesTests.cs`). Use the shared host via
    `ReferenceSiteFixture.Client` — **don't** `new ReferenceSiteFactory()` per fixture. Umbraco
    holds process-wide static state (`StaticServiceProvider`, which the `Umbraco.Extensions`

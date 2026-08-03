@@ -8,7 +8,7 @@ using Umbraco.Cms.Core.Services.Navigation;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
 
-namespace Umbraco_CMS.Skills.Tests;
+namespace Umbraco_CMS.Skills.TestHost;
 
 /// <summary>
 /// Proves the umbraco-sitemap skill's SitemapCacheInvalidator actually works.

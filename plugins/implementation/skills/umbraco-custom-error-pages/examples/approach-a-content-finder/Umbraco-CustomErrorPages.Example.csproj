@@ -7,7 +7,7 @@
     (PageNotFoundContentFinder + composer) and the shared 500 asset (ErrorController), with the
     <Namespace> and <ErrorPageAlias> placeholders substituted for fixed values. The reference
     instance (Umbraco-CMS.Skills) references this project so the code is compiled and loaded
-    in-process, and Umbraco-CMS.Skills.Tests asserts the 404 and 500 responses over HTTP.
+    in-process, and Umbraco-CMS.Skills.TestHost asserts the 404 and 500 responses over HTTP.
     Regenerate the .cs files from the skill's assets/ with scripts/generate-examples.sh.
     Not shipped to users; not part of any plugin.
 

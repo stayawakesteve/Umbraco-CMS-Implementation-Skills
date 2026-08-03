@@ -2,7 +2,7 @@ name: Validate skills
 
 # Deterministic, model-free proof that skill output compiles and serves the right HTTP
 # responses: each skill's example project is compiled into the reference instance, which
-# Umbraco-CMS.Skills.Tests boots in-process (WebApplicationFactory) and asserts over HTTP.
+# Umbraco-CMS.Skills.TestHost boots in-process (WebApplicationFactory) and asserts over HTTP.
 
 on:
   push:

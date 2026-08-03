@@ -1,7 +1,7 @@
 using System.Net;
 using System.Xml.Linq;
 
-namespace Umbraco_CMS.Skills.Tests;
+namespace Umbraco_CMS.Skills.TestHost;
 
 /// <summary>
 /// Deterministic runtime validation of the umbraco-sitemap skill (Approach A). Proves the

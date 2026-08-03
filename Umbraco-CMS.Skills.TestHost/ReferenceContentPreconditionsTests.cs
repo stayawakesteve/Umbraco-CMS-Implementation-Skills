@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text.Json;
 
-namespace Umbraco_CMS.Skills.Tests;
+namespace Umbraco_CMS.Skills.TestHost;
 
 /// <summary>
 /// Asserts the CONTENT SHAPE the skill examples navigate to, independently of the skills themselves.

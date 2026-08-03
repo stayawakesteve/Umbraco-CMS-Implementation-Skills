@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco-CMS.Skills", "Umbraco-CMS.Skills\Umbraco-CMS.Skills.csproj", "{6F94C5EF-FC00-4367-8C1B-A7E8E35BDCC3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco-CMS.Skills.Tests", "Umbraco-CMS.Skills.Tests\Umbraco-CMS.Skills.Tests.csproj", "{BB123E16-2722-4255-989C-5CFF79057147}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco-CMS.Skills.TestHost", "Umbraco-CMS.Skills.TestHost\Umbraco-CMS.Skills.TestHost.csproj", "{BB123E16-2722-4255-989C-5CFF79057147}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{07D57EEB-2F50-60C4-C011-FE4FA775C9A8}"
 EndProject
