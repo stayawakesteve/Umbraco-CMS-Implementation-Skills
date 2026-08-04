@@ -68,24 +68,53 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
+          # Skill folder names, one per line, from a SKILL.md search rooted at $1
+          # at exactly depth $2.
+          skill_names() {
+            find "$1" -mindepth "$2" -maxdepth "$2" -name SKILL.md -print0 \
+              | xargs -0 -r -n1 dirname \
+              | xargs -r -n1 basename \
+              | sort -u
+          }
+
+          count() { [ -n "$1" ] && printf '%s\n' "$1" | wc -l | tr -d ' ' || echo 0; }
+
           # SKILL.md sits at plugins/<plugin>/skills/<skill>/SKILL.md -> depth 4.
-          expected=$(find plugins -mindepth 4 -maxdepth 4 -name SKILL.md | wc -l | tr -d ' ')
-          echo "Published skills in repo: $expected"
-          if [ "$expected" -eq 0 ]; then
+          published=$(skill_names plugins 4)
+          published_count=$(count "$published")
+          echo "Published skills in repo: $published_count"
+          if [ "$published_count" -eq 0 ]; then
             echo "No skills published yet - skipping placement assertions."
             exit 0
           fi
-          # The CLI places every agent's skills in the shared .agents/skills/ dir.
-          # If it ever splits per agent again, add those dirs here.
-          for dir in .agents/skills; do
-            if [ ! -d "$dir" ]; then
-              echo "::error::Expected $dir to exist after install but it does not - the CLI failed to place skills."
-              exit 1
-            fi
-            found=$(find "$dir" -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l | tr -d ' ')
-            echo "$dir: $found skill(s)"
-            if [ "$found" -ne "$expected" ]; then
-              echo "::error::Expected $expected skills in $dir but found $found - the CLI failed to discover the nested plugins/*/skills/ layout."
-              exit 1
-            fi
-          done
+
+          # The CLI currently places every agent's skills in the shared
+          # .agents/skills/ dir. If it ever splits per agent again, add those here.
+          dir=.agents/skills
+          if [ ! -d "$dir" ]; then
+            echo "::error::Expected $dir to exist after install but it does not - the CLI failed to place any skills."
+            exit 1
+          fi
+          installed=$(skill_names "$dir" 2)
+          echo "Placed in $dir: $(count "$installed") skill(s)"
+
+          # Hard requirement: every published skill must be discoverable. This is
+          # what guards the nested plugins/*/skills/ layout against silent breakage.
+          missing=$(comm -23 <(printf '%s\n' "$published") <(printf '%s\n' "$installed"))
+          if [ -n "$missing" ]; then
+            echo "::error::These published skills were NOT placed in $dir - the CLI failed to discover the nested plugins/*/skills/ layout:"
+            printf '%s\n' "$missing" | sed 's/^/  - /'
+            exit 1
+          fi
+          echo "OK: all $published_count published skill(s) were discovered and placed."
+
+          # Advisory: anything else the CLI picked up is not a published skill.
+          # Today this catches repo-authoring skills under .claude/skills/ being
+          # installed into consumer projects. The CLI has no ignore mechanism, so
+          # this is reported rather than enforced.
+          extra=$(comm -13 <(printf '%s\n' "$published") <(printf '%s\n' "$installed"))
+          if [ -n "$extra" ]; then
+            echo "::warning::The CLI also installed skills that are not published under plugins/*/skills/. Consumers running 'npx skills add' get these too:"
+            printf '%s\n' "$extra" | sed 's/^/  - /'
+          fi
