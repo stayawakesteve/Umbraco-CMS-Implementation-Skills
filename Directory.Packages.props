@@ -1,0 +1,35 @@
+<Project>
+  <!--
+    ONE pin surface for the whole repo — both reference hosts, every skill example project, and the
+    test hosts. It lives at the root rather than inside a host project on purpose: the examples must
+    compile against exactly the Umbraco the host loads at runtime. While they carried their own
+    floating `Version="17.*"`, a 17.6 release would have silently built the examples against a
+    different Umbraco than the host — non-reproducible builds, and possible assembly-version skew at
+    runtime. (It had not bitten yet: 17.* still resolved to 17.5.3.)
+
+    Floating versions are deliberately NOT enabled here, so that failure mode cannot come back.
+  -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <!-- Umbraco. Keep Web.Website in lockstep with Umbraco.Cms: the examples reference the former
+       directly, the hosts pull it in transitively via the latter. -->
+  <ItemGroup>
+    <PackageVersion Include="Clean" Version="7.0.8" />
+    <PackageVersion Include="Umbraco.Cms" Version="17.5.3" />
+    <PackageVersion Include="Umbraco.Cms.Web.Website" Version="17.5.3" />
+    <PackageVersion Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="17.5.3" />
+    <PackageVersion Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
+  </ItemGroup>
+
+  <!-- Test hosts. -->
+  <ItemGroup>
+    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
+    <PackageVersion Include="NUnit" Version="4.3.2" />
+    <PackageVersion Include="NUnit.Analyzers" Version="4.7.0" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="5.0.0" />
+  </ItemGroup>
+</Project>

@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.*" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" />
   </ItemGroup>
 
 </Project>
