@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Seeding helpers shared by the starter-kit-free host and every content-shaped example on it.
+
+    A real project, referenced — NOT linked source. Linking these files into each consumer compiled the
+    same types into several assemblies, and because the host references the examples the compiler saw
+    duplicates and warned (CS0436), silently picking one. They only happened to behave because
+    everything here is static; two assemblies' `FixtureSite` are genuinely different types, so anything
+    passed between them would have failed.
+
+    What linking was originally protecting against is still real, and a shared project handles it just as
+    well: Umbraco DISCOVERS types by scanning assemblies, so an IComposer, a PackageMigrationPlan or a
+    notification handler in here would be found once per assembly and run several times, or collide on a
+    duplicate plan name. Hence the rule — this project holds STATIC HELPERS ONLY. Anything discoverable
+    belongs in exactly one host or example project.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Umbraco.Skills.Examples.Fixtures</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Umbraco.Cms.Web.Website" />
+  </ItemGroup>
+
+</Project>

@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Xml.Linq;
 using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Configuration.Models;
@@ -59,8 +60,8 @@ public class ImportErrorPagesApproachB : AsyncPackageMigrationBase
 
     protected override Task MigrateAsync()
     {
-        XDocument manifest = EmbeddedManifest.Xml("error-pages-package.xml")
-            .WithTemplateDesign("errorPage404", EmbeddedManifest.Text("errorPage404.cshtml"));
+        XDocument manifest = EmbeddedManifest.Xml(typeof(ImportErrorPagesApproachB).Assembly, "error-pages-package.xml")
+            .WithTemplateDesign("errorPage404", EmbeddedManifest.Text(typeof(ImportErrorPagesApproachB).Assembly, "errorPage404.cshtml"));
 
         _packagingService.InstallCompiledPackageData(manifest);
         return Task.CompletedTask;

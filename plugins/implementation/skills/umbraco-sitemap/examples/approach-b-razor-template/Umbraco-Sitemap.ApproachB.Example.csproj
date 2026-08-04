@@ -29,9 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Seeding helpers shared with the host and the other content-shaped examples. Linked as source:
-         see ExampleFixtures.Shared/FixtureSite.cs for why it holds only static helpers. -->
-    <Compile Include="../../../../../../ExampleFixtures.Shared/*.cs" />
+    <!-- Static seeding helpers. Referenced as a PROJECT, not linked as source: linking compiled
+         the same types into every consumer, and because the host references the examples the
+         compiler saw duplicates and warned (CS0436). -->
+    <ProjectReference Include="../../../../../../ExampleFixtures.Shared/ExampleFixtures.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

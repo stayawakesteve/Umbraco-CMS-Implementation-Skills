@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Xml.Linq;
 using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Configuration.Models;
@@ -59,9 +60,9 @@ public class ImportSitemapApproachB : AsyncPackageMigrationBase
 
     protected override Task MigrateAsync()
     {
-        XDocument manifest = EmbeddedManifest.Xml("sitemap-package.xml")
-            .WithTemplateDesign("xmlSiteMap", EmbeddedManifest.Text("xmlSitemap.cshtml"))
-            .MergedWith(EmbeddedManifest.Xml("ExampleFixtureContent.xml"));
+        XDocument manifest = EmbeddedManifest.Xml(typeof(ImportSitemapApproachB).Assembly, "sitemap-package.xml")
+            .WithTemplateDesign("xmlSiteMap", EmbeddedManifest.Text(typeof(ImportSitemapApproachB).Assembly, "xmlSitemap.cshtml"))
+            .MergedWith(EmbeddedManifest.Xml(typeof(ImportSitemapApproachB).Assembly, "ExampleFixtureContent.xml"));
 
         _packagingService.InstallCompiledPackageData(manifest);
         return Task.CompletedTask;

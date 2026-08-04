@@ -4,14 +4,18 @@ using System.Xml.Linq;
 namespace Umbraco.Skills.Examples.Fixtures;
 
 /// <summary>
-/// Loads and assembles this example's embedded manifests. Resource names are bare file names because
+/// Loads and assembles an example's embedded manifests. Resource names are bare file names because
 /// plugins/Directory.Build.props pins LogicalName when it embeds the generated assets.
+///
+/// The CALLER supplies its own assembly. This helper cannot use its own: the manifests are embedded in
+/// each example, not here. (While this file was linked into every example rather than referenced, each
+/// consumer got a private copy whose `typeof(EmbeddedManifest).Assembly` happened to be the right one —
+/// which is precisely the fragile type duplication the CS0436 warning was pointing at.)
 /// </summary>
 public static class EmbeddedManifest
 {
-    public static string Text(string resourceName)
+    public static string Text(Assembly assembly, string resourceName)
     {
-        Assembly assembly = typeof(EmbeddedManifest).Assembly;
         using Stream stream = assembly.GetManifestResourceStream(resourceName)
             ?? throw new InvalidOperationException(
                 $"Embedded resource '{resourceName}' not found. Available: "
@@ -20,7 +24,8 @@ public static class EmbeddedManifest
         return reader.ReadToEnd();
     }
 
-    public static XDocument Xml(string resourceName) => XDocument.Parse(Text(resourceName));
+    public static XDocument Xml(Assembly assembly, string resourceName) =>
+        XDocument.Parse(Text(assembly, resourceName));
 
     /// <summary>
     /// Puts the template markup into the manifest's &lt;Design&gt; element for the given template alias.

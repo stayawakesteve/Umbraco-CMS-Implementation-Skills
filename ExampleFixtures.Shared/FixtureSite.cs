@@ -15,10 +15,10 @@ namespace Umbraco.Skills.Examples.Fixtures;
 /// from the tree, and with two or more roots and no domain configuration every URL changes shape. One
 /// example adding a root would silently break every other example's fixtures.
 ///
-/// Deliberately only static helpers: this file is LINKED into the host and into each content-shaped
-/// example, so anything Umbraco discovers by type (an IComposer, a PackageMigrationPlan, a notification
-/// handler) would be found once per assembly and run several times, or collide on a duplicate plan
-/// name. Discoverable types belong in exactly one project.
+/// Deliberately only static helpers. Umbraco DISCOVERS types by scanning assemblies, so an IComposer, a
+/// PackageMigrationPlan or a notification handler living in a project this widely referenced would be
+/// picked up from here as well as from its owner. Discoverable types belong in exactly one host or
+/// example project; this one stays inert.
 /// </summary>
 public static class FixtureSite
 {
@@ -49,8 +49,11 @@ public static class FixtureSite
         IDictionary<string, object?>? values = null,
         Guid? key = null)
     {
+        // The shorter GetPagedChildren overload is obsolete (removed in Umbraco 19), so pass every
+        // parameter explicitly.
         IContent? existing = contentService
-            .GetPagedChildren(parent.Id, 0, 100, out _)
+            .GetPagedChildren(parent.Id, 0, 100, out _, propertyAliases: null, filter: null,
+                ordering: null)
             .FirstOrDefault(c => c.Name == name);
 
         if (existing is not null)

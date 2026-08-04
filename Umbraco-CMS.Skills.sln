@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco-CMS.Skills.Blank", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco-CMS.Skills.TestHost.Blank", "Umbraco-CMS.Skills.TestHost.Blank\Umbraco-CMS.Skills.TestHost.Blank.csproj", "{1BA64423-9D39-4263-8376-808FEBF752C9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleFixtures.Shared", "ExampleFixtures.Shared\ExampleFixtures.Shared.csproj", "{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,18 @@ Global
 		{1BA64423-9D39-4263-8376-808FEBF752C9}.Release|x64.Build.0 = Release|Any CPU
 		{1BA64423-9D39-4263-8376-808FEBF752C9}.Release|x86.ActiveCfg = Release|Any CPU
 		{1BA64423-9D39-4263-8376-808FEBF752C9}.Release|x86.Build.0 = Release|Any CPU
+		{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}.Debug|x64.Build.0 = Debug|Any CPU
+		{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}.Debug|x86.Build.0 = Debug|Any CPU
+		{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}.Release|x64.ActiveCfg = Release|Any CPU
+		{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}.Release|x64.Build.0 = Release|Any CPU
+		{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}.Release|x86.ActiveCfg = Release|Any CPU
+		{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
