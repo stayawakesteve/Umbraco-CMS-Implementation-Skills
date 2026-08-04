@@ -37,6 +37,8 @@ public static class FixtureSite
     /// The template has to be set explicitly: package manifests can only reference a template by
     /// numeric id, so examples omit it, and a published node with no template doesn't render — Umbraco
     /// answers 404, which looks exactly like missing content.
+    ///
+    /// Pass <paramref name="key"/> to pin the node's GUID when something outside the tree refers to it.
     /// </summary>
     public static IContent EnsureChild(
         IContentService contentService,
@@ -44,7 +46,8 @@ public static class FixtureSite
         IContent parent,
         string contentTypeAlias,
         string name,
-        IDictionary<string, object?>? values = null)
+        IDictionary<string, object?>? values = null,
+        Guid? key = null)
     {
         IContent? existing = contentService
             .GetPagedChildren(parent.Id, 0, 100, out _)
@@ -56,6 +59,14 @@ public static class FixtureSite
         }
 
         IContent created = contentService.Create(name, parent.Id, contentTypeAlias);
+
+        // A caller can pin the key when something outside the content tree has to name this node —
+        // error-pages Approach B puts the 404 node's GUID in appsettings, which is exactly what a real
+        // user does by copying it off the node's Info tab.
+        if (key is not null)
+        {
+            created.Key = key.Value;
+        }
 
         IContentType? contentType = contentTypeService.Get(contentTypeAlias);
         if (contentType?.DefaultTemplate is not null)

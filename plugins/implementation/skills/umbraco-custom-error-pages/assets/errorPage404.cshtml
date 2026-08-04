@@ -1,0 +1,35 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Extensions
+@*
+    Approach B's 404 page. It is ordinary content rendered by an ordinary template — Umbraco's own
+    ContentFinderByConfigured404 resolves it from the GUID in appsettings, so there is no custom C# in
+    this approach at all.
+
+    Keep the markup self-contained. A 404 is served for URLs that matched nothing, so anything this
+    template depends on (a layout that reads the current page's ancestors, a navigation partial that
+    assumes a valid route) can throw and turn a tidy 404 into a 500. `Layout = null` here for that
+    reason; point it at your own layout only once you know the layout is safe on an unrouted request.
+
+    The loop-variable trap from the sitemap template applies to any Razor you add here too: `page` is a
+    reserved directive name (@page), so name variables something else.
+*@
+@{
+    Layout = null;
+    Context.Response.StatusCode = 404;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@(Model.Value<string>("pageTitle") ?? Model.Name)</title>
+    <meta name="robots" content="noindex" />
+</head>
+<body>
+    <main>
+        <h1>@(Model.Value<string>("pageTitle") ?? Model.Name)</h1>
+        <p>Sorry, we couldn&#39;t find the page you were looking for.</p>
+        <p><a href="/">Go to the homepage</a></p>
+    </main>
+</body>
+</html>

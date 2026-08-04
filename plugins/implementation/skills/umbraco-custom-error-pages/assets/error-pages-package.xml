@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Approach B schema, as an Umbraco package manifest: the ErrorPage404 Document Type and its template.
+
+  Import it from the backoffice (Packages) to get the shape in one step, or treat it as the precise spec
+  for building the same thing by hand or via the Umbraco Developer MCP.
+
+  What this manifest CANNOT do for you is the part that actually switches the approach on: publishing a
+  node of this type and putting that node's GUID into
+  Umbraco:CMS:Content:Error404Collection in appsettings.json. The GUID is per-environment content, not
+  schema — see references/approach-b-config-based.md.
+
+  The <Design> element is intentionally EMPTY. The markup lives in errorPage404.cshtml so there is
+  exactly one copy of it; whatever installs this manifest splices that file in. Keys are fixed so
+  repeated installs update the same type rather than creating duplicates.
+
+  A pageTitle Textstring is included so editors can word the message without touching the template —
+  the template falls back to the node name when it's blank.
+-->
+<umbPackage>
+  <info>
+    <package>
+      <name>Umbraco Custom Error Pages — Approach B schema</name>
+    </package>
+  </info>
+  <DocumentTypes>
+    <DocumentType>
+      <Info>
+        <Name>Error Page 404</Name>
+        <Alias>errorPage404</Alias>
+        <Key>d1000000-0000-4000-8000-000000000001</Key>
+        <Icon>icon-alert</Icon>
+        <Thumbnail>folder.png</Thumbnail>
+        <Description>Page served when no content matches the requested URL. Point Umbraco:CMS:Content:Error404Collection at a published node of this type.</Description>
+        <AllowAtRoot>True</AllowAtRoot>
+        <IsListView>False</IsListView>
+        <IsElement>False</IsElement>
+        <Variations>Nothing</Variations>
+        <Compositions />
+        <AllowedTemplates>
+          <Template>errorPage404</Template>
+        </AllowedTemplates>
+        <DefaultTemplate>errorPage404</DefaultTemplate>
+      </Info>
+      <Structure />
+      <GenericProperties>
+        <GenericProperty>
+          <Name>Page title</Name>
+          <Alias>pageTitle</Alias>
+          <Key>d1000000-0000-4000-8000-000000000002</Key>
+          <Type>Umbraco.TextBox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab Alias="content">Content</Tab>
+          <SortOrder>0</SortOrder>
+          <Mandatory>False</Mandatory>
+          <LabelOnTop>False</LabelOnTop>
+          <Variations>Nothing</Variations>
+        </GenericProperty>
+      </GenericProperties>
+      <Tabs>
+        <Tab>
+          <Key>d1000000-0000-4000-8000-000000000003</Key>
+          <Type>Group</Type>
+          <Caption>Content</Caption>
+          <Alias>content</Alias>
+          <SortOrder>0</SortOrder>
+        </Tab>
+      </Tabs>
+    </DocumentType>
+  </DocumentTypes>
+  <Templates>
+    <Template>
+      <Name>Error Page 404</Name>
+      <Alias>errorPage404</Alias>
+      <Key>d1000000-0000-4000-8000-000000000004</Key>
+      <Design></Design>
+    </Template>
+  </Templates>
+  <MediaTypes />
+  <Stylesheets />
+  <Scripts />
+  <PartialViews />
+  <DictionaryItems />
+  <Languages />
+  <DataTypes />
+  <MediaItems />
+  <Documents />
+</umbPackage>

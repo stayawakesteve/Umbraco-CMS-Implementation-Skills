@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    VALIDATION-ONLY example project for umbraco-custom-error-pages Approach B (config-based 404).
+
+    Loaded by SITE 2 (Umbraco-CMS.Skills.Blank, no starter kit). That is not a preference: Approach A
+    calls SetContentLastChanceFinder, which is AddUnique<IContentLastChanceFinder, T>() and therefore
+    REPLACES Umbraco's own ContentFinderByConfigured404 — which is Approach B's entire implementation.
+    Put both in one host and whichever registers last silently wins.
+
+    Approach B ships no C# of its own: Umbraco's built-in finder does the work, and the skill's
+    contribution is a Document Type, a template and a config block. Everything in this folder is
+    example-only scaffolding standing in for the backoffice steps and the appsettings edit a user makes
+    by hand.
+
+    Plain Microsoft.NET.Sdk, NOT Sdk.Razor: the template is installed by the package migration and
+    compiled at runtime by the host, exactly as a real user's template is.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Umbraco.Skills.Examples.CustomErrorPagesApproachB</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Umbraco.Cms.Web.Website" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Seeding helpers shared with the host and the other content-shaped examples. Linked as source:
+         see ExampleFixtures.Shared/FixtureSite.cs for why it holds only static helpers. -->
+    <Compile Include="../../../../../../ExampleFixtures.Shared/*.cs" />
+  </ItemGroup>
+
+</Project>
