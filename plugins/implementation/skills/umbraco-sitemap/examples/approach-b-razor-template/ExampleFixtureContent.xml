@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  EXAMPLE-ONLY scaffolding. Not part of the umbraco-sitemap skill and not shipped to users: a real
+  site already has its own content types and pages. This exists because site 2 has no starter kit, so
+  without it there would be nothing for the sitemap to list.
+
+  SCHEMA ONLY. It does the one step the skill's package manifest cannot do for a user — APPLY the
+  xmlSiteMapSettings composition to a content type.
+
+  The fixture CONTENT is created in code (see ExampleHostWiring.cs), not here, because a package
+  manifest can only import documents at the site ROOT and these pages have to hang under site 2's
+  single shared root. See ExampleFixtures.Shared/FixtureSite.cs for why there is only one root.
+
+  'excludedPage' is deliberately NOT composed with xmlSiteMapSettings. That also covers the template's
+  HasProperty guard: a type without the composition must still be listed rather than silently dropped.
+
+-->
+<umbPackage>
+  <info>
+    <package>
+      <name>Umbraco Sitemap Approach B — example fixture content</name>
+    </package>
+  </info>
+  <DocumentTypes>
+    <DocumentType>
+      <Info>
+        <Name>Example Page</Name>
+        <Alias>examplePage</Alias>
+        <Key>c41f8b26-7d05-49ea-b3f7-6a208e5c1d4b</Key>
+        <Icon>icon-document</Icon>
+        <Thumbnail>folder.png</Thumbnail>
+        <Description>Example-only page type, composed with the skill's xmlSiteMapSettings.</Description>
+        <AllowAtRoot>True</AllowAtRoot>
+        <IsListView>False</IsListView>
+        <IsElement>False</IsElement>
+        <Variations>Nothing</Variations>
+        <Compositions>
+          <Composition>xmlSiteMapSettings</Composition>
+        </Compositions>
+        <AllowedTemplates>
+          <Template>examplePage</Template>
+        </AllowedTemplates>
+        <DefaultTemplate>examplePage</DefaultTemplate>
+      </Info>
+      <Structure>
+        <DocumentType>examplePage</DocumentType>
+        <DocumentType>excludedPage</DocumentType>
+        <DocumentType>xmlSiteMap</DocumentType>
+      </Structure>
+      <GenericProperties />
+      <Tabs />
+    </DocumentType>
+    <DocumentType>
+      <Info>
+        <Name>Excluded Page</Name>
+        <Alias>excludedPage</Alias>
+        <Key>0d7e3a95-1c86-4f20-9b54-e8a1c6f7203d</Key>
+        <Icon>icon-document</Icon>
+        <Thumbnail>folder.png</Thumbnail>
+        <Description>Example-only type for proving excludedDocumentTypes filtering. Not composed with xmlSiteMapSettings on purpose.</Description>
+        <AllowAtRoot>False</AllowAtRoot>
+        <IsListView>False</IsListView>
+        <IsElement>False</IsElement>
+        <Variations>Nothing</Variations>
+        <Compositions />
+        <AllowedTemplates>
+          <Template>examplePage</Template>
+        </AllowedTemplates>
+        <DefaultTemplate>examplePage</DefaultTemplate>
+      </Info>
+      <Structure />
+      <GenericProperties />
+      <Tabs />
+    </DocumentType>
+  </DocumentTypes>
+  <Templates>
+    <Template>
+      <Name>Example Page</Name>
+      <Alias>examplePage</Alias>
+      <Key>8a5c0e71-2b94-4d63-a1f8-70e2b5d9c364</Key>
+      <Design><![CDATA[@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{ Layout = null; }<!DOCTYPE html>
+<html><head><title>@Model.Name</title></head><body><h1>@Model.Name</h1></body></html>]]></Design>
+    </Template>
+  </Templates>
+  <Documents />
+  <MediaTypes />
+  <Stylesheets />
+  <Scripts />
+  <PartialViews />
+  <DictionaryItems />
+  <Languages />
+  <DataTypes />
+  <MediaItems />
+</umbPackage>

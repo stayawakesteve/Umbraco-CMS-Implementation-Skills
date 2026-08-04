@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Site 2's BASELINE content shape, owned by the host rather than by any example — the counterpart to
+  what the Clean starter kit gives site 1.
+
+  It creates exactly one thing: a `fixtureHome` Document Type with a template, and a single published
+  root node of that type. Every content-shaped example then seeds its own subtree UNDER that node.
+
+  One root, deliberately. Umbraco derives front-end URLs from the tree, and with two or more roots and
+  no domain configuration every URL changes shape — so if each example created its own root, adding one
+  example would break every other example's fixtures. A single shared root keeps URLs deterministic
+  (`/`, `/whatever/`) no matter how many examples are loaded.
+
+  The type is deliberately plain: no compositions, no skill-specific properties. Examples own their own
+  Document Types, so the host never has to know anything about a skill.
+-->
+<umbPackage>
+  <info>
+    <package>
+      <name>Site 2 fixture site (baseline)</name>
+    </package>
+  </info>
+  <DocumentTypes>
+    <DocumentType>
+      <Info>
+        <Name>Fixture Home</Name>
+        <Alias>fixtureHome</Alias>
+        <Key>a0000000-0000-4000-8000-00000000f001</Key>
+        <Icon>icon-home</Icon>
+        <Thumbnail>folder.png</Thumbnail>
+        <Description>Baseline root for site 2. Examples add their own subtrees beneath it.</Description>
+        <AllowAtRoot>True</AllowAtRoot>
+        <IsListView>False</IsListView>
+        <IsElement>False</IsElement>
+        <Variations>Nothing</Variations>
+        <Compositions />
+        <AllowedTemplates>
+          <Template>fixtureHome</Template>
+        </AllowedTemplates>
+        <DefaultTemplate>fixtureHome</DefaultTemplate>
+      </Info>
+      <Structure />
+      <GenericProperties />
+      <Tabs />
+    </DocumentType>
+  </DocumentTypes>
+  <Templates>
+    <Template>
+      <Name>Fixture Home</Name>
+      <Alias>fixtureHome</Alias>
+      <Key>a0000000-0000-4000-8000-00000000f002</Key>
+      <Design><![CDATA[@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{ Layout = null; }<!DOCTYPE html>
+<html><head><title>@Model.Name</title></head><body><h1>@Model.Name</h1></body></html>]]></Design>
+    </Template>
+  </Templates>
+  <Documents>
+    <DocumentSet importMode="root">
+      <fixtureHome key="a0000000-0000-4000-8000-00000000f003" isDoc="" nodeTypeAlias="fixtureHome"
+                   level="1" sortOrder="0" nodeName="Home" urlName="home"
+                   createDate="2026-01-01T00:00:00" updateDate="2026-01-01T00:00:00" />
+    </DocumentSet>
+  </Documents>
+  <MediaTypes />
+  <Stylesheets />
+  <Scripts />
+  <PartialViews />
+  <DictionaryItems />
+  <Languages />
+  <DataTypes />
+  <MediaItems />
+</umbPackage>
