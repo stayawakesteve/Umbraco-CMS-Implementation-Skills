@@ -37,16 +37,50 @@ fix anything that fails. A skill is ready only when every applicable item passes
 - [ ] `evals/evals.json` present with realistic, multi-step prompts (one per meaningful scenario)
 - [ ] `expectations[]` are objective/checkable, including a build-honesty expectation
 
-**Runtime gate (skip only if the skill ships no `assets/*.cs` — and say so)**
-- [ ] `examples/<approach>/` exists per approach, with a `<ProjectReference>` from the reference
-  instance for any approach whose behaviour is asserted
-- [ ] `.generate.json` maps **every** placeholder the assets carry — a missed one survives into the
-  generated code as a literal string, still compiles, and silently never matches
-- [ ] `scripts/generate-examples.sh --check` passes (example hasn't drifted from `assets/`)
-- [ ] Content the example depends on is declared via `requires`, not asserted by hand
-- [ ] Fixture uses `ReferenceSiteFixture.Client`, restores any content it mutates, and asserts
-  rendered content rather than just a status code
-- [ ] The test was **proven able to fail** — broken deliberately, seen red, reverted
+**Approaches (count is NOT the constraint — coverage is)**
+- [ ] **At most two approaches per skill.** This is load-bearing, not editorial: one host exists per
+  approach *kind* (below), so two approaches keep the gate at exactly two hosts however many skills
+  are added. A third approach means a third host.
+- [ ] Each approach declares a coverage tier, and the tier is true:
+  | Tier | Requires | What you may then claim |
+  |---|---|---|
+  | **Asserted** | `examples/<approach>/` + a `<ProjectReference>` from a host + a fixture on rendered output | "this runs on the pinned Umbraco" |
+  | **Compiled** | `examples/<approach>/` in the .sln, referenced by no host | "this builds against the pinned Umbraco" |
+  | **Documented** | no example; ships no code anywhere in the repo | "an eval graded the guidance; nothing ran" |
+- [ ] At least one approach is **Asserted**. A skill where nothing runs isn't gated.
+- [ ] **Documented** is only legal when the approach ships no code at all. "Committed but ungated" is
+  not a tier.
+- [ ] Variants *inside* an approach carry their own tier. The two-host split does not fix
+  intra-approach collisions — sitemap's split-index controller still maps the same `/sitemap.xml` as
+  the single-file one, so it stays **Compiled**.
+
+**Which host does the approach target?**
+- [ ] Decided by ARTEFACT TYPE, not by the A/B letter:
+  - C# that registers into DI (controllers, `IContentFinder`, composers) → **site 1**,
+    `Umbraco-CMS.Skills` (Clean). Clean is harmless there — ambient content to traverse and render.
+  - Document Types + templates + config → **site 2**, `Umbraco-CMS.Skills.Blank` (no starter kit).
+    Clean must be absent, because Clean is itself a competing implementation of these features
+    (`xMLSitemap` type + view, `error` type + view). Asserting on the Clean host would prove Clean
+    works, not that the skill's guidance works.
+- [ ] Declared as `"host": "clean" | "blank"` in `.generate.json` (absent means `clean`).
+- [ ] Before assuming two approaches can share a host, check for **registration conflicts**: the same
+  route template, or any `AddUnique`/`Set*` builder extension. `SetContentLastChanceFinder` REPLACES
+  Umbraco's own `ContentFinderByConfigured404` — so a content-finder 404 approach and a config-based
+  404 approach can never both be live in one process, whatever they're named.
+
+**Runtime gate (skip only if the skill ships nothing in `assets/` — and say so)**
+- [ ] `.generate.json` maps **every** placeholder the assets carry. Enforced by
+  `scripts/generate-examples.py --lint`, because a missed one survives substitution as a literal
+  string, still compiles, and silently never matches.
+- [ ] Nothing generated is committed — examples are projected from `assets/` into `obj/` at build
+  time, so there is no second copy that can drift.
+- [ ] Content the example depends on is declared via `requires`, not asserted by hand.
+- [ ] Fixture uses its host's shared client (`ReferenceSiteFixture.Client` or
+  `BlankSiteFixture.Client`), restores any content it mutates, and asserts rendered content rather
+  than just a status code.
+- [ ] Site-2 fixtures are named `*BlankTests.cs` — that suffix is what routes them into the blank test
+  assembly, and therefore into their own process.
+- [ ] The test was **proven able to fail** — broken deliberately, seen red, reverted.
 
 **Before shipping**
 - [ ] Passes `umbraco-skill-validator` and `umbraco-skill-code-analyzer` (if available)

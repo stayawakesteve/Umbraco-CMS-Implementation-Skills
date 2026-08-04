@@ -66,22 +66,28 @@ runtime paths), and Clean re-installs on first boot. **Never commit** runtime da
 
 **Deterministic validation (`dotnet test`).** Runtime proof that a skill's code compiles and
 serves correctly is a model-free `dotnet test` gate:
-- Each validated skill ships `plugins/implementation/skills/<skill>/example/` — a
-  `Microsoft.NET.Sdk.Razor` project compiling the skill's *chosen-approach* `assets/*.cs` with
-  the `<Namespace>` placeholder substituted for `Umbraco.Skills.Examples.<Skill>` (plus any other
-  placeholder the assets carry, via the manifest's `placeholders` map). `assets/` stay
-  the source of truth; `scripts/generate-examples.sh [--check]` regenerates/verifies the example
-  (skips skills whose `assets/` aren't on the current branch). Host wiring a skill needs
-  (e.g. the 500 page's `UseExceptionHandler`) ships as an `IComposer`/`IUmbracoPipelineFilter`
-  **inside the example**, so the shared instance's `Program.cs` is never touched.
-- `Umbraco-CMS.Skills/Umbraco-CMS.Skills.csproj` `<ProjectReference>`s every example (one shared
-  host); `Program.cs` exposes `public partial class Program` for the test host.
-- `Umbraco-CMS.Skills.TestHost/` (NUnit + `WebApplicationFactory`) boots the instance in-process
-  against an isolated test SQLite DB and HTTP-asserts each skill (see `SitemapTests.cs`,
-  `CustomErrorPagesTests.cs`). The host is booted **once per assembly** by `ReferenceSiteFixture`
-  and shared via `ReferenceSiteFixture.Client` — Umbraco's process-wide static state means a
-  second host in the same process breaks whichever fixture runs later. Runs in CI
-  (`.github/workflows/validate-skills.yml`).
+- Each validated approach ships `plugins/implementation/skills/<skill>/examples/<approach>/`. The
+  skill's `assets/` are projected into the project's `obj/` **at build time** with `<Namespace>` and
+  any other declared placeholder substituted — nothing generated is committed, so the code compiled
+  and served IS the code the skill ships and cannot drift. `scripts/generate-examples.py` does the
+  projection and fails the build on a placeholder the manifest didn't declare; `--lint` checks
+  manifests without building. Skills whose `assets/` aren't on the current branch are skipped.
+  Host wiring a skill needs (e.g. the 500 page's `UseExceptionHandler`) ships as an
+  `IComposer`/`IUmbracoPipelineFilter` **inside the example**, so no host's `Program.cs` is touched.
+- **Two reference hosts, split by artefact type** — approaches implemented as C# that registers into
+  DI go to `Umbraco-CMS.Skills` (with Clean); approaches implemented as Document Types + templates +
+  config go to `Umbraco-CMS.Skills.Blank` (no starter kit, content seeded by each example's own
+  package migration). Clean has to be absent from the second: it ships its own `xMLSitemap` and
+  `error` types and views, which are competing implementations of the very features under test. Each
+  example declares its host as `"host": "clean" | "blank"` in `.generate.json`. This is also why a
+  skill may document at most two approaches — it keeps the host count at two.
+- `Umbraco-CMS.Skills.TestHost/` and `Umbraco-CMS.Skills.TestHost.Blank/` (NUnit +
+  `WebApplicationFactory`) each boot their host in-process against an isolated test SQLite DB and
+  HTTP-assert the skills. One host per assembly, because Umbraco's `StaticServiceProvider` is
+  process-wide static state; `UmbracoHostSentinel` fails loudly if two ever share a process, and CI
+  invokes `dotnet test` per project rather than solution-wide so the isolation doesn't rest on a
+  VSTest implementation detail. Fixtures route by file name: `*Tests.cs` to the Clean assembly,
+  `*BlankTests.cs` to the blank one. Runs in CI (`.github/workflows/validate-skills.yml`).
 
 The `umbraco-reference-instance` authoring skill (in `.claude/skills/`) documents this gate and
 also offers a manual boot/`try` harness (`https://localhost:44372`, `admin@example.com` /

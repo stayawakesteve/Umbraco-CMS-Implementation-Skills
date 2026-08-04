@@ -120,14 +120,20 @@ loudly when it does.
 ## Validate a skill deterministically (the CI gate)
 
 Runtime validation is a **`dotnet test` gate — no LLM, reproducible pass/fail**. Each validated
-approach ships a committed `examples/<approach>/` project that compiles that approach's
-`assets/*.cs` with its placeholders substituted for fixed values; the reference instance
-references the ones whose behaviour is asserted, and `Umbraco-CMS.Skills.TestHost` boots that one host in-process
-(`WebApplicationFactory`) and asserts each skill's endpoints over HTTP.
+approach ships an `examples/<approach>/` project; the skill's `assets/` are projected into it at build
+time with placeholders substituted, a reference host references it, and that host's test project boots
+in-process (`WebApplicationFactory`) and asserts the skill's endpoints over HTTP.
+
+There are **two** hosts — `Umbraco-CMS.Skills` (Clean) for approaches written as C# that registers
+into DI, and `Umbraco-CMS.Skills.Blank` (no starter kit) for approaches written as Document Types +
+templates + config. They are tested as separate processes, because Umbraco's `StaticServiceProvider`
+is process-wide static state.
 
 ```bash
-dotnet test Umbraco-CMS.Skills.sln          # boots the instance in-process, asserts skill endpoints
-scripts/generate-examples.sh --check        # fail if any example drifted from its skill's assets/
+dotnet build Umbraco-CMS.Skills.sln
+dotnet test Umbraco-CMS.Skills.TestHost/Umbraco-CMS.Skills.TestHost.csproj --no-build
+dotnet test Umbraco-CMS.Skills.TestHost.Blank/Umbraco-CMS.Skills.TestHost.Blank.csproj --no-build
+python3 scripts/generate-examples.py --lint  # every placeholder an asset carries is declared
 ```
 
 **Adding a skill to the gate is an authoring task**, so it's documented where authors work:
@@ -137,9 +143,10 @@ content preconditions, how to write a fixture against the shared host, and how t
 can actually fail. It is the single source of truth for those mechanics — this file covers running
 and debugging the instance instead.
 
-`assets/*.cs` stay the single source of truth; each committed `examples/<approach>/` is a reviewable
-projection kept honest by `generate-examples.sh --check` (which skips skills whose `assets/`
-aren't on the current branch, so it's safe pre-merge).
+`assets/` stay the single source of truth, and nothing generated is committed: each example is
+projected into its own `obj/` during the build, so what compiles and serves IS what the skill ships
+and there is no second copy to drift. Skills whose `assets/` aren't on the current branch are skipped,
+so a build is safe pre-merge.
 
 ## When a skill's code doesn't compile
 

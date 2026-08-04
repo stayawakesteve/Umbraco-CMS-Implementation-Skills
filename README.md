@@ -119,13 +119,20 @@ Then open the backoffice at **https://localhost:44372/umbraco** and log in with
 **admin@example.com** / **1234567890**.
 
 **Validate a skill against it — deterministically.** Runtime validation is a **`dotnet test`
-gate** (no LLM, reproducible): each validated skill ships an `example/` project that compiles
-its assets into the reference instance, and `Umbraco-CMS.Skills.TestHost` boots that instance
-in-process (`WebApplicationFactory`) and asserts the skill's endpoints over HTTP.
+gate** (no LLM, reproducible): each validated approach ships an `examples/<approach>/` project that
+compiles the skill's own assets into a reference instance, and a test host boots that instance
+in-process (`WebApplicationFactory`) and asserts the skill's endpoints over HTTP. There are **two**
+instances — one with the Clean starter kit for approaches written as C#, one with no starter kit for
+approaches written as Document Types + templates + config, where Clean would otherwise supply a
+competing implementation of the feature under test.
 
 ```bash
-dotnet test Umbraco-CMS.Skills.sln       # e.g. asserts umbraco-sitemap's /sitemap.xml is a valid <urlset>
-scripts/generate-examples.sh --check     # ensures each example/ matches its skill's assets/
+# Two hosts, tested as separate processes (Umbraco keeps process-wide static state).
+dotnet build Umbraco-CMS.Skills.sln
+dotnet test Umbraco-CMS.Skills.TestHost/Umbraco-CMS.Skills.TestHost.csproj --no-build
+dotnet test Umbraco-CMS.Skills.TestHost.Blank/Umbraco-CMS.Skills.TestHost.Blank.csproj --no-build
+
+python3 scripts/generate-examples.py --lint   # every placeholder an asset carries is declared
 ```
 
 This runs in CI (`.github/workflows/validate-skills.yml`). For interactive poking or
@@ -148,11 +155,14 @@ Umbraco-CMS-Implementation-Skills/
 │       ├── .claude-plugin/plugin.json
 │       └── skills/<skill>/
 │           ├── SKILL.md, assets/, …      # the skill (assets = the shipped source of truth)
-│           └── example/                  # compilable projection of assets/ (validation target)
-├── Umbraco-CMS.Skills/                  # Reference Umbraco 17 instance (references each example)
-├── Umbraco-CMS.Skills.TestHost/            # dotnet test: boots the instance, HTTP-asserts each skill
+│           └── examples/<approach>/      # per-approach validation project (generated at build time)
+├── Umbraco-CMS.Skills/                  # Reference instance 1 — Umbraco 17 WITH the Clean starter kit
+├── Umbraco-CMS.Skills.Blank/            # Reference instance 2 — no starter kit (content-shaped approaches)
+├── Umbraco-CMS.Skills.TestHost/         # dotnet test: boots instance 1, HTTP-asserts each skill
+├── Umbraco-CMS.Skills.TestHost.Blank/   # dotnet test: boots instance 2 (own process)
+├── TestHost.Shared/                     # boot/wait/preconditions code linked into both test hosts
 ├── Umbraco-CMS.Skills.sln
-├── scripts/generate-examples.sh         # keeps each example/ in sync with its skill's assets/
+├── scripts/generate-examples.py         # projects assets/ into each example at build time
 └── .claude/
     └── skills/                          # Repo-authoring skills (evaluator, reference-instance)
 ```
