@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Approach B schema, as an Umbraco package manifest: the XmlSiteMap document type + its template,
+  and the XmlSiteMapSettings composition editors use for per-page control.
+
+  Two ways to use it. Import it from the backoffice (Packages) to get the whole shape in one step,
+  or treat it as the precise spec for building the same thing by hand / via the Umbraco Developer
+  MCP. Either way you still have to APPLY the xmlSiteMapSettings composition to your own content
+  document types — this package cannot know what they are.
+
+  The <Design> element is intentionally EMPTY. The template markup lives in xmlSitemap.cshtml so
+  there is exactly one copy of it; whatever installs this manifest splices that file in. Keys are
+  fixed so repeated installs update the same types rather than creating duplicates.
+
+  Priority and change frequency use the built-in Textstring editor rather than a configured slider
+  and dropdown. That keeps this manifest dependent only on data types every Umbraco already has, so
+  it installs anywhere and its behaviour can be asserted. Swapping in a slider/dropdown afterwards
+  is a cosmetic change to the editing experience and does not affect the rendered sitemap.
+-->
+<umbPackage>
+  <info>
+    <package>
+      <name>Umbraco Sitemap — Approach B schema</name>
+    </package>
+  </info>
+  <DocumentTypes>
+    <DocumentType>
+      <Info>
+        <Name>XML Sitemap Settings</Name>
+        <Alias>xmlSiteMapSettings</Alias>
+        <Key>1a9c5a2e-4f7b-4d18-9a63-2e0b7c5f8d14</Key>
+        <Icon>icon-settings</Icon>
+        <Thumbnail>folder.png</Thumbnail>
+        <Description>Per-page sitemap control. Apply as a composition to any content type that should appear in the sitemap.</Description>
+        <AllowAtRoot>False</AllowAtRoot>
+        <IsListView>False</IsListView>
+        <IsElement>False</IsElement>
+        <Variations>Nothing</Variations>
+        <Compositions />
+        <AllowedTemplates />
+      </Info>
+      <Structure />
+      <GenericProperties>
+        <GenericProperty>
+          <Name>Hide from XML sitemap</Name>
+          <Alias>hideFromXmlSiteMap</Alias>
+          <Key>6b3d0f81-25c4-4a97-8f2e-71b0a4c9e5d2</Key>
+          <Type>Umbraco.TrueFalse</Type>
+          <Definition>92897bc6-a5f3-4ffe-ae27-f2e7e33dda49</Definition>
+          <Tab Alias="sitemap">Sitemap</Tab>
+          <SortOrder>0</SortOrder>
+          <Mandatory>False</Mandatory>
+          <LabelOnTop>False</LabelOnTop>
+          <Variations>Nothing</Variations>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Priority</Name>
+          <Alias>xmlSiteMapPriority</Alias>
+          <Key>2c8e7a45-9b13-4f6d-a07c-53e8d1f2b9a6</Key>
+          <Type>Umbraco.TextBox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab Alias="sitemap">Sitemap</Tab>
+          <SortOrder>1</SortOrder>
+          <Mandatory>False</Mandatory>
+          <LabelOnTop>False</LabelOnTop>
+          <Variations>Nothing</Variations>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Change frequency</Name>
+          <Alias>xmlSiteMapChangeFrequency</Alias>
+          <Key>9f4b1c73-6e2a-48d5-b31f-0a7c8e5d264b</Key>
+          <Type>Umbraco.TextBox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab Alias="sitemap">Sitemap</Tab>
+          <SortOrder>2</SortOrder>
+          <Mandatory>False</Mandatory>
+          <LabelOnTop>False</LabelOnTop>
+          <Variations>Nothing</Variations>
+        </GenericProperty>
+      </GenericProperties>
+      <Tabs>
+        <Tab>
+          <Key>4d7e2b96-1a58-4c03-9e6f-8b2d0a4f7c31</Key>
+          <Type>Group</Type>
+          <Caption>Sitemap</Caption>
+          <Alias>sitemap</Alias>
+          <SortOrder>0</SortOrder>
+        </Tab>
+      </Tabs>
+    </DocumentType>
+    <DocumentType>
+      <Info>
+        <Name>XML Sitemap</Name>
+        <Alias>xmlSiteMap</Alias>
+        <Key>7e5a3c18-0d9b-4726-8b41-c5f2e6a09d73</Key>
+        <Icon>icon-sitemap</Icon>
+        <Thumbnail>folder.png</Thumbnail>
+        <Description>Renders the XML sitemap at this node's own URL.</Description>
+        <AllowAtRoot>True</AllowAtRoot>
+        <IsListView>False</IsListView>
+        <IsElement>False</IsElement>
+        <Variations>Nothing</Variations>
+        <Compositions />
+        <AllowedTemplates>
+          <Template>xmlSiteMap</Template>
+        </AllowedTemplates>
+        <DefaultTemplate>xmlSiteMap</DefaultTemplate>
+      </Info>
+      <Structure />
+      <GenericProperties>
+        <GenericProperty>
+          <Name>Excluded document types</Name>
+          <Alias>excludedDocumentTypes</Alias>
+          <Key>b8c1f427-5d36-4e0a-9271-3f6a8e2c5b04</Key>
+          <Type>Umbraco.TextBox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab Alias="sitemap">Sitemap</Tab>
+          <SortOrder>0</SortOrder>
+          <Mandatory>False</Mandatory>
+          <LabelOnTop>False</LabelOnTop>
+          <Variations>Nothing</Variations>
+        </GenericProperty>
+      </GenericProperties>
+      <Tabs>
+        <Tab>
+          <Key>e3f0a6d2-8b47-4915-a2c6-70d5b1e984fa</Key>
+          <Type>Group</Type>
+          <Caption>Sitemap</Caption>
+          <Alias>sitemap</Alias>
+          <SortOrder>0</SortOrder>
+        </Tab>
+      </Tabs>
+    </DocumentType>
+  </DocumentTypes>
+  <Templates>
+    <Template>
+      <Name>XML Sitemap</Name>
+      <Alias>xmlSiteMap</Alias>
+      <Key>5c2d8e14-3a0f-4b67-9d85-1e7c4a2f0b96</Key>
+      <Design></Design>
+    </Template>
+  </Templates>
+  <MediaTypes />
+  <Stylesheets />
+  <Scripts />
+  <PartialViews />
+  <DictionaryItems />
+  <Languages />
+  <DataTypes />
+  <MediaItems />
+  <Documents />
+</umbPackage>

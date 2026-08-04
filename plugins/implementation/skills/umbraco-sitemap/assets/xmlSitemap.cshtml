@@ -1,0 +1,77 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using Umbraco.Cms.Core.Models.PublishedContent
+@using Umbraco.Cms.Core.Routing
+@using Umbraco.Extensions
+@*
+    Approach B — the sitemap IS a content node. This template renders the XmlSiteMap document type, so
+    the sitemap lives at that node's own URL (e.g. /xml-sitemap) rather than at a fixed /sitemap.xml
+    route.
+
+    Editors control the output per page through the XmlSiteMapSettings composition:
+      hideFromXmlSiteMap        exclude this page
+      xmlSiteMapPriority        <priority>, omitted when blank
+      xmlSiteMapChangeFrequency <changefreq>, omitted when blank
+    and site-wide through this node's own excludedDocumentTypes property (comma-separated aliases).
+
+    No output caching, deliberately: editor changes must show immediately, which is the whole reason to
+    choose this approach. If you want caching, you want Approach A.
+
+    The loop variable is `node`, NOT `page`: @page is a reserved Razor DIRECTIVE, so writing
+    @page.Url(...) makes Razor parse the directive instead of your variable and the template fails
+    to compile. Runtime compilation reports that only as a 500 with no diagnostics.
+
+    Kept to plain statements — no lambdas, no generic DescendantsOrSelf<T>() — because this file is
+    compiled at RUNTIME by Umbraco, where a compile error surfaces only as a 500 with no diagnostics.
+*@
+@{
+    Layout = null;
+    Context.Response.ContentType = "application/xml; charset=utf-8";
+
+    var excludedTypes = new List<string>();
+    var excludedRaw = Model.Value<string>("excludedDocumentTypes");
+    if (!string.IsNullOrWhiteSpace(excludedRaw))
+    {
+        foreach (var alias in excludedRaw.Split(','))
+        {
+            if (!string.IsNullOrWhiteSpace(alias))
+            {
+                excludedTypes.Add(alias.Trim());
+            }
+        }
+    }
+}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+@foreach (var node in Model.Root().DescendantsOrSelf())
+{
+    // HasProperty is checked first because the settings composition is applied per document type — a
+    // type it was never applied to must still be listed, not silently dropped.
+    var hidden = node.HasProperty("hideFromXmlSiteMap") && node.Value<bool>("hideFromXmlSiteMap");
+    var excluded = excludedTypes.Contains(node.ContentType.Alias, StringComparer.OrdinalIgnoreCase);
+
+    if (!hidden && !excluded)
+    {
+        var priority = node.HasProperty("xmlSiteMapPriority")
+            ? node.Value<string>("xmlSiteMapPriority")
+            : null;
+        var changeFrequency = node.HasProperty("xmlSiteMapChangeFrequency")
+            ? node.Value<string>("xmlSiteMapChangeFrequency")
+            : null;
+
+        <url>
+            <loc>@node.Url(mode: UrlMode.Absolute)</loc>
+            <lastmod>@node.UpdateDate.ToString("yyyy-MM-ddTHH:mm:sszzz")</lastmod>
+            @if (!string.IsNullOrWhiteSpace(changeFrequency))
+            {
+                <changefreq>@changeFrequency</changefreq>
+            }
+            @if (!string.IsNullOrWhiteSpace(priority))
+            {
+                <priority>@priority</priority>
+            }
+        </url>
+    }
+}
+</urlset>

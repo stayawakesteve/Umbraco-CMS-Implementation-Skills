@@ -39,6 +39,10 @@ namespace Umbraco_CMS.Skills.TestHost;
 /// assertions use the same shared instance.
 /// </summary>
 [TestFixture]
+// Unpublishes and republishes a node that other fixtures READ. NUnit runs sequentially by
+// default, so today that's safe by accident; this makes the requirement explicit and survives
+// someone adding [assembly: Parallelizable] later.
+[NonParallelizable]
 public class SitemapCacheInvalidationTests
 {
     private static readonly XNamespace Sm = "http://www.sitemaps.org/schemas/sitemap/0.9";

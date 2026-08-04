@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    VALIDATION-ONLY example project for umbraco-sitemap Approach B (Razor template + Document Type).
+
+    Loaded by SITE 2 (Umbraco-CMS.Skills.Blank, no starter kit), not the Clean host. Clean ships its
+    own xMLSitemap Document Type and Views/xMLSitemap.cshtml, so asserting a sitemap content node
+    there would prove Clean works rather than that this skill's guidance works.
+
+    Plain Microsoft.NET.Sdk, NOT Sdk.Razor: the template is not compiled into this assembly. It ships
+    as an embedded resource, and the package migration hands it to Umbraco, which writes the .cshtml
+    into the host's Views/ and compiles it at runtime — exactly the path a real user's template takes.
+
+    The skill's own assets (xmlSitemap.cshtml, sitemap-package.xml) are generated into obj/ at build
+    time by plugins/Directory.Build.props and embedded from there, so what gets installed IS what the
+    skill ships. Everything in this folder is example-only scaffolding: the migration plan that
+    replaces the manual backoffice steps, and the fixture content that gives the blank site something
+    to list.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Umbraco.Skills.Examples.SitemapApproachB</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Umbraco.Cms.Web.Website" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Seeding helpers shared with the host and the other content-shaped examples. Linked as source:
+         see ExampleFixtures.Shared/FixtureSite.cs for why it holds only static helpers. -->
+    <Compile Include="../../../../../../ExampleFixtures.Shared/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Example-only content: a page type composed with the skill's settings composition, plus the
+         nodes to list. Not part of the skill — a real site already has its own content types. -->
+    <EmbeddedResource Include="ExampleFixtureContent.xml" LogicalName="ExampleFixtureContent.xml" />
+  </ItemGroup>
+
+</Project>

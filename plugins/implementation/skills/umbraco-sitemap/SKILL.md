@@ -16,20 +16,21 @@ Two supported ways to add an XML sitemap:
 | | **A — Cached controller** (default) | **B — Razor template** |
 |---|---|---|
 | Reference | [approach-a-cached-controller.md](references/approach-a-cached-controller.md) | [approach-b-razor-template.md](references/approach-b-razor-template.md) |
-| Source | Custom code from documented building blocks | Official [tutorial](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/tutorials/creating-an-xml-site-map.md), fetched live (no local copy) |
+| Source | Custom code from documented building blocks | Verified template + package manifest in `assets/`, following the official [tutorial](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/tutorials/creating-an-xml-site-map.md) |
 | Backoffice work | None — file-based only | Required: Document Types, composition, content node |
-| Sitemap URL | Fixed `/sitemap.xml` | The XmlSiteMap content node (e.g. `/xmlsitemap`) |
+| Sitemap URL | Fixed `/sitemap.xml` | The XmlSiteMap content node (e.g. `/xml-sitemap`) |
 | Caching | In-memory, auto-invalidated | None — rendered per request |
 | Best for | Headless/Delivery-API sites, no backoffice access | Traditional Razor sites, per-page editor control |
 
 ### How to decide
 
 Default to A. Choose B when the team wants the official-docs approach or per-page editor
-control (priority / change frequency / hide). For B's backoffice steps, prefer the
-[Umbraco Developer MCP](https://docs.umbraco.com/umbraco-in-ai/mcp/cms-developer-mcp); if
-unavailable, walk the user through the steps manually in the backoffice — don't drop to A
-just because the MCP is missing. Only fall back to A if backoffice access isn't possible at
-all, or the tutorial can't be fetched.
+control (priority / change frequency / hide). B's Document Types, composition and template ship as
+`assets/sitemap-package.xml` + `assets/xmlSitemap.cshtml`, so it can be installed as a package or
+built by hand from that spec; prefer the
+[Umbraco Developer MCP](https://docs.umbraco.com/umbraco-in-ai/mcp/cms-developer-mcp) for the
+backoffice steps, and if unavailable walk the user through them manually — don't drop to A just
+because the MCP is missing. Only fall back to A if backoffice access isn't possible at all.
 
 If ambiguous, briefly offer both and recommend A.
 
