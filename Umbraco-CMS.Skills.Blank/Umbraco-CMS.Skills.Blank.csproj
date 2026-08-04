@@ -1,0 +1,68 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    SITE 2 of two reference hosts. Deliberately has NO starter kit.
+
+    Site 1 (Umbraco-CMS.Skills, with Clean) validates approaches whose implementation lives in C#
+    that registers into DI — controllers, IContentFinders, composers. There, Clean is harmless
+    ambient content to traverse and render.
+
+    This host validates approaches whose implementation IS Document Types + templates + config.
+    Clean must be absent for those, because Clean is itself a competing implementation of the very
+    features under test: it ships an xMLSitemap Document Type with its own Views/xMLSitemap.cshtml,
+    and an `error` type with its own Views/error.cshtml. Asserting against those would prove Clean
+    works, not that the skill's guidance works.
+
+    Content therefore comes from each referenced example's own package migration, built to the
+    skill's spec. See .claude/skills/umbraco-skill-author/references/runtime-validation.md.
+
+    There is also a hard reason the two can't be one host: umbraco-custom-error-pages Approach A
+    calls SetContentLastChanceFinder, which is AddUnique<IContentLastChanceFinder, T>() and so
+    REPLACES Umbraco's own ContentFinderByConfigured404 — and that class is Approach B's entire
+    implementation. A and B can never both be live in one process.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Umbraco_CMS.Skills.Blank</RootNamespace>
+    <CompressionEnabled>false</CompressionEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- No Clean — that's the whole point of this host.
+
+         DevelopmentMode.Backoffice IS needed though, even with no backoffice development happening
+         here: it's what ModelsBuilder's InMemoryAuto mode requires, and that mode is what turns on
+         Razor RUNTIME compilation. Templates on this host are written to Views/ at runtime by a
+         package migration, so without runtime compilation the view is never compiled, Umbraco decides
+         the content has no usable template, and every front-end URL answers 404 — while the content
+         cache, the URL map and the Delivery API all look perfectly healthy. -->
+    <PackageReference Include="Umbraco.Cms" />
+    <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Site 2's baseline content shape: one root node that every example hangs its subtree from. -->
+    <EmbeddedResource Include="FixtureSite/fixture-site-package.xml" LogicalName="fixture-site-package.xml" />
+    <!-- Seeding helpers, shared with the examples. Linked as source because an example cannot
+         reference the host (the host references the examples), and the helper holds no
+         Umbraco-discoverable types so compiling it into several assemblies is harmless. -->
+    <Compile Include="../ExampleFixtures.Shared/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Content-shaped example projects (Approach B). Each carries its own package migration that
+         seeds the Document Types, templates and content it needs at boot. -->
+    <ProjectReference Include="../plugins/implementation/skills/umbraco-sitemap/examples/approach-b-razor-template/Umbraco-Sitemap.ApproachB.Example.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Templates created by a package migration are written to disk as .cshtml and compiled at
+         runtime, so Razor files must survive and must not be precompiled away. -->
+    <CopyRazorGenerateFilesToPublishDirectory>true</CopyRazorGenerateFilesToPublishDirectory>
+    <RazorCompileOnBuild>false</RazorCompileOnBuild>
+    <RazorCompileOnPublish>false</RazorCompileOnPublish>
+  </PropertyGroup>
+
+</Project>

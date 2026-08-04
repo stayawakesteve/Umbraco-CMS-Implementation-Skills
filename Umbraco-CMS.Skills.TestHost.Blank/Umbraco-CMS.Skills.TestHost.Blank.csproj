@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Umbraco_CMS.Skills.TestHost.Blank</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="NUnit3TestAdapter" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Umbraco-CMS.Skills.Blank\Umbraco-CMS.Skills.Blank.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Boot/wait mechanics shared with the Clean test host. Linked as source rather than referenced as
+      a library because NUnit only discovers [SetUpFixture] and fixture base classes in the test
+      assembly itself, and because a shared classlib would need its own copy of the test and Umbraco
+      package references to compile.
+    -->
+    <Compile Include="..\TestHost.Shared\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Approach-B fixtures live beside the example they exercise but compile into THIS assembly, so
+      site 2's host is booted in its own process. The *BlankTests.cs suffix is what routes them here
+      rather than into the Clean assembly: a directory can't express host membership, since both
+      hosts' examples sit under plugins/**/examples/.
+    -->
+    <Compile Include="..\plugins\**\examples\*\*BlankTests.cs"
+             Exclude="..\plugins\**\bin\**;..\plugins\**\obj\**" />
+  </ItemGroup>
+
+</Project>

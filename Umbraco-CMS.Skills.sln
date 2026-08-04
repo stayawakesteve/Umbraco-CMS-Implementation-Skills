@@ -21,6 +21,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "approach-a-split-index", "a
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco-Sitemap.SplitIndex.Example", "plugins\implementation\skills\umbraco-sitemap\examples\approach-a-split-index\Umbraco-Sitemap.SplitIndex.Example.csproj", "{3C6E9224-B04D-4ABA-BD58-4657D7344E36}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco-CMS.Skills.Blank", "Umbraco-CMS.Skills.Blank\Umbraco-CMS.Skills.Blank.csproj", "{0EEA0308-DF69-4A4F-A59A-79873CC5090A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco-CMS.Skills.TestHost.Blank", "Umbraco-CMS.Skills.TestHost.Blank\Umbraco-CMS.Skills.TestHost.Blank.csproj", "{1BA64423-9D39-4263-8376-808FEBF752C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +71,30 @@ Global
 		{3C6E9224-B04D-4ABA-BD58-4657D7344E36}.Release|x64.Build.0 = Release|Any CPU
 		{3C6E9224-B04D-4ABA-BD58-4657D7344E36}.Release|x86.ActiveCfg = Release|Any CPU
 		{3C6E9224-B04D-4ABA-BD58-4657D7344E36}.Release|x86.Build.0 = Release|Any CPU
+		{0EEA0308-DF69-4A4F-A59A-79873CC5090A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EEA0308-DF69-4A4F-A59A-79873CC5090A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EEA0308-DF69-4A4F-A59A-79873CC5090A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0EEA0308-DF69-4A4F-A59A-79873CC5090A}.Debug|x64.Build.0 = Debug|Any CPU
+		{0EEA0308-DF69-4A4F-A59A-79873CC5090A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0EEA0308-DF69-4A4F-A59A-79873CC5090A}.Debug|x86.Build.0 = Debug|Any CPU
+		{0EEA0308-DF69-4A4F-A59A-79873CC5090A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EEA0308-DF69-4A4F-A59A-79873CC5090A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EEA0308-DF69-4A4F-A59A-79873CC5090A}.Release|x64.ActiveCfg = Release|Any CPU
+		{0EEA0308-DF69-4A4F-A59A-79873CC5090A}.Release|x64.Build.0 = Release|Any CPU
+		{0EEA0308-DF69-4A4F-A59A-79873CC5090A}.Release|x86.ActiveCfg = Release|Any CPU
+		{0EEA0308-DF69-4A4F-A59A-79873CC5090A}.Release|x86.Build.0 = Release|Any CPU
+		{1BA64423-9D39-4263-8376-808FEBF752C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BA64423-9D39-4263-8376-808FEBF752C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BA64423-9D39-4263-8376-808FEBF752C9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1BA64423-9D39-4263-8376-808FEBF752C9}.Debug|x64.Build.0 = Debug|Any CPU
+		{1BA64423-9D39-4263-8376-808FEBF752C9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1BA64423-9D39-4263-8376-808FEBF752C9}.Debug|x86.Build.0 = Debug|Any CPU
+		{1BA64423-9D39-4263-8376-808FEBF752C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BA64423-9D39-4263-8376-808FEBF752C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BA64423-9D39-4263-8376-808FEBF752C9}.Release|x64.ActiveCfg = Release|Any CPU
+		{1BA64423-9D39-4263-8376-808FEBF752C9}.Release|x64.Build.0 = Release|Any CPU
+		{1BA64423-9D39-4263-8376-808FEBF752C9}.Release|x86.ActiveCfg = Release|Any CPU
+		{1BA64423-9D39-4263-8376-808FEBF752C9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
