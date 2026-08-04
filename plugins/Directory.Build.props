@@ -16,4 +16,54 @@
     <DefaultItemExcludes>$(DefaultItemExcludes);**/*Tests.cs</DefaultItemExcludes>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <RepoRoot>$(MSBuildThisFileDirectory)../</RepoRoot>
+    <PythonExe Condition="'$(PythonExe)' == ''">python3</PythonExe>
+  </PropertyGroup>
+
+  <!--
+    Projects the skill's OWN assets/ into obj/ and compiles those, rather than compiling a committed
+    copy. Nothing is generated into source control, so the code the compiler and the HTTP fixtures
+    see IS the code the skill ships — it cannot drift, and there is no drift check to forget.
+
+    Items are added from inside the target because the generated files don't exist during evaluation.
+
+    The BeforeTargets list has to reach further back than CoreCompile. EmbeddedResource items are
+    consumed by PrepareResources, which runs BEFORE the Compile phase — hooking only BeforeCompile
+    gets the .cs compiled but silently drops the .cshtml/.xml from the assembly manifest, and the
+    failure surfaces much later as "Embedded resource not found" at runtime. BeforeBuild is early
+    enough for everything; the other two are belt and braces for entry points that skip it.
+
+    Generated .cshtml/.xml are EmbeddedResource, not Razor/Content: a content-shaped approach
+    installs its template through a package migration at boot, so the host writes the .cshtml
+    itself. (The SDK's default globs already ignore obj/, so they can't be double-counted.)
+  -->
+  <Target Name="GenerateSkillAssets"
+          BeforeTargets="BeforeBuild;PrepareResources;BeforeCompile"
+          Condition="Exists('$(MSBuildProjectDirectory)/.generate.json')">
+    <!-- Set INSIDE the target: IntermediateOutputPath is defined by the SDK, which imports after
+         this file, so computing this in a top-level PropertyGroup yields a bare "skill-assets/"
+         and writes generated code into the source tree instead of obj/. -->
+    <PropertyGroup>
+      <SkillAssetsDir>$(IntermediateOutputPath)skill-assets/</SkillAssetsDir>
+    </PropertyGroup>
+    <Exec Command="&quot;$(PythonExe)&quot; &quot;$(RepoRoot)scripts/generate-examples.py&quot; --manifest &quot;$(MSBuildProjectDirectory)/.generate.json&quot; --out &quot;$(MSBuildProjectDirectory)/$(SkillAssetsDir)&quot;" />
+    <ItemGroup>
+      <Compile Include="$(SkillAssetsDir)*.cs" />
+      <!--
+        LogicalName is pinned to the bare file name, so a resource isn't named after its path (which
+        would bake obj/Debug/net10.0/ into the identifier and change with configuration and TFM).
+
+        Two steps, via a private item type, because the metadata reference MUST be qualified.
+        Unqualified %(Filename) inside a target's ItemGroup batches over whatever EmbeddedResource
+        items already exist rather than the ones being added — every generated file then silently
+        inherits the same LogicalName, and the build fails with a duplicate resource identifier that
+        names an innocent file.
+      -->
+      <SkillAssetResource Include="$(SkillAssetsDir)*.cshtml;$(SkillAssetsDir)*.xml" />
+      <EmbeddedResource Include="@(SkillAssetResource)"
+                        LogicalName="%(SkillAssetResource.Filename)%(SkillAssetResource.Extension)" />
+    </ItemGroup>
+  </Target>
+
 </Project>
