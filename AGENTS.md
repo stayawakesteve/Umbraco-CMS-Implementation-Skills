@@ -46,7 +46,12 @@ Folder to Workspace", Codex multi-root, etc.).
   they exist to help maintain this repo (`umbraco-skill-author` for scaffolding
   and writing a skill, `umbraco-skill-evaluator` for the eval loop,
   `umbraco-reference-instance` for booting the reference site). Do not move them
-  into `plugins/`.
+  into `plugins/`. They are exempt from the portability rules below and may use
+  Claude-specific features, but their frontmatter must still be valid YAML with a
+  `name` matching the folder and a non-empty `description` — tools that read
+  `SKILL.md` skip a skill with malformed frontmatter *silently*, so this is
+  enforced by `scripts/validate_skills.py`. Watch for unescaped `: ` inside an
+  unquoted description; use a `>` block scalar.
 - Published skills must remain agent-agnostic:
   - Frontmatter: `name` and `description` are required. Optional fields are
     limited to `license`, `allowed-tools`, and `metadata`. Do not add
