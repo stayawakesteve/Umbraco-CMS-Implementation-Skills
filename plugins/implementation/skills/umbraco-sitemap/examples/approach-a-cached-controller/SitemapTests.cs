@@ -42,4 +42,35 @@ public class SitemapTests
         Assert.That(locations, Has.Some.Contains("/features/"),
             "expected a known Clean node (Features) to appear in the sitemap");
     }
+
+    /// <summary>
+    /// The skill's FILTER line is the one piece of SitemapController that a mapping mistake can
+    /// silently disable: <c>&lt;filterAlias&gt;</c> left unsubstituted makes HasProperty() always
+    /// false, the negation short-circuits true, and every page passes. It compiles and the other
+    /// tests still go green, so only asserting the exclusion catches it.
+    ///
+    /// Needs no content mutation: Clean ships three nodes with hideFromXMLSitemap already true.
+    /// Matches on EndsWith, not Contains — "/categories/" is a substring of "/categories/community/".
+    /// </summary>
+    [Test]
+    public async Task Get_sitemap_excludes_pages_flagged_hidden()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/sitemap.xml");
+        XDocument doc = XDocument.Parse(await response.Content.ReadAsStringAsync());
+        List<string> locations = doc.Descendants(Sm + "loc").Select(e => e.Value).ToList();
+
+        foreach (string hidden in new[] { "/error/", "/xmlsitemap/", "/categories/" })
+        {
+            Assert.That(locations, Has.None.EndsWith(hidden),
+                $"{hidden} has hideFromXMLSitemap = true in Clean, so the filter should exclude it. "
+                + $"Got: {string.Join(", ", locations)}");
+        }
+
+        // Positive control: without these the test would also pass on an empty sitemap.
+        Assert.That(locations, Has.Some.EndsWith("/features/"),
+            "a page without the flag must still be listed");
+        Assert.That(locations, Has.Some.EndsWith("/categories/community/"),
+            "Clean's 'category' type has no hideFromXMLSitemap property at all, so the "
+            + "!HasProperty(...) short-circuit must keep it — this guards the filter's defensive shape");
+    }
 }
