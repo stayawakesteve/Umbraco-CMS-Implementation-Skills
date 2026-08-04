@@ -1,6 +1,11 @@
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+// Templates on this host are written to Views/ at RUNTIME by each example's package migration, so the
+// view engine has to be able to compile a .cshtml that didn't exist at build time. Without this every
+// front-end URL answers 404: Umbraco resolves the content, finds no usable template, and gives up.
+builder.Services.AddMvc().AddRazorRuntimeCompilation();
+
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()

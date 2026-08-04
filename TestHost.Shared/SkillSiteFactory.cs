@@ -59,10 +59,16 @@ public abstract class SkillSiteFactory<TEntryPoint> : WebApplicationFactory<TEnt
     /// whose content is seeded by a package migration during boot needs no extra condition — the
     /// migration has already run by the time anything is served.
     /// </param>
+    /// <param name="url">
+    /// Which Delivery API query to poll. Defaults to a bare content query, but a host whose content is
+    /// seeded during startup should poll the shape its fixtures actually depend on — see the override in
+    /// BlankSiteFixture.
+    /// </param>
     public async Task WaitUntilInstalledAsync(
         HttpClient client,
         Func<JsonElement, bool>? ready = null,
-        TimeSpan? timeout = null)
+        TimeSpan? timeout = null,
+        string url = "/umbraco/delivery/api/v2/content?take=1")
     {
         TimeSpan budget = timeout ?? TimeSpan.FromMinutes(4);
         DateTime deadline = DateTime.UtcNow + budget;
@@ -71,8 +77,7 @@ public abstract class SkillSiteFactory<TEntryPoint> : WebApplicationFactory<TEnt
         {
             try
             {
-                HttpResponseMessage response =
-                    await client.GetAsync("/umbraco/delivery/api/v2/content?take=1");
+                HttpResponseMessage response = await client.GetAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
                     using JsonDocument doc =

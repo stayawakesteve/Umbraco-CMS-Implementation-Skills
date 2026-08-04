@@ -32,14 +32,18 @@
   <ItemGroup>
     <!-- No Clean — that's the whole point of this host.
 
-         DevelopmentMode.Backoffice IS needed though, even with no backoffice development happening
-         here: it's what ModelsBuilder's InMemoryAuto mode requires, and that mode is what turns on
-         Razor RUNTIME compilation. Templates on this host are written to Views/ at runtime by a
-         package migration, so without runtime compilation the view is never compiled, Umbraco decides
-         the content has no usable template, and every front-end URL answers 404 — while the content
-         cache, the URL map and the Delivery API all look perfectly healthy. -->
+         Razor RUNTIME compilation, on the other hand, is required: templates here are written to
+         Views/ at runtime by a package migration, so without it the view is never compiled, Umbraco
+         decides the content has no usable template, and every front-end URL answers 404.
+
+         It's referenced DIRECTLY rather than picked up as a side effect of
+         Umbraco.Cms.DevelopmentMode.Backoffice (whose InMemoryAuto ModelsBuilder mode also enables
+         it). That package cannot be used here: under WebApplicationFactory its InMemoryModelFactory
+         gets disposed while the host is still live, and then ANY content operation that touches URL
+         generation dies on "Cannot access a disposed object: ReaderWriterLockSlim" — which surfaces as
+         fixture content silently never being created. -->
     <PackageReference Include="Umbraco.Cms" />
-    <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" />
   </ItemGroup>
 
   <ItemGroup>

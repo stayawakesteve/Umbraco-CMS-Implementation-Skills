@@ -105,7 +105,6 @@ public static class FixtureSite
                 PublishBranchFilter.IncludeUnpublished,
                 Constants.Security.SuperUserKey,
                 useBackgroundThread: false);
-
         if (!result.Success)
         {
             throw new InvalidOperationException(

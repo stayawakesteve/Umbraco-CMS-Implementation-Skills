@@ -21,6 +21,9 @@
     <PackageVersion Include="Umbraco.Cms.Web.Website" Version="17.5.3" />
     <PackageVersion Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="17.5.3" />
     <PackageVersion Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
+    <!-- Razor runtime compilation for the starter-kit-free host, whose templates are written
+         to disk at runtime by a package migration. -->
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.10" />
   </ItemGroup>
 
   <!-- Test hosts. -->

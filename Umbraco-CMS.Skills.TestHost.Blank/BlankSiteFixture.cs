@@ -30,12 +30,19 @@ public class BlankSiteFixture
         Factory = new BlankSiteFactory();
         Client = Factory.CreateClient();
 
-        // No content-count condition here, deliberately. This site has no starter kit, so a freshly
-        // installed host legitimately has zero content until an example's package migration seeds
-        // it — and those run during boot, before anything is served. Requiring total > 0 would
-        // therefore either hang on a host with no examples yet, or assert something the wait gate
-        // isn't responsible for. Each fixture asserts its own content instead.
-        await Factory.WaitUntilInstalledAsync(Client);
+        // Wait for the seeded children of the root to be QUERYABLE, not merely for the API to answer.
+        //
+        // This site's content is created during startup rather than by the install, and the Delivery
+        // API's query endpoint reads the Examine index, which is populated asynchronously. So the
+        // endpoint starts answering 200 before the seeded content is searchable, and anything reading
+        // that query — the content preconditions — sees an empty site and fails. Front-end routing goes
+        // through the published cache instead and is already consistent, which is exactly why the
+        // symptom looked so selective: every rendering test passed while the preconditions failed.
+        await Factory.WaitUntilInstalledAsync(
+            Client,
+            root => root.TryGetProperty("total", out System.Text.Json.JsonElement total)
+                    && total.GetInt32() > 0,
+            url: "/umbraco/delivery/api/v2/content?fetch=children:/&take=1");
     }
 
     [OneTimeTearDown]
