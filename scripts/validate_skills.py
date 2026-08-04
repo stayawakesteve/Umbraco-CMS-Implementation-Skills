@@ -12,6 +12,12 @@ Checks every skill under plugins/*/skills/*/SKILL.md for:
   - no symlinks inside published skills (Windows-hostile)
   - marketplace.json / plugin.json parse and reference real plugin dirs
 
+Repo-authoring skills under .claude/skills/ are not published, so they are exempt
+from the portability rules — but their frontmatter is still checked for parseable
+YAML and a name/description that matches the folder. Invalid YAML there is silently
+ignored by the tools that read it (the Vercel Skills CLI drops such a skill without
+an error), so it needs to fail loudly here instead.
+
 Also maintains the skills index in AGENTS.md between the SKILLS-INDEX markers:
   python scripts/validate_skills.py --write-index   # regenerate index
   python scripts/validate_skills.py --check-index   # fail if index is stale (CI)
@@ -32,6 +38,7 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PLUGINS_DIR = REPO_ROOT / "plugins"
+AUTHORING_SKILLS_DIR = REPO_ROOT / ".claude" / "skills"
 AGENTS_MD = REPO_ROOT / "AGENTS.md"
 
 INDEX_START = "<!-- SKILLS-INDEX:START"
@@ -148,6 +155,47 @@ def validate_manifests(rep: Reporter) -> None:
             rep.error(plugin_json, f"invalid JSON: {exc}")
 
 
+def validate_authoring_skills(rep: Reporter) -> int:
+    """Check repo-authoring skills under .claude/skills/ are at least loadable.
+
+    These are not published, so the portability rules (allowed frontmatter keys,
+    no symlinks, resolvable links) deliberately do not apply — they may use
+    Claude-specific features. What does apply is that the frontmatter parses and
+    carries a matching name/description: tools that read SKILL.md skip a skill
+    with malformed frontmatter silently, so it must fail here instead.
+
+    Returns the number of authoring skills checked.
+    """
+    if not AUTHORING_SKILLS_DIR.is_dir():
+        return 0
+
+    checked = 0
+    for skill_dir in sorted(p for p in AUTHORING_SKILLS_DIR.iterdir() if p.is_dir()):
+        skill_md = skill_dir / "SKILL.md"
+        if not skill_md.is_file():
+            if any(skill_dir.iterdir()):
+                rep.error(skill_dir, "authoring skill folder has no SKILL.md — it will not be discovered")
+            continue
+
+        parsed = parse_frontmatter(skill_md, rep)
+        if parsed is None:
+            continue
+        fm, _ = parsed
+        checked += 1
+
+        name = fm.get("name")
+        if not isinstance(name, str) or not name.strip():
+            rep.error(skill_md, "frontmatter 'name' is required and must be a non-empty string")
+        elif name != skill_dir.name:
+            rep.error(skill_md, f"name '{name}' does not match folder name '{skill_dir.name}'")
+
+        description = fm.get("description")
+        if not isinstance(description, str) or not description.strip():
+            rep.error(skill_md, "frontmatter 'description' is required and must be a non-empty string")
+
+    return checked
+
+
 def collect_skills(rep: Reporter) -> list[dict]:
     """Return validated skill metadata for the index; report problems as we go."""
     skills: list[dict] = []
@@ -218,6 +266,7 @@ def main() -> int:
     rep = Reporter()
     validate_manifests(rep)
     skills = collect_skills(rep)
+    authoring_count = validate_authoring_skills(rep)
 
     if args.write_index or args.check_index:
         if not AGENTS_MD.exists():
@@ -238,7 +287,11 @@ def main() -> int:
     for e in rep.errors:
         print(e)
 
-    print(f"\nValidated {len(skills)} skill(s): {len(rep.errors)} error(s), {len(rep.warnings)} warning(s)")
+    print(
+        f"\nValidated {len(skills)} published skill(s) "
+        f"and {authoring_count} authoring skill(s): "
+        f"{len(rep.errors)} error(s), {len(rep.warnings)} warning(s)"
+    )
     return 1 if rep.errors else 0
 
 
