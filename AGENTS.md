@@ -5,6 +5,20 @@ modelling** and **implementation** work. Skills use the open
 [SKILL.md](https://agentskills.io) format and work in any agent that supports it
 (Claude Code, Cursor, GitHub Copilot, Codex CLI, Windsurf, OpenCode, and others).
 
+**This file is the single source of truth for working in this repo, whatever agent
+you are.** `CLAUDE.md` imports it and adds only the Claude Code-specific parts, so
+guidance that applies to everyone lives here and is written once.
+
+The marketplace is split into two plugins:
+
+- **`umbraco-cms-content-modelling-skills`** (`plugins/content-modelling/`) — document
+  types, element types, data types, compositions, content structure.
+- **`umbraco-cms-implementation-skills`** (`plugins/implementation/`) — site build-out,
+  templates, views, controllers, delivery.
+
+It is a sibling to the Umbraco Backoffice Skills marketplace and follows the same
+conventions.
+
 ## If you are an agent working in a project that consumes these skills
 
 Published skills live under:
@@ -38,48 +52,126 @@ Folder to Workspace", Codex multi-root, etc.).
 
 ## If you are an agent working on this repository itself
 
-- This repo doubles as a Claude Code plugin marketplace. The
-  `.claude-plugin/marketplace.json` and per-plugin `.claude-plugin/plugin.json`
-  manifests are Claude-specific; other agents should ignore them but must not
-  break them.
-- Repo-authoring skills live in `.claude/skills/` and are **not published** —
-  they exist to help maintain this repo (`umbraco-skill-author` for scaffolding
-  and writing a skill, `umbraco-skill-evaluator` for the eval loop,
-  `umbraco-reference-instance` for booting the reference site). Do not move them
-  into `plugins/`. They are exempt from the portability rules below and may use
-  Claude-specific features, but their frontmatter must still be valid YAML with a
-  `name` matching the folder and a non-empty `description` — tools that read
-  `SKILL.md` skip a skill with malformed frontmatter *silently*, so this is
-  enforced by `scripts/validate_skills.py`. Watch for unescaped `: ` inside an
-  unquoted description; use a `>` block scalar.
-- Published skills must remain agent-agnostic:
-  - Frontmatter: `name` and `description` are required. Optional fields are
-    limited to `license`, `allowed-tools`, and `metadata`. Do not add
-    Claude-only or tool-only frontmatter keys to skills under `plugins/`.
-  - `name` must match the skill's folder name: lowercase letters, digits and
-    hyphens only, 64 characters max.
-  - `description` must be non-empty and at most 1024 characters. Write it in the
-    third person and include both *what the skill does* and *when to use it* —
-    this is the only text agents see before deciding to load the skill.
-  - Skill bodies must not reference agent-specific features (slash commands,
-    subagents, named built-in tools). If behaviour genuinely differs per agent,
-    write it conditionally ("if your agent supports X… otherwise…").
-  - Bundled scripts are invoked as plain `python <script> <args>` with no
-    environment assumptions beyond the Python standard library, unless the
-    SKILL.md documents dependencies explicitly.
-- Every change to `plugins/**` must pass `python scripts/validate_skills.py`
-  (run automatically in CI). Run it locally before opening a PR. If you added,
-  renamed or re-described a skill, also run
-  `python scripts/validate_skills.py --write-index` to refresh the index above.
-- Skills that ship runnable code are also gated at runtime by `dotnet test`
-  against the committed reference Umbraco instance (`Umbraco-CMS.Skills/`,
-  `Umbraco-CMS.Skills.TestHost/`). A skill's `assets/` are the source of truth;
-  `bash scripts/generate-examples.sh` regenerates the compiled
-  `plugins/*/skills/<skill>/example/` project from them and `--check` verifies it
-  hasn't drifted. If you change `assets/`, regenerate the example. This gate is
-  .NET-specific and Claude-agnostic — see `CLAUDE.md` for the full description.
-- Changes land via branch → pull request → squash-merge into `main`. Keep PRs
-  scoped to one skill or one concern.
+### Structure
+
+```
+.claude-plugin/marketplace.json   # Marketplace manifest — lists both plugins
+plugins/<plugin>/
+  .claude-plugin/plugin.json       # Per-plugin manifest
+  skills/<skill-name>/SKILL.md      # Published skills (one folder per skill)
+.claude/skills/                    # Repo-authoring skills (NOT published)
+Umbraco-CMS.Skills/                # Reference Umbraco 17 instance, Clean starter kit
+Umbraco-CMS.Skills.Blank/          # Reference instance with no starter kit
+Umbraco-CMS.Skills.TestHost/       # NUnit host for the Clean instance
+Umbraco-CMS.Skills.TestHost.Blank/ # NUnit host for the blank instance
+Umbraco-CMS.Skills.sln
+```
+
+The `.claude-plugin/marketplace.json` and per-plugin `.claude-plugin/plugin.json`
+manifests are Claude-specific; other agents should ignore them but must not break
+them.
+
+### Published vs authoring skills
+
+- **Published skills** ship to users and live in `plugins/*/skills/`.
+- **Authoring skills** live in `.claude/skills/` and are not part of any plugin —
+  they exist to help maintain this repo (`umbraco-skill-author` for scaffolding and
+  writing a skill, `umbraco-skill-evaluator` for the eval loop,
+  `umbraco-reference-instance` for booting the reference site).
+
+Don't put authoring tooling in a plugin's `skills/` folder, and don't put
+user-facing skills in `.claude/skills/`.
+
+Authoring skills are exempt from the portability rules below and may use
+Claude-specific features, but their frontmatter must still be valid YAML with a
+`name` matching the folder and a non-empty `description` — tools that read
+`SKILL.md` skip a skill with malformed frontmatter *silently*, so this is enforced
+by `scripts/validate_skills.py`. Watch for an unescaped `: ` inside an unquoted
+description; use a `>` block scalar.
+
+### Published skills must remain agent-agnostic
+
+- **Skill folders** are kebab-case and each contains a `SKILL.md` with YAML
+  frontmatter. Match the structure of the Umbraco Backoffice Skills repo.
+- Frontmatter: `name` and `description` are required. Optional fields are limited
+  to `license`, `allowed-tools`, and `metadata`. Do not add Claude-only or
+  tool-only frontmatter keys to skills under `plugins/`.
+- `name` must match the skill's folder name: lowercase letters, digits and hyphens
+  only, 64 characters max.
+- `description` must be non-empty and at most 1024 characters. Write it in the
+  third person and include both *what the skill does* and *when to use it* — this
+  is the only text agents see before deciding to load the skill.
+- Skill bodies must not reference agent-specific features (slash commands,
+  subagents, named built-in tools). If behaviour genuinely differs per agent,
+  write it conditionally ("if your agent supports X… otherwise…").
+- Bundled scripts are invoked as plain `python <script> <args>` with no
+  environment assumptions beyond the Python standard library, unless the SKILL.md
+  documents dependencies explicitly.
+
+### Validation
+
+Every change to `plugins/**` must pass `python scripts/validate_skills.py` (run
+automatically in CI). Run it locally before opening a PR. If you added, renamed or
+re-described a skill, also run `python scripts/validate_skills.py --write-index` to
+refresh the index above.
+
+Skills that ship runnable code are additionally gated at runtime by `dotnet test`
+against the committed reference instances — see below.
+
+### Reference instance
+
+`Umbraco-CMS.Skills/` (+ `Umbraco-CMS.Skills.sln`) is a committed Umbraco **17** web project
+(`net10.0`, `Umbraco.Cms 17.5.3`, SQLite unattended install, **Clean** starter kit) used to
+validate that skill output compiles and serves. It was scaffolded with the **Package Script
+Writer CLI** (`psw`); the exact command is in the README, and package versions are centrally
+managed in `Umbraco-CMS.Skills/Directory.Packages.props`. Only the scaffolding is committed —
+the runtime SQLite DB, `bin/`, `obj/`, the `Umbraco.Skills.Sandbox/` scratch project, and
+`.local-nuget-feed/` are `.gitignore`d (the project's own nested `.gitignore` covers Umbraco
+runtime paths), and Clean re-installs on first boot. **Never commit** runtime data.
+
+**Deterministic validation (`dotnet test`).** Runtime proof that a skill's code compiles and
+serves correctly is a model-free `dotnet test` gate:
+
+- Each validated approach ships `plugins/implementation/skills/<skill>/examples/<approach>/`. The
+  skill's `assets/` are projected into the project's `obj/` **at build time** with `<Namespace>` and
+  any other declared placeholder substituted — nothing generated is committed, so the code compiled
+  and served IS the code the skill ships and cannot drift. `scripts/generate-examples.py` does the
+  projection and fails the build on a placeholder the manifest didn't declare; `--lint` checks
+  manifests without building. Skills whose `assets/` aren't on the current branch are skipped.
+  Host wiring a skill needs (e.g. the 500 page's `UseExceptionHandler`) ships as an
+  `IComposer`/`IUmbracoPipelineFilter` **inside the example**, so no host's `Program.cs` is touched.
+- **Two reference hosts, split by artefact type** — approaches implemented as C# that registers into
+  DI go to `Umbraco-CMS.Skills` (with Clean); approaches implemented as Document Types + templates +
+  config go to `Umbraco-CMS.Skills.Blank` (no starter kit, content seeded by each example's own
+  package migration). Clean has to be absent from the second: it ships its own `xMLSitemap` and
+  `error` types and views, which are competing implementations of the very features under test. Each
+  example declares its host as `"host": "clean" | "blank"` in `.generate.json`. This is also why a
+  skill may document at most two approaches — it keeps the host count at two.
+- `Umbraco-CMS.Skills.TestHost/` and `Umbraco-CMS.Skills.TestHost.Blank/` (NUnit +
+  `WebApplicationFactory`) each boot their host in-process against an isolated test SQLite DB and
+  HTTP-assert the skills. One host per assembly, because Umbraco's `StaticServiceProvider` is
+  process-wide static state; `UmbracoHostSentinel` fails loudly if two ever share a process, and CI
+  invokes `dotnet test` per project rather than solution-wide so the isolation doesn't rest on a
+  VSTest implementation detail. Fixtures route by file name: `*Tests.cs` to the Clean assembly,
+  `*BlankTests.cs` to the blank one. Runs in CI (`.github/workflows/validate-skills.yml`).
+
+The `umbraco-reference-instance` authoring skill (in `.claude/skills/`) documents this gate and
+also offers a manual boot/`try` harness (`https://localhost:44372`, `admin@example.com` /
+`1234567890`) for interactive poking and backoffice-dependent steps. It complements
+`umbraco-skill-evaluator` (which grades whether Claude *writes* the right code) by proving the
+code *runs*.
+
+### Workflow
+
+Changes land via **branch → pull request → squash-merge into `main`**:
+
+1. Branch off `main` (never commit directly to `main`).
+2. Commit, push, open a PR with `gh pr create --base main`.
+3. Address review, then `gh pr merge <n> --squash --delete-branch`.
+4. `git checkout main && git pull --ff-only`.
+
+Keep PRs scoped to one skill or one concern. Only commit/push/merge when explicitly
+asked.
 
 ## What NOT to do
 
