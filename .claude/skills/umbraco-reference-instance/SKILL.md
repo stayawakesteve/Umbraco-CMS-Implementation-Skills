@@ -136,6 +136,11 @@ dotnet test Umbraco-CMS.Skills.TestHost.Blank/Umbraco-CMS.Skills.TestHost.Blank.
 python3 scripts/generate-examples.py --lint  # every placeholder an asset carries is declared
 ```
 
+Run the two `dotnet test` commands **separately, exactly as above** — not
+`dotnet test Umbraco-CMS.Skills.sln`. `UmbracoHostSentinel` fails loudly if both hosts ever land in
+one process, and invoking per project keeps that isolation from resting on a VSTest implementation
+detail. CI (`.github/workflows/validate-skills.yml`) invokes them the same way.
+
 **Adding a skill to the gate is an authoring task**, so it's documented where authors work:
 [`umbraco-skill-author`'s runtime-validation reference](../umbraco-skill-author/references/runtime-validation.md)
 covers the `examples/<approach>/` layout, how `.generate.json` substitutes placeholders and declares

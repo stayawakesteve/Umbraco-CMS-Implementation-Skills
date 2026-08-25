@@ -115,51 +115,32 @@ automatically in CI). Run it locally before opening a PR. If you added, renamed 
 re-described a skill, also run `python scripts/validate_skills.py --write-index` to
 refresh the index above.
 
-Skills that ship runnable code are additionally gated at runtime by `dotnet test`
-against the committed reference instances — see below.
+Skills that ship runnable code are additionally gated at runtime: their `assets/` are
+compiled and HTTP-asserted against the committed reference instances by a model-free
+`dotnet test` gate (`.github/workflows/validate-skills.yml`). Run it locally with:
 
-### Reference instance
+```bash
+python3 scripts/generate-examples.py --lint
+dotnet build Umbraco-CMS.Skills.sln
+dotnet test Umbraco-CMS.Skills.TestHost/Umbraco-CMS.Skills.TestHost.csproj --no-build
+dotnet test Umbraco-CMS.Skills.TestHost.Blank/Umbraco-CMS.Skills.TestHost.Blank.csproj --no-build
+```
 
-`Umbraco-CMS.Skills/` (+ `Umbraco-CMS.Skills.sln`) is a committed Umbraco **17** web project
-(`net10.0`, `Umbraco.Cms 17.5.3`, SQLite unattended install, **Clean** starter kit) used to
-validate that skill output compiles and serves. It was scaffolded with the **Package Script
-Writer CLI** (`psw`); the exact command is in the README, and package versions are centrally
-managed in `Umbraco-CMS.Skills/Directory.Packages.props`. Only the scaffolding is committed —
-the runtime SQLite DB, `bin/`, `obj/`, the `Umbraco.Skills.Sandbox/` scratch project, and
-`.local-nuget-feed/` are `.gitignore`d (the project's own nested `.gitignore` covers Umbraco
-runtime paths), and Clean re-installs on first boot. **Never commit** runtime data.
+### Reference instances
 
-**Deterministic validation (`dotnet test`).** Runtime proof that a skill's code compiles and
-serves correctly is a model-free `dotnet test` gate:
+`Umbraco-CMS.Skills/` (**Clean** starter kit) and `Umbraco-CMS.Skills.Blank/` (no starter
+kit) are committed Umbraco **17** web projects (`net10.0`, SQLite, unattended install) that
+exist only to validate skill output. Only the scaffolding is committed; both re-install on
+first boot.
 
-- Each validated approach ships `plugins/implementation/skills/<skill>/examples/<approach>/`. The
-  skill's `assets/` are projected into the project's `obj/` **at build time** with `<Namespace>` and
-  any other declared placeholder substituted — nothing generated is committed, so the code compiled
-  and served IS the code the skill ships and cannot drift. `scripts/generate-examples.py` does the
-  projection and fails the build on a placeholder the manifest didn't declare; `--lint` checks
-  manifests without building. Skills whose `assets/` aren't on the current branch are skipped.
-  Host wiring a skill needs (e.g. the 500 page's `UseExceptionHandler`) ships as an
-  `IComposer`/`IUmbracoPipelineFilter` **inside the example**, so no host's `Program.cs` is touched.
-- **Two reference hosts, split by artefact type** — approaches implemented as C# that registers into
-  DI go to `Umbraco-CMS.Skills` (with Clean); approaches implemented as Document Types + templates +
-  config go to `Umbraco-CMS.Skills.Blank` (no starter kit, content seeded by each example's own
-  package migration). Clean has to be absent from the second: it ships its own `xMLSitemap` and
-  `error` types and views, which are competing implementations of the very features under test. Each
-  example declares its host as `"host": "clean" | "blank"` in `.generate.json`. This is also why a
-  skill may document at most two approaches — it keeps the host count at two.
-- `Umbraco-CMS.Skills.TestHost/` and `Umbraco-CMS.Skills.TestHost.Blank/` (NUnit +
-  `WebApplicationFactory`) each boot their host in-process against an isolated test SQLite DB and
-  HTTP-assert the skills. One host per assembly, because Umbraco's `StaticServiceProvider` is
-  process-wide static state; `UmbracoHostSentinel` fails loudly if two ever share a process, and CI
-  invokes `dotnet test` per project rather than solution-wide so the isolation doesn't rest on a
-  VSTest implementation detail. Fixtures route by file name: `*Tests.cs` to the Clean assembly,
-  `*BlankTests.cs` to the blank one. Runs in CI (`.github/workflows/validate-skills.yml`).
+How to boot, inspect and extend them is documented in the authoring skills rather than
+here, so there is one copy to keep current. Both are plain `SKILL.md`/markdown — read the
+file directly if your agent does not load `.claude/skills/` itself:
 
-The `umbraco-reference-instance` authoring skill (in `.claude/skills/`) documents this gate and
-also offers a manual boot/`try` harness (`https://localhost:44372`, `admin@example.com` /
-`1234567890`) for interactive poking and backoffice-dependent steps. It complements
-`umbraco-skill-evaluator` (which grades whether Claude *writes* the right code) by proving the
-code *runs*.
+| Read | For |
+| --- | --- |
+| [`umbraco-reference-instance`](.claude/skills/umbraco-reference-instance/SKILL.md) | Booting an instance, discovering what content it holds, running and debugging the `dotnet test` gate, and the manual `try` harness for backoffice-dependent steps. |
+| [`umbraco-skill-author` → `runtime-validation.md`](.claude/skills/umbraco-skill-author/references/runtime-validation.md) | Adding a skill to the gate: the `examples/<approach>/` layout, how `.generate.json` substitutes placeholders, which of the two hosts an approach belongs to, and writing fixtures. |
 
 ### Workflow
 
@@ -178,5 +159,10 @@ asked.
 - Do not edit anything between the `SKILLS-INDEX` markers by hand.
 - Do not add skills directly to `.claude/skills/` intending them for
   publication — published skills go under `plugins/<plugin>/skills/`.
+- Do not commit reference-instance runtime data — a populated `App_Data` SQLite
+  DB, `bin/`, `obj/`, the `Umbraco.Skills.Sandbox/` scratch project or
+  `.local-nuget-feed/`. All are `.gitignore`d; keep them that way.
+- Do not commit generated example code. Skill `assets/` are the single source of
+  truth and are projected into each example's `obj/` at build time.
 - Do not introduce symlinks into the repo; consumers on Windows check this
   repository out with symlinks disabled.
