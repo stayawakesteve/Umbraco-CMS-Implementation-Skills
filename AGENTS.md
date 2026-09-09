@@ -105,9 +105,12 @@ description; use a `>` block scalar.
 - Skill bodies must not reference agent-specific features (slash commands,
   subagents, named built-in tools). If behaviour genuinely differs per agent,
   write it conditionally ("if your agent supports X… otherwise…").
-- Bundled scripts are invoked as plain `python <script> <args>` with no
-  environment assumptions beyond the Python standard library, unless the SKILL.md
-  documents dependencies explicitly.
+- Bundled scripts are invoked as plain `node <script> <args>` with no environment
+  assumptions beyond the Node standard library, unless the SKILL.md documents
+  dependencies explicitly. Node because it is the one runtime a consumer of these
+  skills is most likely to already have, and the only one this repo's own tooling
+  needs. Don't add a script in another language without agreeing it first — it
+  becomes a prerequisite for everyone who installs the skill.
 
 ### Validation
 
@@ -116,11 +119,15 @@ automatically in CI). Run it locally before opening a PR. If you added, renamed 
 re-described a skill, also run `node scripts/validate-skills.mjs --write-index` to
 refresh the index above.
 
-The validator and its tests need **Node only** — no `npm install`, no
-dependencies. Frontmatter is read by `scripts/frontmatter.mjs`, a deliberately
-strict reader that treats any YAML it does not recognise as an error, so a
-malformed `SKILL.md` fails loudly here instead of being dropped silently by a
-consuming tool. Its tests run on Node's built-in runner:
+**All tooling in this repo is Node, and needs nothing installed** — no `npm
+install`, no dependencies, nothing beyond the Node standard library. That is
+deliberate: the only prerequisites for building and validating this repo are the
+.NET SDK and `node`. Don't reintroduce a second runtime.
+
+Frontmatter is read by `scripts/frontmatter.mjs`, a deliberately strict reader
+that treats any YAML it does not recognise as an error, so a malformed `SKILL.md`
+fails loudly here instead of being dropped silently by a consuming tool. Every
+script has tests, which run on Node's built-in runner:
 
 ```bash
 node --test scripts/*.test.mjs
@@ -131,7 +138,7 @@ compiled and HTTP-asserted against the committed reference instances by a model-
 `dotnet test` gate (`.github/workflows/validate-skills.yml`). Run it locally with:
 
 ```bash
-python3 scripts/generate-examples.py --lint
+node scripts/generate-examples.mjs --lint
 dotnet build Umbraco-CMS.Skills.sln
 dotnet test Umbraco-CMS.Skills.TestHost/Umbraco-CMS.Skills.TestHost.csproj --no-build
 dotnet test Umbraco-CMS.Skills.TestHost.Blank/Umbraco-CMS.Skills.TestHost.Blank.csproj --no-build
