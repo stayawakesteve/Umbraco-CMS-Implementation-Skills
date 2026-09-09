@@ -213,7 +213,7 @@ Umbraco-CMS-Implementation-Skills/
 ├── Umbraco-CMS.Skills.TestHost.Blank/   # dotnet test: boots instance 2 (own process)
 ├── TestHost.Shared/                     # boot/wait/preconditions code linked into both test hosts
 ├── Umbraco-CMS.Skills.sln
-├── scripts/generate-examples.py         # projects assets/ into each example at build time
+├── scripts/generate-examples.mjs        # projects assets/ into each example at build time
 └── .claude/
     └── skills/                          # Repo-authoring skills (evaluator, reference-instance)
 ```
