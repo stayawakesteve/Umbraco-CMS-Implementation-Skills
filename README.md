@@ -179,8 +179,12 @@ dotnet build Umbraco-CMS.Skills.sln
 dotnet test Umbraco-CMS.Skills.TestHost/Umbraco-CMS.Skills.TestHost.csproj --no-build
 dotnet test Umbraco-CMS.Skills.TestHost.Blank/Umbraco-CMS.Skills.TestHost.Blank.csproj --no-build
 
-python3 scripts/generate-examples.py --lint   # every placeholder an asset carries is declared
+node scripts/generate-examples.mjs --lint   # every placeholder an asset carries is declared
 ```
+
+Building needs the **.NET SDK and `node`** — nothing else, and nothing to `npm install`. The
+build shells out to `node` to project each skill's `assets/` into `obj/`, and the repo's scripts
+use only the Node standard library.
 
 This runs in CI (`.github/workflows/validate-skills.yml`). For interactive poking or
 backoffice-dependent steps, the `umbraco-reference-instance` authoring skill (in
