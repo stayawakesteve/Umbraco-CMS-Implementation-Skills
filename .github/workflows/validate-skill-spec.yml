@@ -15,7 +15,7 @@ on:
       - "plugins/**"
       - ".claude/skills/**"
       - "AGENTS.md"
-      - "scripts/validate_skills.py"
+      - "scripts/**"
       - ".claude-plugin/**"
       - ".github/workflows/validate-skill-spec.yml"
   push:
@@ -32,15 +32,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      # Node only, and deliberately no install step: the validator and its
+      # tests use nothing beyond the Node standard library.
+      - uses: actions/setup-node@v4
         with:
-          python-version: "3.12"
+          node-version: "22"
 
-      - name: Install dependencies
-        run: pip install pyyaml
+      - name: Test the validator
+        run: node --test scripts/*.test.mjs
 
       - name: Validate skills and check index freshness
-        run: python scripts/validate_skills.py --check-index
+        run: node scripts/validate-skills.mjs --check-index
 
   cross-agent-install:
     name: Cross-agent discoverability (Vercel Skills CLI)
