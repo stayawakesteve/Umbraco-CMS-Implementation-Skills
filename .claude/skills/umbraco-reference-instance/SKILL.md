@@ -168,7 +168,7 @@ appear. If a line you're sure is wrong reports nothing, you have an earlier erro
 don't conclude the call is fine.
 
 **Check API shape against the version you're compiling, not the source you have open.** The
-`Umbraco-CMS` working directory (see CLAUDE.md) is on whatever branch it happens to be on, which
+`Umbraco-CMS` working directory (see AGENTS.md) is on whatever branch it happens to be on, which
 may be a different major than `Directory.Packages.props` pins — confirm with
 `git -C <umbraco-src> rev-parse --abbrev-ref HEAD`. Then let the compiler answer rather than
 grep: add a temporary probe file that calls the API with deliberately wrong arguments, and read
