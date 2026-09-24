@@ -6,8 +6,9 @@ modelling** and **implementation** work. Skills use the open
 (Claude Code, Cursor, GitHub Copilot, Codex CLI, Windsurf, OpenCode, and others).
 
 **This file is the single source of truth for working in this repo, whatever agent
-you are.** `CLAUDE.md` imports it and adds only the Claude Code-specific parts, so
-guidance that applies to everyone lives here and is written once.
+you are.** Agents read `AGENTS.md` directly — Claude Code included — so there is one
+file to keep current rather than one per tool. There is deliberately no `CLAUDE.md`;
+the few Claude-specific details are marked as such below.
 
 The marketplace is split into two plugins:
 
@@ -69,8 +70,12 @@ Umbraco-CMS.Skills.sln
 ```
 
 The `.claude-plugin/marketplace.json` and per-plugin `.claude-plugin/plugin.json`
-manifests are Claude-specific; other agents should ignore them but must not break
-them.
+manifests are Claude-specific: they make this repo installable as a Claude Code
+plugin marketplace, named `umbraco-cms-implementation-marketplace`. Other agents
+should ignore them but must not break them.
+
+Plugin **versions are kept in sync** between `marketplace.json` and each plugin's
+`plugin.json`. Bump both or neither — a mismatch is not caught by any gate.
 
 ### Published vs authoring skills
 

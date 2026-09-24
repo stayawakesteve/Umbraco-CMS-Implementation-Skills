@@ -225,8 +225,8 @@ containing a `SKILL.md`.
 
 [AGENTS.md](AGENTS.md) is the entry point for anyone working on this repo — human or
 agent, whichever editor you use. It covers the skill-authoring rules, what keeps a
-skill portable across agents, and the validation gates. `CLAUDE.md` imports it and adds
-only the Claude Code-specific parts.
+skill portable across agents, and the validation gates. There is no separate
+`CLAUDE.md` — agents read `AGENTS.md` directly.
 
 Two authoring skills (in `.claude/skills/`, not published) help maintain the
 marketplace:
