@@ -151,4 +151,7 @@ the handler maps an email and a name claim; Microsoft Account and Google both do
 
 Tell the user where the code, manifest and configuration went, and which redirect URI to register
 per environment. Say which groups each provider role grants and whether password login remains.
+If the user's provider setup was multi-tenant, spell out the risk you closed. Auto-linking matches
+on email, so a user in another tenant who sets an existing editor's or administrator's email
+would take over that account.
 List the checks from **Verify** that were and weren't made.
