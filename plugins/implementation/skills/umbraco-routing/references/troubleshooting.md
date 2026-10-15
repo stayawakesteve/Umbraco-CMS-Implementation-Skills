@@ -16,7 +16,7 @@ and its inbound and outbound pages.
 | Virtual-page or custom route returns 500 "Wasn't able to get an UmbracoContext" | Path has a file extension | `UmbracoRequestOptions.HandleAsServerSideRequest` for that path |
 | `umbracoRedirect` / `umbracoInternalRedirectId` does nothing | Property isn't a Content Picker (e.g. Multi URL Picker), alias misspelled, or the target isn't published | Use a Content Picker with the exact alias; publish the target |
 | `umbracoUrlAlias` path 404s | Page not republished since the alias was set, a domain in the value, or a real page at that path (pages match before aliases) | Paths only (`promo/spring`, leading and trailing `/` are ignored), republish, check for clashes |
-| `/{guid}` renders a page | `ContentFinderByKeyPath`, on by default | `WebRouting:DisableFindContentByIdentifierPath: true` |
+| A page renders by id or key (`/{guid}`, `?umbPageID=1234`) | `ContentFinderByKeyPath` and `ContentFinderByPageIdQuery`, both on by default; `/1234` no longer routes on 17 | `WebRouting:DisableFindContentByIdentifierPath: true` for `/{guid}`; `builder.ContentFinders().Remove<ContentFinderByPageIdQuery>()` for `?umbPageID=`. The Delivery API serves items by id separately. |
 | Wrong site's page on a multi-site install | Request host has no domain assigned, so Umbraco matches the path without a site | Assign domains; `UseStrictDomainMatching: true` stops routing unassigned hosts |
 | Headless front end can't resolve a path | The Delivery API doesn't use content finders | Implement `IApiContentPathResolver` (not covered by this skill) |
 

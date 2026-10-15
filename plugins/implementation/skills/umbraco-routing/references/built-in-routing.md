@@ -38,10 +38,11 @@ Steps:
 
 1. **Discover:** which Document Types need which properties (rarely all four on every type), and
    whether the Umbraco Developer MCP is connected.
-2. **Create the properties.** Import the package (Settings → Packages, or treat the XML as the spec)
-   or add the properties by hand to a composition. Delete the ones the site doesn't need, then add
-   the composition to the page types. With the MCP, create them through it; without it, give the user
-   one backoffice step at a time.
+2. **Create the properties** as a composition, using the XML as the spec: names, aliases, editors.
+   The 17 backoffice has no package upload, so build it with the MCP or give the user one backoffice
+   step at a time (Settings → Document Types → create a composition, add each property, unlock and
+   type the alias). Only a developer can install the XML directly, through a package migration.
+   Leave out the properties the site doesn't need, then add the composition to the page types.
 3. **Publish** a page with a value set. Segment and alias changes apply when the page is published.
 4. **Verify** each URL with a request, see *Verify* below.
 
@@ -67,7 +68,7 @@ All under `Umbraco:CMS` in `appsettings.json`. Defaults shown.
 | `WebRouting:UrlProviderMode` | `Auto` | Force `Absolute` or `Relative` URLs from `Url()`. |
 | `WebRouting:UseStrictDomainMatching` | `false` | Stop routing requests on hostnames not assigned to a site (e.g. the `*.azurewebsites.net` name). |
 | `WebRouting:DisableAlternativeTemplates` | `false` | Stop `?altTemplate=alias` from switching a page's template. |
-| `WebRouting:DisableFindContentByIdentifierPath` | `false` | Stop `/{guid}` from rendering a page. |
+| `WebRouting:DisableFindContentByIdentifierPath` | `false` | Stop `/{guid}` from rendering a page. `?umbPageID=1234` has no setting: remove `ContentFinderByPageIdQuery` in a composer. |
 | `WebRouting:DisableRedirectUrlTracking` | `false` | Turn off the automatic 301s above. |
 | `WebRouting:InternalRedirectPreservesTemplate` | `false` | Keep the alt template across an `umbracoInternalRedirectId`. |
 

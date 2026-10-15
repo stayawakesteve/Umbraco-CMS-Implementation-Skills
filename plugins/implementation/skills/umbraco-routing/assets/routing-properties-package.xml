@@ -4,9 +4,10 @@
   property aliases. Umbraco reads these aliases from any published page that has them; nothing else
   needs registering.
 
-  Two ways to use it. Import it from the backoffice (Packages) or treat it as the exact spec for
-  building the same composition by hand or with the Umbraco Developer MCP. Either way, add the
-  composition to your own page Document Types afterwards; this package cannot know what they are.
+  It is the exact spec for building the composition by hand or with the Umbraco Developer MCP. The
+  Umbraco 17 backoffice has no package upload; a developer can install it as-is from a package
+  migration. Either way, add the composition to your own page Document Types afterwards; this
+  package cannot know what they are.
 
   The ALIASES and PROPERTY EDITORS are what matter, and both are load-bearing:
     umbracoUrlName             Textstring      replaces the node's URL segment
