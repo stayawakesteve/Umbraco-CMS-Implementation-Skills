@@ -41,3 +41,17 @@ read `plugins/`, `.claude/` or any Umbraco source checkout.
 
 Grade code expectations from the files under `outputs/project/`, not from `final-answer.md` alone. A
 build claim is checked by building the run's project.
+
+## Results (2026-10-15)
+
+| Iteration | Model | With skill | Without | Notes |
+|---|---|---|---|---|
+| 1 | Sonnet | 97% | 97% | Tie on pass rate; with the skill 3.3× faster (131 s vs 429 s) and ~19% fewer tokens. Sonnet baselines found the traps by decompiling 17.5.3 or booting Umbraco. |
+| 2 | Haiku | 100% | 84% | After the iteration-1 fixes. Eval 4 is the clearest gap (6/6 vs 3/6): the baseline told the user the misnamed `DisableFindContentByIdPath` key was correct. |
+
+The runs found three errors in the skill, all fixed: a deployed segment provider rebuilds every URL at
+boot without recording redirects (eval 1); the 17 backoffice has no package upload (eval 2); content
+finders never run for a path with an extension, even with `HandleAsServerSideRequest` (eval 3).
+
+Eval 2 passes on both sides with both models, and eval 3 on both sides with Haiku: they guard
+against regressions but don't measure the skill's value.

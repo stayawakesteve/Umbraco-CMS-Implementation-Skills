@@ -3,15 +3,16 @@ name: umbraco-routing
 description: >
   Front-end URL routing for Umbraco 17+ sites: how page URLs are built and matched, and how to
   change either. Covers the no-code options (umbracoUrlName, umbracoUrlAlias, umbracoRedirect,
-  umbracoInternalRedirectId, automatic 301s for renamed or moved pages, HideTopLevelNodeFromPath,
-  AddTrailingSlash, WebRouting settings, rewrite rules) and routing code (IUrlSegmentProvider,
-  IContentFinder, IUrlProvider, IVirtualPageController routes). Also diagnoses #err- URLs, URL collisions and pages that 404 after a
-  URL change. Trigger: "change a page's URL", "put the SKU in product URLs", "vanity URL", "short
-  link", "redirect old URLs", "remove the trailing slash", "map /x/{id} to a page", "custom route
-  with the site layout", "write a content finder". SKIP: hijacking a Document Type's route or
-  surface controllers (umbraco-templating), 404 pages (umbraco-custom-error-pages), Culture and
-  Hostnames (umbraco-multilingual), sitemap.xml (umbraco-sitemap), headless/Delivery API, non-Umbraco
-  or Umbraco < 17.
+  umbracoInternalRedirectId, automatic 301s, HideTopLevelNodeFromPath, AddTrailingSlash,
+  WebRouting settings, rewrite rules) and routing code (IUrlSegmentProvider, IContentFinder,
+  IUrlProvider, IVirtualPageController routes). Also diagnoses #err- URLs, URL collisions, pages
+  reachable by id, and old URLs that 404. Trigger: "change a page's URL", "put the
+  SKU in product URLs", "vanity URL", "short link", "redirect old URLs", "keep old .html links
+  working", "remove the trailing slash", "map /x/{id} to a page", "custom route with the site
+  layout", "write a content finder". SKIP: hijacking a Document Type's route or surface
+  controllers (umbraco-templating), 404 pages (umbraco-custom-error-pages), Culture and Hostnames
+  (umbraco-multilingual), sitemaps (umbraco-sitemap), headless/Delivery API, non-Umbraco or
+  Umbraco < 17.
 ---
 
 # Routing
