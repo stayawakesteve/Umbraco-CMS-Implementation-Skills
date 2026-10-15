@@ -25,7 +25,7 @@ Primary layout (what SKILL.md tells the agent to build):
             └── grading.json
 
 `without_skill` is replaced by `old_skill` when iterating on an existing
-skill. Discovery matches the viewer (generate_review.py): each config
+skill. Discovery matches the viewer (generate_review.mjs): each config
 directory holds grading.json directly, alongside outputs/.
 
 Legacy layout (older runs that nested replicate runs under run-*/) is also

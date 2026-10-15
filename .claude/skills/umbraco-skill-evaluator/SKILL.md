@@ -20,7 +20,7 @@ A focused, low-cost skill for evaluating skills. Assumes the skill already exist
 
 - with-skill vs. without-skill (or vs. previous version) parallel runs
 - Haiku-powered grader subagents
-- The HTML viewer for qualitative review
+- The HTML viewer for qualitative review (`eval-viewer/generate_review.mjs`)
 - `aggregate_benchmark.py` for quantitative summary
 - The iteration loop
 
@@ -174,7 +174,7 @@ Add observations to the `notes[]` field of `benchmark.json` so the viewer surfac
 Then launch the viewer:
 
 ```bash
-nohup python <skill-evaluator-path>/eval-viewer/generate_review.py \
+nohup node <skill-evaluator-path>/eval-viewer/generate_review.mjs \
   <workspace>/iteration-N \
   --skill-name "<skill-name>" \
   --benchmark <workspace>/iteration-N/benchmark.json \
@@ -265,4 +265,4 @@ Out of scope. If the user asks "is the new version *really* better?" beyond what
 - `agents/grader.md` — instructions for the Haiku grader subagent
 - `references/schemas.md` — JSON shapes for `evals.json`, `grading.json`, `benchmark.json`, `timing.json`
 - `scripts/aggregate_benchmark.py` — produces `benchmark.json` from a workspace iteration directory
-- `eval-viewer/generate_review.py` — launches the qualitative + quantitative viewer
+- `eval-viewer/generate_review.mjs` — launches the qualitative + quantitative viewer (Node standard library only; tests in `generate_review.test.mjs`)
