@@ -11,7 +11,7 @@
       ],
       "expectations": [
         "The CSP nonce comes from Umbraco's `ICspNonceService.GetNonce()` (not a nonce the agent generates itself and not a hard-coded value), and the site's script-src contains no `'unsafe-inline'`",
-        "There are two different policies: one for backoffice requests under `/umbraco` that includes backoffice-specific sources (at least two of: `'unsafe-inline'` in style-src, `blob:`/`data:` images, `https://news-dashboard.umbraco.com`, `https://marketplace.umbraco.com`), and one for the website that does not include those backoffice-specific sources",
+        "There are two different policies: one for backoffice requests under `/umbraco` that includes backoffice-specific sources (at least two of: `'unsafe-inline'` in style-src, `blob:` images, `https://news-dashboard.umbraco.com`, `https://marketplace.umbraco.com`), and one for the website that does not include the Umbraco news-dashboard or marketplace hosts (`data:` images on the website are fine)",
         "The middleware is registered from an `IComposer` through an `UmbracoPipelineFilter` using `PrePipeline` (so it runs before static files and media), and Program.cs is not edited",
         "The GTM inline script runs without `'unsafe-inline'` in script-src, either by a nonce or by a sha256 hash or external file. If it uses the `asp-csp-nonce` tag helper, `Views/_ViewImports.cshtml` registers it with `@addTagHelper *, Umbraco.Web.Common` (the assembly `Umbraco.Web.Common`, not `Umbraco.Cms.Web.Common`); if it uses a hash or external file, the answer ties that choice to the output cache",
         "The site policy allows the external origins the layout uses: `https://www.googletagmanager.com` in script-src, `https://fonts.googleapis.com` in style-src and `https://fonts.gstatic.com` in font-src",
@@ -30,7 +30,7 @@
       "expectations": [
         "The agent advises against adding `.UnsafeInline()` (or `'unsafe-inline'`) to ScriptSources as the fix",
         "The fix keeps NWebsec and calls Umbraco's `app.UseUmbracoCspNonceInjection()` after the `UseCsp` call(s) and before `app.UseUmbraco()`",
-        "The backoffice and the website get different CSPs, selected by request path (for example `UseWhen` on `/umbraco`), and the backoffice one includes backoffice-specific sources (at least two of: `UnsafeInline()` styles, `data:`/`blob:` images, `https://news-dashboard.umbraco.com`, `https://marketplace.umbraco.com`) that the site one does not",
+        "The backoffice and the website get different CSPs, selected by request path (for example `UseWhen` on `/umbraco`), and the backoffice one includes backoffice-specific sources (at least two of: `UnsafeInline()` styles, `blob:` images, `https://news-dashboard.umbraco.com`, `https://marketplace.umbraco.com`), and the site one does not include the Umbraco news-dashboard or marketplace hosts",
         "The agent removes the `Headers.Append(\"Content-Security-Policy\", ...)` line and explains that a second CSP header is enforced in addition to the first",
         "Framing protection becomes `SAMEORIGIN` (`X-Frame-Options`) and/or `frame-ancestors 'self'`, not `DENY`/`'none'`, and the agent links this to Preview, which shows the site in a same-origin iframe",
         "The agent removes `UseXXssProtection` (the X-XSS-Protection header) rather than keeping it",
