@@ -27,8 +27,7 @@ or `UseXContentTypeOptions` in `Program.cs`. For a project without NWebsec, use
    come from NWebsec only.
 2. **Split the CSP by surface** with two `UseWhen` branches, both before `app.UseUmbraco()`:
    - `context.Request.Path.StartsWithSegments("/umbraco")`: `UseCsp` with the backoffice sources
-     from the docs sample (`'unsafe-inline'` styles, `data:`/`blob:` and news-dashboard images,
-     the marketplace frame source), with `ScriptSources(s => s.Self())`;
+     listed in the skill's best practices, and `ScriptSources(s => s.Self())`;
    - the negation: `UseCsp` with the site's own sources and no `UnsafeInline()` on scripts.
 
    Don't add a nonce or `'unsafe-inline'` to either `ScriptSources`. The injection adds the nonce.

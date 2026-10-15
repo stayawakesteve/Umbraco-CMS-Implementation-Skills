@@ -40,9 +40,11 @@ to 17.2 there is no nonce to use, so recommend upgrading before adding a CSP.
 
 ## Best practices
 
-- **Two surfaces, two policies.** The backoffice under `/umbraco` needs `'unsafe-inline'` styles,
-  `blob:`/`data:` images and the Umbraco news-dashboard and marketplace hosts. The website should
-  get none of that, and its own sources (analytics, fonts, CDN) don't belong in the backoffice's.
+- **Two surfaces, two policies.** The backoffice under `/umbraco` needs `script-src 'self'` plus
+  the nonce, `style-src 'self' 'unsafe-inline'`, `img-src 'self' blob: data:
+  https://news-dashboard.umbraco.com` and `frame-src 'self' https://marketplace.umbraco.com`. The
+  website should get none of the Umbraco hosts or `'unsafe-inline'`, and its own sources
+  (analytics, fonts, CDN) don't belong in the backoffice's.
 - **The nonce is per request.** Umbraco tags its backoffice import map with it. For your own
   inline `<script>`/`<style>`, add `asp-csp-nonce` and register the tag helper with
   `@addTagHelper *, Umbraco.Web.Common`. Note the assembly is `Umbraco.Web.Common`, not
