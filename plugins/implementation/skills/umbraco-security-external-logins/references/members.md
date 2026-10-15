@@ -70,8 +70,6 @@ editors, use [users.md](users.md) instead.
 - A first sign-in creates an approved member of the configured type and groups, and a page
   protected by that group opens. A second sign-in reuses the member.
 
-If the site can't be run, say which of these were not checked.
-
 ## What trips people up
 
 - **A backoffice provider doesn't sign in members.** Members use `AddMemberExternalLogins`, and
@@ -110,6 +108,14 @@ If the site can't be run, say which of these were not checked.
 - **Lightweight external members** (`ExternalOnly = true`): no password, no Member Type
   properties, and only group-based public access. Assign groups through `defaultMemberGroups`,
   and later through `IExternalMemberService`, not `Roles`. Read the docs' trade-off table first.
+
+## Swapping the handler
+
+To use `AddGoogle` or another OAuth handler, replace `AddOpenIdConnect` and
+`IConfigureNamedOptions<OpenIdConnectOptions>` with that handler's options type. Keep the asset's
+`OnRemoteFailure`/`OnAccessDenied` redirects: `SetDefaultErrorEventHandling` returns to the
+backoffice login, not the site's. Keep `MemberSsoLoginProviderOptions` and `MemberSsoRules` as
+they are.
 
 ## Headless front ends
 

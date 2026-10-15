@@ -61,8 +61,8 @@ Targets **Umbraco 17+**. Type names, callbacks and defaults were checked against
 - **One callback path per scheme**, registered at the provider as an absolute URL per environment,
   and added to `Umbraco:CMS:Global:ReservedPaths`.
 - **Treat the scheme name as permanent.** Changing it orphans every existing link (see users.md).
-- **Prove it on the wire.** The checks at the end of each reference file use requests, not just a
-  build. If the site can't be run, say which checks were not made.
+- **Prove it on the wire.** The **Verify** checks in each reference file use requests, not just a
+  build.
 
 For two-factor authentication, password rules and other identity hardening, use the
 `umbraco-security` skill if it is installed.
