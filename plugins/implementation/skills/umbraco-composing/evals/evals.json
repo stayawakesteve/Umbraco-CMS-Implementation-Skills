@@ -55,7 +55,7 @@
         "The cache load is awaited (await _cache.LoadAllAsync(...)), and the sync-over-async .GetAwaiter().GetResult() is removed",
         "Runtime-level gating is preserved: either by deriving from RuntimeAsyncComponentBase, or by keeping an explicit RuntimeLevel.Run check",
         "The response does not claim that ComponentComposer<T> is obsolete (only IComponent is; ComponentComposer<T> now requires an IAsyncComponent and may be kept)",
-        "CampaignComposer gets a WEAK ComposeAfter on AnalyticsComposer ([ComposeAfter(typeof(AnalyticsComposer), true)] or the equivalent weak form), with the explanation that a strong requirement fails boot when AnalyticsComposer is disabled",
+        "CampaignComposer runs after AnalyticsComposer when it is enabled, and the site still boots when it is disabled: either a WEAK [ComposeAfter(typeof(AnalyticsComposer), true)] (or equivalent weak form) on CampaignComposer, or [ComposeBefore(typeof(CampaignComposer))] on AnalyticsComposer (which disappears with the disabled composer). The response explains that a strong ComposeAfter fails boot when AnalyticsComposer is disabled",
         "The CS0618 warnings are gone: build.txt shows no CS0618 for IComponent or ContentFinderByUrl in the project's own files",
         "The edited project compiles: build.txt beside the run (produced by the evaluator with `dotnet build` of outputs/project/MySite.Web) reports 0 errors",
         "The agent does not claim a build, boot or test result it did not actually run, and if it did not build, it says so"
