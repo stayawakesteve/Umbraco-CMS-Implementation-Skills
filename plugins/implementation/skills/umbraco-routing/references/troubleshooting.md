@@ -7,7 +7,8 @@ and its inbound and outbound pages.
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | A page's URL shows `#err-1234` or the backoffice Info tab lists a collision | Two published pages produce the same path: siblings with the same name or `umbracoUrlName`, or several roots with no domains while `HideTopLevelNodeFromPath` is `true` | Rename or set a distinct `umbracoUrlName`; give each root a domain (Culture and Hostnames). The first page in sort order keeps the URL. |
-| Page 404s after changing a segment provider, `umbracoUrlName` or the char replacements | Segments are stored at publish; the page hasn't been republished, or the new segment collides | Publish with descendants; check `Url()` for `#err` |
+| Old URLs 404 after deploying a segment provider | The boot-time rebuild changed every URL and recorded no redirects | A content finder that 301s old URLs to new |
+| Page keeps its old URL after changing a provider's logic, `umbracoUrlName` or the char replacements | Segments are stored at publish; no rebuild was triggered, or the new segment collides | Publish with descendants; check `Url()` for `#err` |
 | New URL works, old URL 404s | Redirect tracking only records changes to pages that were already published, and only with `DisableRedirectUrlTracking: false` | For URLs Umbraco never generated, add rewrite rules or a content finder |
 | Custom `IUrlProvider` URLs 404 | Outbound changed, inbound didn't | Add a content finder for those URLs, or switch to an `IUrlSegmentProvider` |
 | Content finder never runs | Not registered, or an earlier finder already matched (a real page or alias at that path), or the path has a file extension | Register in a composer; check the URL isn't a page; see *File extensions* in [custom-routing.md](custom-routing.md) |

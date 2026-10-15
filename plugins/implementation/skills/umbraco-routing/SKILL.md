@@ -60,9 +60,9 @@ are only covered there, including a config key the docs misname.
 
 ## Version compatibility
 
-Targets **Umbraco 17+**; the assets compile and serve on `Umbraco.Cms` 17.5.3. Since 15, URL segments
-are stored in the database when a page is published, so a segment change takes effect for a page
-only once it is republished. On 17.5, `umbracoUrlAlias` values are stored the same way. Umbraco 13
+Targets **Umbraco 17+**; the assets compile and serve on `Umbraco.Cms` 17.5.3. Since 15, Umbraco stores each
+page's URL segment when it is published, and rebuilds them all at boot only when the set of URL
+segment providers changes. On 17.5, `umbracoUrlAlias` values are stored the same way. Umbraco 13
 and earlier route differently (`IPublishedContentCache.GetByRoute`, `ContentFinderByIdPath`); don't
 apply this skill there.
 
@@ -76,8 +76,9 @@ apply this skill there.
   environment.
 - **Keep content finders cheap.** Every unmatched request runs through them: check your URL prefix
   first, and append after the built-in finders unless you must override a real page's URL.
-- **Don't hand-roll redirects for renames and moves.** Umbraco already records a 301 for every
-  changed URL, including changes caused by your own segment provider.
+- **Redirects follow publishes, not deploys.** Umbraco records a 301 when an editor's publish or
+  move changes a URL, so don't hand-roll those. A deploy that changes URLs (a new segment provider)
+  records none: published pages' old URLs need redirects from you.
 - **Report what you verified.** Request the URLs you changed. If no runnable site is available, say
   so rather than claiming the routing works.
 

@@ -9,7 +9,8 @@ namespace <Namespace>.Routing;
 /// "swibble-sw-123", so its URL becomes /products/swibble-sw-123/.
 ///
 /// Umbraco stores the segment it gets from here and routes inbound requests by it, so no content
-/// finder is needed. Existing pages keep their old segment until they are published again.
+/// finder is needed for the new URLs. Deploying this provider makes Umbraco rebuild every stored
+/// segment at the next boot WITHOUT recording redirects: published pages' old URLs need a 301 from you.
 /// </summary>
 public class SkuUrlSegmentProvider : IUrlSegmentProvider
 {

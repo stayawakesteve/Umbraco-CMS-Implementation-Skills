@@ -38,7 +38,7 @@ Each is independent; copy only the ones the task needs. Replace `<Namespace>` an
    (`Routing/`, `Controllers/`, `Composers/`), and whether the site is multi-site (domains on roots).
 2. **Pick the block** from the sections below and write it from the asset.
 3. **Register it.** Providers and finders in a composer; virtual-page controllers by `[Route]`.
-4. **Republish affected pages** when you changed segments: see *URL segment provider*.
+4. **Redirect the old URLs** of pages already published, if segments changed: see *URL segment provider*.
 5. **Build and request** the URLs, both the new ones and the old ones (see *Verify*).
 
 ### URL segment provider (`IUrlSegmentProvider`)
@@ -47,8 +47,13 @@ Changes one node's segment; the rest of the path, domains and redirects keep wor
 providers in order until one returns a non-null segment, then falls back to its own.
 - **Register with `Insert<T>()`** so it runs before the default provider. Return `null` for content it
   doesn't handle.
-- **The segment is stored at publish.** Existing pages keep their old URL until republished:
-  use **Publish with descendants** on their parent. Umbraco then records a 301 from each old URL. Tell the user to do this; it is easy to miss.
+- **Deploying it changes every existing URL, with no redirects.** Umbraco stores segments, and at
+  boot rebuilds all of them when the list of provider types changes (adding, removing or renaming
+  one). Redirect tracking only runs on publish and move, so the rebuild records no 301s and the old
+  URLs 404. If the pages are published and indexed, ship a content finder that 301s each old URL
+  to the new one (same shape as `SkuShortLinkContentFinder.cs`: match, look up, `SetRedirectPermanent`).
+- **Changing an existing provider's logic triggers no rebuild.** Pages keep their old segment until
+  republished (**Publish with descendants** on the parent); that publish does record 301s.
 - **No `/`** in a segment; `ToUrlSegment()` strips it. To add a level to the path, it has to be a
   real node.
 - Override `HasUrlSegmentChanged` only if the segment comes from outside the content (an API, a
@@ -117,5 +122,5 @@ run here, say so instead of claiming it works.
 
 ## Done
 
-Tell the user what was registered and where, which pages must be republished, the URLs to test, and
+Tell the user what was registered and where, what happens to existing URLs and how they redirect, the URLs to test, and
 any `HandleAsServerSideRequest` or config change made.
