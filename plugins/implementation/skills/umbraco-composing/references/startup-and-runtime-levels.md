@@ -12,8 +12,7 @@ use it.)
 
 `Umbraco.Cms.Core.RuntimeLevel`, in the order they're listed in the
 [Composing docs](https://docs.umbraco.com/umbraco-cms/model-your-content/content-types-and-structure/composing.md):
-`BootFailed`, `Unknown`, `Boot`, `Install`, `Upgrade`, `Run`. Umbraco 17 adds **`Upgrading`**, which
-the docs don't list yet. It means an unattended upgrade is running in the background while the HTTP
+`BootFailed`, `Unknown`, `Boot`, `Install`, `Upgrade`, `Run`. Umbraco 17 adds **`Upgrading`**. It means an unattended upgrade is running in the background while the HTTP
 server already answers health probes. During `Upgrading`, components and startup notifications are
 **deferred** until the migrations finish, and then run once at `Run`.
 

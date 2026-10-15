@@ -27,6 +27,11 @@ method, so switching between them later is a one-line change.
 | Works in a class library / package / RCL | Yes, and it's the only option there | No, because a package can't edit the host's `Program.cs` |
 | Best for | Self-contained features, packages, multi-project solutions | Site code that must override what a composer (including a third-party package) registered |
 
+**Before writing any code, open the reference for the approach you choose and start from its
+assets.** The Umbraco 17 traps are covered only there. For example, `ContentFinderByUrl` still
+compiles but is no longer registered, so anchoring to it fails at boot, and `AddUnique` silently
+turns a scoped service into a singleton.
+
 ### How to decide
 
 Default to A. Choose B when the user owns `Program.cs` and needs a registration to win over one

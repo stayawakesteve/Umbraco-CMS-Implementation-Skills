@@ -16,12 +16,18 @@ composer's type.
 
 - **Composers, collections and the composer attributes**:
   [Composing](https://docs.umbraco.com/umbraco-cms/model-your-content/content-types-and-structure/composing.md).
-  Its component examples use `IComponent`, which is obsolete in Umbraco 17. Use
-  [startup-and-runtime-levels.md](startup-and-runtime-levels.md) for components instead.
 - **Registering dependencies and service lifetimes**:
   [Dependency Injection](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/application-code/backend-and-custom-logic/using-ioc.md)
 - **Notification handlers**:
   [Notification Handler](https://docs.umbraco.com/umbraco-cms/extend-your-project/server-side-extensions/notifications/notification-handler.md)
+
+## Docs corrections (Umbraco 17)
+
+| Docs snippet | Problem | Use instead |
+|---|---|---|
+| Composing: components implement `IComponent` (`Initialize`/`Terminate`) | Obsolete in 17 (CS0618), scheduled for removal in 18 | `RuntimeAsyncComponentBase` or `IAsyncComponent`, per [startup-and-runtime-levels.md](startup-and-runtime-levels.md) |
+| Composing: the Runtime Levels list | Omits `Upgrading` (17.3+), during which components and startup notifications are deferred | See [startup-and-runtime-levels.md](startup-and-runtime-levels.md#the-runtime-levels-that-matter) |
+| Composing: modifying `HealthChecks()` with `Clear()` then re-adding | Silently drops checks that Umbraco or other packages add later | `HealthChecks().Exclude<T>()` for just the one check, per [collections-and-ordering.md](collections-and-ordering.md) |
 
 ## The files
 
