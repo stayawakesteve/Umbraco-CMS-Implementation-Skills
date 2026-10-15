@@ -99,9 +99,14 @@ the node already exists at that URL, hijack its route instead (`umbraco-templati
 
 ### File extensions
 
-Umbraco treats any path with an extension (`/feed.xml`, `/stores/london.json`) as a static-file
-request and creates no Umbraco context for it. A virtual page there fails with a 500 ("Wasn't able
-to get an UmbracoContext"). Opt the path back in, in `Program.cs` or a composer:
+Umbraco treats any path with an extension (`/feed.xml`, `/locations/leeds.html`) as a static-file
+request. Two separate consequences:
+- **Content routing never handles it.** Content finders, aliases and redirect tracking don't run
+  for it, whatever you configure. Redirect such legacy URLs with a rewrite rule or a plain
+  controller.
+- **No Umbraco context is created**, so a virtual page or any `IUmbracoContextAccessor` lookup
+  there fails with a 500 ("Wasn't able to get an UmbracoContext"). Opting the path in restores the
+  context for your own controller, in `Program.cs` or a composer:
 
 ```csharp
 builder.Services.Configure<UmbracoRequestOptions>(options =>
