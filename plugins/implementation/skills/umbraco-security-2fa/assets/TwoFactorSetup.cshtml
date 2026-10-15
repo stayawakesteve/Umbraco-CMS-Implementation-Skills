@@ -6,7 +6,6 @@
 @using Umbraco.Cms.Core.Models
 @using Umbraco.Cms.Core.Security
 @using Umbraco.Cms.Core.Services
-@using Umbraco.Cms.Web.Website.Controllers
 @using <Namespace>
 @inject IMemberManager MemberManager
 @inject IMemberTwoFactorLoginService MemberTwoFactorLoginService
@@ -42,7 +41,7 @@
     var setup = await MemberTwoFactorLoginService.GetSetupInfoAsync(member!.Key, provider.ProviderName);
     if (setup.Success && setup.Result is QrCodeSetupData qrCode)
     {
-        using (Html.BeginUmbracoForm<UmbTwoFactorLoginController>(nameof(UmbTwoFactorLoginController.ValidateAndSaveSetup)))
+        using (Html.BeginUmbracoForm<MemberTwoFactorController>(nameof(MemberTwoFactorController.Enable)))
         {
             <p>Scan this code with an authenticator app, then enter the code it shows.</p>
             <img src="@qrCode.SetupCode.QrCodeSetupImageUrl" alt="QR code for your authenticator app" />

@@ -21,7 +21,7 @@ turn 2FA off.
 | [`UmbracoMemberAppAuthenticator.cs`](../assets/UmbracoMemberAppAuthenticator.cs) | project root or a `Security/` folder | Provider, setup model, and composer registering it on a `MemberIdentityBuilder` |
 | [`MemberLogin.cshtml`](../assets/MemberLogin.cshtml) | `Views/Partials/` | Login form, plus the code form shown after a correct password |
 | [`TwoFactorSetup.cshtml`](../assets/TwoFactorSetup.cshtml) | `Views/Partials/` | QR code and code entry to turn 2FA on; code entry to turn it off |
-| [`MemberTwoFactorController.cs`](../assets/MemberTwoFactorController.cs) | `Controllers/` | Turns 2FA off only with a valid code, and closes Umbraco's own no-code `Disable` route |
+| [`MemberTwoFactorController.cs`](../assets/MemberTwoFactorController.cs) | `Controllers/` | Turns 2FA on through the checked service and off only with a valid code; closes Umbraco's own unchecked actions |
 
 ## Steps
 
@@ -51,10 +51,12 @@ turn 2FA off.
   `ITwoFactorProvider`, backoffice ones included. The docs view loops over all of them and calls the
   user provider's setup with a member key, which throws. The setup partial keeps only providers in
   the member `IdentityOptions` token map.
-- **Turning 2FA off needs no code** in `UmbTwoFactorLoginController.Disable`, so a hijacked session
-  can remove the second factor. Pointing the form elsewhere is not enough: Umbraco routes its own
-  surface controllers, so that action still answers at `/umbraco/surface/UmbTwoFactorLogin/Disable`.
-  The asset's controller calls `DisableByCodeAsync`, and its filter returns 404 for the built-in action.
+- **Umbraco's own setup actions are unchecked.** `UmbTwoFactorLoginController.Disable` needs no code,
+  and `ValidateAndSaveSetup` saves another secret even when 2FA is already on, so a hijacked session
+  can remove the second factor or add its own. Pointing the forms elsewhere is not enough: Umbraco
+  routes its own surface controllers, so both still answer under `/umbraco/surface/UmbTwoFactorLogin/`.
+  The asset's controller uses `ValidateAndSaveAsync` and `DisableByCodeAsync`, and its filter returns 404
+  for the two built-in actions.
 - **The sample provider** dereferences the member without a null check and hard-codes the issuer
   `testingOn15`.
 - **A failed setup code shows a new QR code**, because the page asks for fresh setup data. Tell

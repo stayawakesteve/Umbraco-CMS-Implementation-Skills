@@ -19,9 +19,10 @@ using Umbraco.Cms.Web.Website.Controllers;
 namespace <Namespace>;
 
 /// <summary>
-/// Turns a member's 2FA off only when they enter a current code, as the backoffice does for users.
-/// Umbraco's own UmbTwoFactorLoginController.Disable needs no code, so anyone holding a signed-in
-/// session could strip the second factor; BlockCodelessTwoFactorDisableFilter below shuts it.
+/// Turns a member's 2FA on and off through Umbraco's checked services. Umbraco's own
+/// UmbTwoFactorLoginController.Disable needs no code, and its ValidateAndSaveSetup saves a second secret
+/// even when 2FA is already on, so a signed-in session could strip or add a factor.
+/// BlockUncheckedTwoFactorActionsFilter below shuts both.
 /// </summary>
 [UmbracoMemberAuthorize]
 public class MemberTwoFactorController : SurfaceController
@@ -42,6 +43,29 @@ public class MemberTwoFactorController : SurfaceController
     {
         _memberManager = memberManager;
         _memberTwoFactorLoginService = memberTwoFactorLoginService;
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Enable(string providerName, string secret, string code)
+    {
+        MemberIdentityUser? member = await _memberManager.GetCurrentMemberAsync();
+        if (member is null)
+        {
+            return Unauthorized();
+        }
+
+        // Refuses when this provider is already enabled, unlike UmbTwoFactorLoginController.ValidateAndSaveSetup.
+        Attempt<TwoFactorOperationStatus> result =
+            await _memberTwoFactorLoginService.ValidateAndSaveAsync(providerName, member.Key, secret, code);
+
+        if (result.Success is false)
+        {
+            ModelState.AddModelError(nameof(code), "That code is not valid. Delete this entry from your app and scan the new code.");
+            return CurrentUmbracoPage();
+        }
+
+        return RedirectToCurrentUmbracoPage();
     }
 
     [HttpPost]
@@ -68,16 +92,23 @@ public class MemberTwoFactorController : SurfaceController
 }
 
 /// <summary>
-/// Umbraco routes its own surface controllers too, so UmbTwoFactorLoginController.Disable stays reachable
-/// at /umbraco/surface/UmbTwoFactorLogin/Disable even when no form posts to it. Answer 404 there.
+/// Umbraco routes its own surface controllers too, so UmbTwoFactorLoginController's Disable and
+/// ValidateAndSaveSetup stay reachable at /umbraco/surface/UmbTwoFactorLogin/... even when no form posts
+/// to them. Answer 404 there. Verify2FACode, the sign-in code step, is left alone.
 /// </summary>
-public class BlockCodelessTwoFactorDisableFilter : IActionFilter
+public class BlockUncheckedTwoFactorActionsFilter : IActionFilter
 {
+    private static readonly string[] BlockedActions =
+    [
+        nameof(UmbTwoFactorLoginController.Disable),
+        nameof(UmbTwoFactorLoginController.ValidateAndSaveSetup),
+    ];
+
     public void OnActionExecuting(ActionExecutingContext context)
     {
         if (context.ActionDescriptor is ControllerActionDescriptor action
             && action.ControllerTypeInfo.AsType() == typeof(UmbTwoFactorLoginController)
-            && action.ActionName == nameof(UmbTwoFactorLoginController.Disable))
+            && BlockedActions.Contains(action.ActionName))
         {
             context.Result = new NotFoundResult();
         }
@@ -91,5 +122,5 @@ public class BlockCodelessTwoFactorDisableFilter : IActionFilter
 public class MemberTwoFactorControllerComposer : IComposer
 {
     public void Compose(IUmbracoBuilder builder) =>
-        builder.Services.Configure<MvcOptions>(options => options.Filters.Add<BlockCodelessTwoFactorDisableFilter>());
+        builder.Services.Configure<MvcOptions>(options => options.Filters.Add<BlockUncheckedTwoFactorActionsFilter>());
 }

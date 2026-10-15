@@ -157,6 +157,29 @@ public class MemberTwoFactorBlankTests
         Assert.That(await IsEnrolledAsync(), Is.True, "Umbraco's own Disable must not switch 2FA off without a code");
     }
 
+    [Test]
+    public async Task Umbracos_unchecked_setup_route_is_blocked()
+    {
+        // UmbTwoFactorLoginController.ValidateAndSaveSetup saves a new secret without checking that one
+        // is already enabled, so a signed-in session could add its own authenticator beside the member's.
+        await EnrolDirectlyAsync();
+        using HttpClient client = NewClient();
+        await SignInWithCodeAsync(client, (await SecretAsync())!);
+        string account = await GetOkAsync(client, TwoFactorMembersExample.AccountUrl);
+        string attackerSecret = Guid.NewGuid().ToString();
+
+        HttpResponseMessage response = await client.PostAsync("/umbraco/surface/UmbTwoFactorLogin/ValidateAndSaveSetup",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["providerName"] = UmbracoMemberAppAuthenticator.Name,
+                ["secret"] = attackerSecret,
+                ["code"] = Code(attackerSecret),
+                ["__RequestVerificationToken"] = HiddenInput(FormContaining(account, "providerName"), "__RequestVerificationToken"),
+            }));
+
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+    }
+
     // --- helpers ---------------------------------------------------------------------------------
 
     /// <summary>Own cookie jar per test; redirects observable rather than followed.</summary>
@@ -196,6 +219,9 @@ public class MemberTwoFactorBlankTests
         Assert.That(saved.Success, Is.True, saved.Result.ToString());
         return secret;
     }
+
+    private Task<string?> SecretAsync() =>
+        Service<ITwoFactorLoginService>().GetSecretForUserAndProviderAsync(_memberKey, UmbracoMemberAppAuthenticator.Name);
 
     private async Task<bool> IsEnrolledAsync() => await Service<ITwoFactorLoginService>().IsTwoFactorEnabledAsync(_memberKey);
 
