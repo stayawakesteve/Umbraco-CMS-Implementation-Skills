@@ -12,9 +12,9 @@
         "The product URL change is implemented as an IUrlSegmentProvider (not only an IUrlProvider, a rewrite rule, or a route), registered in a composer with builder.UrlSegmentProviders().Insert<...>()",
         "The segment provider leaves content that isn't the `product` type to Umbraco's default segment (e.g. returns null for it), and a product with no productCode keeps its plain name-based segment rather than getting `name-` or an empty suffix",
         "The segment provider implements the GetUrlSegment(IContentBase, bool published, string? culture) overload, or otherwise reads the property value with the published flag Umbraco passes",
-        "The /go/{code} short link is an IContentFinder registered with builder.ContentFinders().Append<...>() (or after ContentFinderByUrlNew), not InsertBefore ContentFinderByUrlNew, and it returns false immediately for paths outside /go/",
+        "The /go/{code} short link is an IContentFinder registered with builder.ContentFinders().Append<...>() (or after ContentFinderByUrlNew), not InsertBefore ContentFinderByUrlNew, and it returns false early, before any content lookup, for paths it doesn't handle",
         "The finder answers with a permanent redirect (SetRedirectPermanent or SetRedirect with 301) to the product's URL, rather than rendering the product at /go/{code}, and matches the code case-insensitively",
-        "No node id is hardcoded anywhere: the Shop node and products are found by Document Type alias or key",
+        "No node id is hardcoded anywhere: products and other nodes are found by Document Type alias, key or URL path, never by an integer id",
         "The run handles the ~400 already-published products correctly: deploying a new URL segment provider makes Umbraco 17 rebuild every document URL at the next boot (no republish needed) and that rebuild records NO redirects, because redirect tracking only runs on publish and move. So the run provides permanent redirects from the old /shop/{name}/ URLs itself (e.g. a content finder or rewrite) rather than relying on republishing plus Umbraco's redirect tracking to create them",
         "If the run says the project builds, `dotnet build` on the project succeeds; if it didn't build, it doesn't claim it did"
       ]
