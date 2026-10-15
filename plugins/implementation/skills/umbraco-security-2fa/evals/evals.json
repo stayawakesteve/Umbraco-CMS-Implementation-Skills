@@ -16,6 +16,7 @@
         "The My account 2FA UI offers only member providers: EditorAuthenticator is excluded (filtered by name, or by the member IdentityOptions token provider map), so the editor provider's GetSetupDataAsync is never called with a member key",
         "Turning 2FA off requires a valid current code: it goes through IMemberTwoFactorLoginService.DisableByCodeAsync, or validates the PIN before disabling. A form posting straight to UmbTwoFactorLoginController.Disable, which needs no code, fails this",
         "The member provider validates codes with an explicit tolerance narrower than the GoogleAuthenticator default of five minutes (a TimeSpan of 60 seconds or less, or an iteration offset of 1)",
+        "Umbraco's own no-code UmbTwoFactorLoginController.Disable can no longer switch member 2FA off: the agent blocks or replaces that action (for example a filter answering 404), recognising that Umbraco auto-routes it at /umbraco/surface/UmbTwoFactorLogin/Disable even when no form posts to it",
         "If the agent says the project builds, `dotnet build` of the edited project succeeds; if it could not build, it says so rather than claiming a verified build"
       ]
     },
@@ -54,6 +55,7 @@
         "Views/Partials/memberSecurity.cshtml offers only member providers: the backoffice provider is excluded (filtered by name, or by the member IdentityOptions token provider map), so its setup is never requested for a member",
         "Turning member 2FA off requires a valid current code: it goes through IMemberTwoFactorLoginService.DisableByCodeAsync, or validates the PIN before disabling. A form posting straight to UmbTwoFactorLoginController.Disable fails this",
         "Code validation uses an explicit tolerance narrower than the GoogleAuthenticator default of five minutes (a TimeSpan of 60 seconds or less, or an iteration offset of 1)",
+        "Umbraco's own no-code UmbTwoFactorLoginController.Disable can no longer switch member 2FA off: the agent blocks or replaces that action (for example a filter answering 404), recognising that Umbraco auto-routes it at /umbraco/surface/UmbTwoFactorLogin/Disable even when no form posts to it",
         "If the agent says the project builds, `dotnet build` of the edited project succeeds; if it could not build, it says so rather than claiming a verified build"
       ]
     }

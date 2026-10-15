@@ -7,7 +7,8 @@ description: >
   view's code step and the member setup page. Use this whenever the user asks to add, enable or
   require 2FA, MFA, two-step verification or an authenticator app for Umbraco editors or members, or
   to fix 2FA that is missing from the backoffice user menu, a member login that loops back to the
-  login form after 2FA was enabled, or a member profile page that crashes listing 2FA providers.
+  login form after 2FA was enabled, a member profile page that crashes listing 2FA providers, or a
+  site that won't start with "An item with the same key has already been added" after adding 2FA.
   SKIP: Umbraco Cloud's Umbraco ID MFA, MFA enforced by an external identity provider (SSO), non-Umbraco
   projects and Umbraco versions below 17.
 ---
