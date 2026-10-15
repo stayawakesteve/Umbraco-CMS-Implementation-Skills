@@ -12,9 +12,9 @@ For packages, class libraries, or when no ordering guarantee is needed, use
 
 ## Why the placement after `.AddComposers()` matters
 
-`.AddComposers()` runs every composer immediately, at the point where it appears in the chain.
-Collection builders are only turned into DI registrations later, at `.Build()`. So a call placed
-**after** `.AddComposers()` has two effects:
+`.AddComposers()` runs every composer immediately, at the point where it appears in the chain, and
+each composer's service and collection changes are applied as it runs. So a call placed **after**
+`.AddComposers()` has two effects:
 
 - Its `builder.Services` changes are applied after every composer's. That means `AddUnique`
   replaces whatever any composer registered.

@@ -26,7 +26,7 @@ To build `project/`:
 | Eval | Overlay | Starting state |
 |---|---|---|
 | 1 | `files/legacy-products/` | A `MySite.Core` class library referenced by the host, with an `ISkuRepository` (reads the SKU table through `IScopeProvider`) and an HTTP `ISearchServiceClient`, neither registered |
-| 2 | `files/acme-package/` | An `Acme.Umbraco.Media` project standing in for the package: an **internal** composer that registers its own `IImageUrlGenerator` as scoped, and a public `AcmeHealthCheck`. The host also has the user's `Media/CdnImageUrlGenerator.cs`, not yet registered |
+| 2 | `files/acme-package/` | An `Acme.Umbraco.Media` project standing in for the package: a public `IAcmeMediaUrlResolver`, an **internal** composer that registers Acme's default implementation as scoped, and a public `AcmeHealthCheck`. The host also has the user's `Media/CdnMediaUrlResolver.cs`, not yet registered |
 | 3 | `files/v13-migration/` | The prompt's v13 code under `MySite.Web/Infrastructure/`, plus the types it uses. It compiles with the two CS0618 warnings the prompt describes, and anchoring to `ContentFinderByUrl` really fails at boot |
 
 3. Restore and build `project/MySite.Web` once before the run. All three assembled projects build.

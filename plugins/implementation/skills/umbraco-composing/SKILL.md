@@ -10,8 +10,9 @@ description: >
   after another one", "disable a package's composer", "run code when Umbraco starts", "only
   run this once Umbraco is installed / not during an upgrade", "migrate our composers and
   components from Umbraco 13", or reports that "IComponent is obsolete" or a startup
-  InvalidOperationException from .Build(). SKIP: non-Umbraco projects, Umbraco < 17, client-side backoffice extensions
-  registered through umbraco-package.json, and plain ASP.NET Core middleware.
+  InvalidOperationException from the CreateUmbracoBuilder() chain. SKIP: non-Umbraco projects, Umbraco < 17, client-side
+  backoffice extensions registered through umbraco-package.json, and plain ASP.NET Core
+  middleware.
 ---
 
 # Composing
@@ -65,5 +66,6 @@ scheduled for removal in 18, so use `IAsyncComponent` or one of its base classes
 ## Validation
 
 Objective assertions live in [`evals/evals.json`](evals/evals.json); run them with
-`umbraco-skill-evaluator`. Approach A's assets are compiled and asserted by the `dotnet test` gate
-(`examples/approach-a-composer/`). Approach B's `Program.cs` placement is graded by evals only.
+`umbraco-skill-evaluator`. Approach A is **Asserted**: its assets are compiled and asserted by the
+`dotnet test` gate (`examples/approach-a-composer/`). Approach B reuses those same assets, and its one
+`Program.cs` line is **Documented**: evals grade it, and nothing runs it.

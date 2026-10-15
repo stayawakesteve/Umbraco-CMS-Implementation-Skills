@@ -12,7 +12,8 @@ use it.)
 
 `Umbraco.Cms.Core.RuntimeLevel`, in the order they're listed in the
 [Composing docs](https://docs.umbraco.com/umbraco-cms/model-your-content/content-types-and-structure/composing.md):
-`BootFailed`, `Unknown`, `Boot`, `Install`, `Upgrade`, `Run`. Umbraco 17 adds **`Upgrading`**. It means an unattended upgrade is running in the background while the HTTP
+`BootFailed`, `Unknown`, `Boot`, `Install`, `Upgrade`, `Run`. Umbraco 17.3 added **`Upgrading`**. It
+means an unattended upgrade is running in the background while the HTTP
 server already answers health probes. During `Upgrading`, components and startup notifications are
 **deferred** until the migrations finish, and then run once at `Run`.
 
@@ -33,9 +34,11 @@ Use a component when you want start **and** stop hooks as one unit, or ordering 
 start.** When the install or upgrade wizard finishes, Umbraco restarts the runtime in-process
 (`RestartAsync`), so components get `isRestarting: true`, which both bases skip. They were also
 skipped at the first boot, because the level wasn't `Run` then. For work that must be in place
-straight after the wizard (warming a cache the site depends on, for example), implement
-`IAsyncComponent` directly and gate on `IRuntimeState.Level == RuntimeLevel.Run` only, not on
-`isRestarting`. Make that work idempotent, because it then runs again on every restart. Unattended
+straight after the wizard (warming a cache the site depends on, for example), gate on
+`IRuntimeState.Level == RuntimeLevel.Run` only, not on `isRestarting`. To do that, either override
+`protected virtual bool CanExecute(bool isRestarting)` on `AsyncComponentBase`, injecting your own
+`IRuntimeState` because the base's is private, or implement `IAsyncComponent` directly. Make that
+work idempotent, because it then runs again on every restart. Unattended
 installs and upgrades don't restart, so they aren't affected.
 
 Register it with `builder.Components().Append<T>()`. That's what `ComponentComposer<T>` does, but
@@ -43,7 +46,9 @@ the extension method in `assets/` already has the line. Implement `InitializeAsy
 and, optionally, `TerminateAsync(CancellationToken)`.
 
 When migrating an existing `IComponent`, move its body into `InitializeAsync`/`TerminateAsync` on
-one of the bases above, and pick the base by the runtime level the old code assumed.
+one of the bases above, and pick the base by the runtime level the old code assumed. Only
+`IComponent` is obsolete. `ComponentComposer<T>` isn't: it now requires `T : IAsyncComponent`, so an
+existing `ComponentComposer<YourComponent>` can stay as it is once the component is migrated.
 
 ## Option 2 — a startup notification handler
 

@@ -28,11 +28,15 @@ after Umbraco's own items. For `ContentFinders` that means a URL the core finder
 never reaches yours. `Insert()` with no index puts the item first, which is usually too early
 (it runs before `ContentFinderByPageIdQuery`).
 
-**The anchor must be in the collection at the point the call is applied, or boot fails.**
-`InsertBefore`, `InsertAfter` and `Replace` throw a bare `InvalidOperationException` ("Operation is
-not valid due to the current state of the object.") during `.Build()`. The message doesn't name the
-missing type, so the stack trace is the only clue. Use the types that are actually registered
-in the running version. In Umbraco 17:
+**The anchor must already be in the collection when the call runs, or boot fails.** Ordered, Set and
+Weighted builder calls change the list immediately. They aren't deferred to `.Build()`. So `InsertBefore`,
+`InsertAfter` and `Replace` throw a bare `InvalidOperationException` ("Operation is not valid due to
+the current state of the object.") right at the call: inside `.AddComposers()` for a composer, or
+at the `Program.cs` line for Approach B. The message doesn't name the missing type, but the stack
+trace runs through your `Add<Feature>()` and `InsertBefore`, and that's the clue. If the anchor is
+an item another composer adds, your composer needs `[ComposeAfter]` on that composer (see below).
+Otherwise it can run first and throw. Use the types that are actually registered in the running
+version. In Umbraco 17:
 
 | Collection | Registered by default, in order |
 |---|---|
@@ -40,8 +44,8 @@ in the running version. In Umbraco 17:
 | `UrlProviders()` | `AliasUrlProvider`, `NewDefaultUrlProvider` |
 
 `ContentFinderByUrl` and `DefaultUrlProvider` still compile, with only a CS0618 obsolete warning,
-but they are **not registered**. So anchoring to them builds and then fails at boot. For any other collection, or if
-this table may be stale, read the registrations in Umbraco's `UmbracoBuilder.Collections.cs` for the
+but they are **not registered**. So anchoring to them builds and then fails at boot. For any other
+collection, or if this table may be stale, read the registrations in Umbraco's `UmbracoBuilder.Collections.cs` for the
 installed version rather than guessing.
 
 The 404 "last chance" finder isn't part of `ContentFinders()`. It's a single service set with
@@ -50,7 +54,8 @@ The 404 "last chance" finder isn't part of `ContentFinders()`. It's a single ser
 
 **To drop or swap one built-in item**, use the collection's own method from the table above:
 `Remove<T>()` (`Exclude<T>()` on a Lazy collection such as `HealthChecks()`) or
-`Replace<TOld, TNew>()`. Don't `Clear()` and rebuild it: that silently drops items that later
+`Replace<TOld, TNew>()`. A Lazy collection applies its type scans and `Exclude`s at `.Build()`, so
+`Exclude<T>()` works from any composer, whatever the order. Don't `Clear()` and rebuild it: that silently drops items that later
 Umbraco versions or other packages add.
 
 **Type scanning** (a Lazy collection fed by `builder.TypeLoader.GetTypes<T>()`) slows boot.
