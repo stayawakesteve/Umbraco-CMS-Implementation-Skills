@@ -11,7 +11,7 @@ Eval 2 is prompt-only. Evals 1 and 3 read a folder from `files/`:
 | Folder | Contents |
 |---|---|
 | `marketing-site/` (eval 1) | A 17.5.3 site with a locked `Program.cs`, a GTM inline snippet, Google Fonts and website output caching on. |
-| `headers-review/` (eval 3) | A contractor's headers code with planted defects: `PostPipeline` registration, a self-generated nonce, `'strict-dynamic'` served to `/umbraco`, `@addTagHelper *, Umbraco.Cms.Web.Common`, `ReportOnly: true` in Production, `Headers.Remove("Server")`, `X-Frame-Options: DENY` and `X-XSS-Protection`. |
+| `headers-review/` (eval 3) | A contractor's headers code with planted defects (listed in eval 3's `expected_output`). |
 
 The defects are deliberate. Don't fix them in this folder.
 

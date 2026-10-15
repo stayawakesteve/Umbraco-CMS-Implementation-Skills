@@ -6,7 +6,7 @@ namespace Umbraco.Skills.Examples.SecurityHeaders;
 // skill ships to users.
 //
 // The skill tells users to tag their own inline scripts with Umbraco's asp-csp-nonce tag helper
-// (after registering it with @addTagHelper *, Umbraco.Cms.Web.Common). This endpoint renders a
+// (after registering it with @addTagHelper *, Umbraco.Web.Common). This endpoint renders a
 // precompiled view that does exactly that, so the fixture can check the nonce the tag helper
 // writes is the one the middleware put in the CSP header.
 [ApiExplorerSettings(IgnoreApi = true)]

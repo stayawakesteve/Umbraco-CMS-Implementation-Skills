@@ -9,9 +9,7 @@ namespace <Namespace>;
 /// else) plus the other security headers Umbraco's health checks look for.
 /// </summary>
 /// <remarks>
-/// Headers are written in Response.OnStarting so they are on every response, including 404s and
-/// error pages that clear the headers set earlier in the request. They are assigned, never
-/// appended, so the app never sends two of the same header.
+/// Headers are assigned, never appended, so the app never sends two of the same header.
 /// </remarks>
 public class SecurityHeadersMiddleware : IMiddleware
 {
@@ -28,7 +26,7 @@ public class SecurityHeadersMiddleware : IMiddleware
 
     public Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        // Umbraco generates one nonce per request and tags its own backoffice scripts with it;
+        // Umbraco generates one nonce per request and tags its backoffice import map with it;
         // the asp-csp-nonce tag helper puts the same value on your own inline tags.
         var nonce = _cspNonceService.GetNonce();
 

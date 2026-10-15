@@ -4,8 +4,7 @@ description: >
   Adds security headers to an Umbraco 17.3+ site: a Content Security Policy using Umbraco's
   per-request nonce, with separate backoffice and website policies, plus X-Frame-Options,
   X-Content-Type-Options, Referrer-Policy and Permissions-Policy. Two approaches: custom
-  middleware registered from a composer (default, no Program.cs edits) or NWebsec with
-  UseUmbracoCspNonceInjection(). Use this whenever the user asks to add a CSP or security headers
+  middleware (default) or NWebsec. Use this whenever the user asks to add a CSP or security headers
   to Umbraco, fix the Health Check security group (CSP, click-jacking, MIME sniffing,
   X-XSS-Protection, excessive headers), fix a blank backoffice or "Refused to execute inline
   script" errors after adding a CSP, put a nonce on an inline script (asp-csp-nonce), weigh
@@ -43,8 +42,9 @@ to 17.2 there is no nonce to use, so recommend upgrading before adding a CSP.
 - **Two surfaces, two policies.** The backoffice under `/umbraco` needs `script-src 'self'` plus
   the nonce, `style-src 'self' 'unsafe-inline'`, `img-src 'self' blob: data:
   https://news-dashboard.umbraco.com` and `frame-src 'self' https://marketplace.umbraco.com`. The
-  website should get none of the Umbraco hosts or `'unsafe-inline'`, and its own sources
-  (analytics, fonts, CDN) don't belong in the backoffice's.
+  website should get none of the Umbraco hosts and no `'unsafe-inline'`, except in `style-src`
+  when inline `style="…"` attributes (which can't take a nonce) can't be moved to CSS. Its own
+  sources (analytics, fonts, CDN) don't belong in the backoffice's.
 - **The nonce is per request.** Umbraco tags its backoffice import map with it. For your own
   inline `<script>`/`<style>`, add `asp-csp-nonce` and register the tag helper with
   `@addTagHelper *, Umbraco.Web.Common`. Note the assembly is `Umbraco.Web.Common`, not
@@ -88,5 +88,6 @@ If the site can't be run, say which of these checks weren't made.
 ## Validation
 
 Objective assertions live in [`evals/evals.json`](evals/evals.json); run them with
-`umbraco-skill-evaluator`. Approach A is **Asserted** by the `dotnet test` gate
+`umbraco-skill-evaluator`. [`evals/README.md`](evals/README.md) has the inputs, the run-prompt rules
+and the grading notes. Approach A is **Asserted** by the `dotnet test` gate
 (`examples/approach-a-middleware/`). Approach B ships no code, so its tier is **Documented**.

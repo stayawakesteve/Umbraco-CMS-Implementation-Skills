@@ -7,8 +7,8 @@ namespace Umbraco_CMS.Skills.TestHost;
 /// Runtime validation of the umbraco-security-headers skill (Approach A). The skill's composer is
 /// compiled from its assets/ and loaded into the Clean reference instance; these tests prove the
 /// middleware sends a separate CSP to the backoffice and the website, that the backoffice policy
-/// carries the same nonce Umbraco puts on its own scripts, and that the headers reach responses
-/// Umbraco serves before routing (static files) and error responses.
+/// carries the same nonce Umbraco puts on its backoffice import map, and that the headers reach
+/// responses Umbraco serves before routing (static files) and error responses.
 /// </summary>
 [TestFixture]
 public class SecurityHeadersTests
@@ -40,7 +40,7 @@ public class SecurityHeadersTests
 
     /// <summary>
     /// The failure this skill exists to prevent: a CSP whose nonce doesn't match the one Umbraco
-    /// renders on the backoffice import map and entry script blanks the backoffice.
+    /// renders on the backoffice import map blanks the backoffice.
     /// </summary>
     [Test]
     public async Task Backoffice_gets_its_own_policy_with_the_nonce_Umbraco_renders()

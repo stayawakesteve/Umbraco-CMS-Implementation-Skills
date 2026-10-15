@@ -1,14 +1,8 @@
 # Approach B — NWebsec
 
-Keep the project's NWebsec setup, give the backoffice and the website separate `UseCsp` calls,
-and let Umbraco's `UseUmbracoCspNonceInjection()` add the per-request nonce to whichever policy
-NWebsec sent.
-
 ## When to choose this approach
 
-The project already references `NWebsec.AspNetCore.Middleware` and configures `UseCsp`, `UseXfo`
-or `UseXContentTypeOptions` in `Program.cs`. For a project without NWebsec, use
-[Approach A](approach-a-middleware.md) and don't add the dependency.
+When `Program.cs` already configures NWebsec. Otherwise use [Approach A](approach-a-middleware.md).
 
 ## Building blocks (fetch the docs before implementing)
 
@@ -28,7 +22,7 @@ or `UseXContentTypeOptions` in `Program.cs`. For a project without NWebsec, use
 2. **Split the CSP by surface** with two `UseWhen` branches, both before `app.UseUmbraco()`:
    - `context.Request.Path.StartsWithSegments("/umbraco")`: `UseCsp` with the backoffice sources
      listed in the skill's best practices, and `ScriptSources(s => s.Self())`;
-   - the negation: `UseCsp` with the site's own sources and no `UnsafeInline()` on scripts.
+   - the negation: `UseCsp` with the site's own sources.
 
    Don't add a nonce or `'unsafe-inline'` to either `ScriptSources`. The injection adds the nonce.
 3. **Add the nonce once.** Call `app.UseUmbracoCspNonceInjection()` after both branches, as the
@@ -40,7 +34,7 @@ or `UseXContentTypeOptions` in `Program.cs`. For a project without NWebsec, use
    best practices for the assembly name).
 6. **Roll out** with NWebsec's report-only CSP (`UseCspReportOnly`), then switch to `UseCsp`.
 7. **Build and verify.** Run `dotnet build` if there is a project, then the checks in the skill's
-   *Verify* section. If nothing can be run, say so.
+   *Verify* section.
 
 ## Done
 
