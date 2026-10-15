@@ -64,7 +64,8 @@ to 17.2 there is no nonce to use, so recommend upgrading before adding a CSP.
   console, then switch to enforcing. The CSP health check only passes on the enforcing header.
 - **Framing.** Use `X-Frame-Options: SAMEORIGIN` with `frame-ancestors 'self'`. Backoffice preview
   shows the page in a same-origin iframe, so `DENY` or `'none'` breaks preview.
-- **Don't send `X-XSS-Protection`.** It is deprecated and the health check flags it.
+- **Don't send `X-XSS-Protection`.** It is deprecated, and the health check flags it with any
+  value, `0` included.
 - **`Server` and `X-Powered-By` come from the host,** so middleware can't remove them. Follow
   [Excessive Headers](https://docs.umbraco.com/umbraco-cms/run-in-production/infrastructure-and-ops/health-check/guides/excessiveheaders.md)
   (Kestrel `AddServerHeader = false`, or `web.config` on IIS).

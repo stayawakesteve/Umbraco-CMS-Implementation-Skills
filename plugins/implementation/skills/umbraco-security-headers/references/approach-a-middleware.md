@@ -43,7 +43,8 @@ Read the templates in [`../assets/`](../assets):
    Leave `BackOfficePolicy` as shipped unless a backoffice package needs another source.
 5. **Roll out report-only.** Add `"SecurityHeaders": { "ReportOnly": true }` to `appsettings.json`
    (or the environment's settings), deploy, and browse the site and backoffice with the console
-   open. Fix each violation, then set `ReportOnly` to `false`.
+   open. Fix each violation, then set `ReportOnly` to `false` and restart the site: output-cached
+   pages otherwise keep the old header until their entries expire.
 6. **Build and verify.** If a `.csproj` exists, run `dotnet build`, then run the checks in the
    skill's *Verify* section.
 
