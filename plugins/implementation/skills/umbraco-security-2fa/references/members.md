@@ -21,7 +21,7 @@ turn 2FA off.
 | [`UmbracoMemberAppAuthenticator.cs`](../assets/UmbracoMemberAppAuthenticator.cs) | project root or a `Security/` folder | Provider, setup model, and composer registering it on a `MemberIdentityBuilder` |
 | [`MemberLogin.cshtml`](../assets/MemberLogin.cshtml) | `Views/Partials/` | Login form, plus the code form shown after a correct password |
 | [`TwoFactorSetup.cshtml`](../assets/TwoFactorSetup.cshtml) | `Views/Partials/` | QR code and code entry to turn 2FA on; code entry to turn it off |
-| [`MemberTwoFactorController.cs`](../assets/MemberTwoFactorController.cs) | `Controllers/` | Turns 2FA off only with a valid code |
+| [`MemberTwoFactorController.cs`](../assets/MemberTwoFactorController.cs) | `Controllers/` | Turns 2FA off only with a valid code, and closes Umbraco's own no-code `Disable` route |
 
 ## Steps
 
@@ -53,7 +53,9 @@ turn 2FA off.
   the member `IdentityOptions` token map. Give each side its own provider class and name; registering
   the same name twice makes the 2FA services fail to start (duplicate key).
 - **Turning 2FA off needs no code** in `UmbTwoFactorLoginController.Disable`, so a hijacked session
-  can remove the second factor. The asset's controller calls `DisableByCodeAsync` instead.
+  can remove the second factor. Pointing the form elsewhere is not enough: Umbraco routes its own
+  surface controllers, so that action still answers at `/umbraco/surface/UmbTwoFactorLogin/Disable`.
+  The asset's controller calls `DisableByCodeAsync`, and its filter returns 404 for the built-in action.
 - **The sample provider** dereferences the member without a null check and hard-codes the issuer
   `testingOn15`.
 - **A failed setup code shows a new QR code**, because the page asks for fresh setup data. Tell

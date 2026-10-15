@@ -136,6 +136,27 @@ public class MemberTwoFactorBlankTests
         Assert.That(await IsEnrolledAsync(), Is.False);
     }
 
+    [Test]
+    public async Task Umbracos_codeless_disable_route_is_blocked()
+    {
+        // Umbraco auto-routes its own surface controllers, so without the skill's filter this request
+        // switches 2FA off with nothing but a signed-in session and an antiforgery token.
+        string secret = await EnrolDirectlyAsync();
+        using HttpClient client = NewClient();
+        await SignInWithCodeAsync(client, secret);
+        string account = await GetOkAsync(client, TwoFactorMembersExample.AccountUrl);
+
+        HttpResponseMessage response = await client.PostAsync("/umbraco/surface/UmbTwoFactorLogin/Disable",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["providerName"] = UmbracoMemberAppAuthenticator.Name,
+                ["__RequestVerificationToken"] = HiddenInput(FormContaining(account, "providerName"), "__RequestVerificationToken"),
+            }));
+
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+        Assert.That(await IsEnrolledAsync(), Is.True, "Umbraco's own Disable must not switch 2FA off without a code");
+    }
+
     // --- helpers ---------------------------------------------------------------------------------
 
     /// <summary>Own cookie jar per test; redirects observable rather than followed.</summary>

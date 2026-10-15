@@ -1,6 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
+using Umbraco.Cms.Core.Composing;
+using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Security;
@@ -16,7 +21,7 @@ namespace <Namespace>;
 /// <summary>
 /// Turns a member's 2FA off only when they enter a current code, as the backoffice does for users.
 /// Umbraco's own UmbTwoFactorLoginController.Disable needs no code, so anyone holding a signed-in
-/// session could strip the second factor.
+/// session could strip the second factor; BlockCodelessTwoFactorDisableFilter below shuts it.
 /// </summary>
 [UmbracoMemberAuthorize]
 public class MemberTwoFactorController : SurfaceController
@@ -60,4 +65,31 @@ public class MemberTwoFactorController : SurfaceController
 
         return RedirectToCurrentUmbracoPage();
     }
+}
+
+/// <summary>
+/// Umbraco routes its own surface controllers too, so UmbTwoFactorLoginController.Disable stays reachable
+/// at /umbraco/surface/UmbTwoFactorLogin/Disable even when no form posts to it. Answer 404 there.
+/// </summary>
+public class BlockCodelessTwoFactorDisableFilter : IActionFilter
+{
+    public void OnActionExecuting(ActionExecutingContext context)
+    {
+        if (context.ActionDescriptor is ControllerActionDescriptor action
+            && action.ControllerTypeInfo.AsType() == typeof(UmbTwoFactorLoginController)
+            && action.ActionName == nameof(UmbTwoFactorLoginController.Disable))
+        {
+            context.Result = new NotFoundResult();
+        }
+    }
+
+    public void OnActionExecuted(ActionExecutedContext context)
+    {
+    }
+}
+
+public class MemberTwoFactorControllerComposer : IComposer
+{
+    public void Compose(IUmbracoBuilder builder) =>
+        builder.Services.Configure<MvcOptions>(options => options.Filters.Add<BlockCodelessTwoFactorDisableFilter>());
 }
