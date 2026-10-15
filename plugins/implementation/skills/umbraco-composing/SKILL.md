@@ -67,5 +67,6 @@ scheduled for removal in 18, so use `IAsyncComponent` or one of its base classes
 
 Objective assertions live in [`evals/evals.json`](evals/evals.json); run them with
 `umbraco-skill-evaluator`. Approach A is **Asserted**: its assets are compiled and asserted by the
-`dotnet test` gate (`examples/approach-a-composer/`). Approach B reuses those same assets, and its one
-`Program.cs` line is **Documented**: evals grade it, and nothing runs it.
+`dotnet test` gate (`examples/approach-a-composer/`). Approach B is **Compiled**:
+`examples/approach-b-program-cs/` builds its assets and the `Program.cs` wiring after `.AddComposers()`,
+but no host runs it, because the shared reference host has its own `Program.cs`. Evals grade the placement.

@@ -66,7 +66,8 @@ restart described above.
 Prefer this when the feature already uses notification handlers and needs no stop hook. Register
 it with `builder.AddNotificationAsyncHandler<UmbracoApplicationStartingNotification, T>()`.
 `UmbracoApplicationStartedNotification` fires later, once the host has fully started. Use it for
-work that must not delay startup. Fetch the
+work that must not delay startup. It carries only `IsRestarting`, not `RuntimeLevel`, so gate it on
+an injected `IRuntimeState.Level` instead. Fetch the
 [Notification Handler docs](https://docs.umbraco.com/umbraco-cms/extend-your-project/server-side-extensions/notifications/notification-handler.md)
 for the handler shape.
 
