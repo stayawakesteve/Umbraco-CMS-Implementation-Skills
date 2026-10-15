@@ -1,16 +1,16 @@
 ---
 name: umbraco-security-headers
 description: >
-  Adds security response headers to an Umbraco 17.3+ site: a Content Security Policy that uses
-  Umbraco's per-request nonce, with one policy for the backoffice and a stricter one for the
-  website, plus X-Frame-Options, X-Content-Type-Options, Referrer-Policy and Permissions-Policy.
-  Offers two approaches: custom middleware registered from a composer (default, no Program.cs
-  edits) and NWebsec with UseUmbracoCspNonceInjection(). Use this whenever the user asks to add a
-  CSP or security headers to an Umbraco site, fix the Health Check security group (Content
-  Security Policy, click-jacking, MIME sniffing, X-XSS-Protection, excessive headers), fix a blank
-  backoffice or "Refused to execute inline script" errors after adding a CSP, allow an inline
-  script under a CSP, roll out a CSP in report-only mode, or act on pen-test findings about
-  missing headers.
+  Adds security headers to an Umbraco 17.3+ site: a Content Security Policy using Umbraco's
+  per-request nonce, with separate backoffice and website policies, plus X-Frame-Options,
+  X-Content-Type-Options, Referrer-Policy and Permissions-Policy. Two approaches: custom
+  middleware registered from a composer (default, no Program.cs edits) or NWebsec with
+  UseUmbracoCspNonceInjection(). Use this whenever the user asks to add a CSP or security headers
+  to Umbraco, fix the Health Check security group (CSP, click-jacking, MIME sniffing,
+  X-XSS-Protection, excessive headers), fix a blank backoffice or "Refused to execute inline
+  script" errors after adding a CSP, put a nonce on an inline script (asp-csp-nonce), weigh
+  'strict-dynamic', make a CSP work with output caching, roll out report-only, or act on pen-test
+  findings about headers.
   SKIP: non-Umbraco projects, Umbraco below 17.3, and other security work (HTTPS/HSTS, CORS,
   login, authorization).
 ---
