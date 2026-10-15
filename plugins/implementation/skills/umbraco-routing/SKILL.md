@@ -19,15 +19,13 @@ description: >
 
 Umbraco routes in two directions. **Outbound**, it builds each page's URL from the tree: a segment
 per node, joined into a path, turned into a URL. **Inbound**, it matches a request back to a node:
-domain, then content finders in order, then redirects, then template and controller. Every change you
-make has to keep both directions agreeing, or pages get URLs that 404.
+domain, then content finders in order, then redirects, then template and controller.
 
 | | **A — Built-in routing** (default) | **B — Custom routing code** |
 |---|---|---|
 | Reference | [built-in-routing.md](references/built-in-routing.md) | [custom-routing.md](references/custom-routing.md) |
 | Ships | [`routing-properties-package.xml`](assets/routing-properties-package.xml) | `SkuUrlSegmentProvider.cs`, `SkuShortLinkContentFinder.cs`, `RoutingComposer.cs`, `StoreFinderController.cs`, `storeFinderCity.cshtml` |
 | Work | Properties on Document Types, `appsettings.json`, rewrite rules | C# registered in a composer |
-| Best for | Slugs, vanity URLs, redirects, URL shape site-wide | URL rules derived from data, URL patterns with no node behind them |
 
 ## Pick the building block
 
@@ -45,16 +43,13 @@ make has to keep both directions agreeing, or pages get URLs that 404.
 | Whole URL differs from the tree, not just one segment | `IUrlProvider` plus a matching `IContentFinder` | B |
 | Something routes wrong: `#err-1234`, a 404 after a change, the wrong page | [troubleshooting.md](references/troubleshooting.md) | — |
 
-Not here: a node that exists but needs its own controller is route hijacking (`umbraco-templating`);
-404 pages are `umbraco-custom-error-pages`; domains and languages are `umbraco-multilingual`.
-
 ### How to decide
 
 Default to A: it needs no deployment and editors can see and change it. Reach for B only when a
 built-in can't express the rule. Within B, prefer `IUrlSegmentProvider` over `IUrlProvider`: Umbraco
 stores the segment and routes it inbound by itself, while an `IUrlProvider` needs a content finder to
-match every URL it invents. For A's backoffice steps prefer the Umbraco Developer MCP; without it,
-walk the user through them one at a time, don't switch to code because the MCP is missing.
+match every URL it invents. A missing Umbraco Developer MCP is no reason to pick B:
+[built-in-routing.md](references/built-in-routing.md) covers the backoffice steps without it.
 
 **Open the reference before writing anything.** Several Umbraco 17 behaviours that break routing
 are only covered there, including a config key the docs misname.
@@ -62,21 +57,18 @@ are only covered there, including a config key the docs misname.
 ## Version compatibility
 
 Targets **Umbraco 17+**; the assets compile and serve on `Umbraco.Cms` 17.5.3. Since 15, Umbraco stores each
-page's URL segment when it is published, and rebuilds them all at boot only when the set of URL
-segment providers changes. On 17.5, `umbracoUrlAlias` values are stored the same way. Umbraco 13
+page's URL segment when it is published; on 17.5, `umbracoUrlAlias` values are stored the same way. Umbraco 13
 and earlier route differently (`IPublishedContentCache.GetByRoute`, `ContentFinderByIdPath`); don't
 apply this skill there.
 
 ## Best practices
 
-- **Outbound and inbound must agree.** A URL Umbraco generates must route back to the same page.
-  Test both: the page's `Url()` and a request to that URL.
+- **Outbound and inbound must agree.** A URL Umbraco generates must route back to the same page, or
+  it 404s. Test both: the page's `Url()` and a request to that URL.
 - **One canonical URL per page.** Short links and old URLs should 301 to it, not render a copy.
   Aliases render in place, so add a canonical link tag when the page also has aliases.
 - **Never hardcode node ids.** Find nodes by Document Type alias or by key; ids differ per
   environment.
-- **Keep content finders cheap.** Every unmatched request runs through them: check your URL prefix
-  first, and append after the built-in finders unless you must override a real page's URL.
 - **Redirects follow publishes, not deploys.** Umbraco records a 301 when an editor's publish or
   move changes a URL, so don't hand-roll those. A deploy that changes URLs (a new segment provider)
   records none: published pages' old URLs need redirects from you.
@@ -86,6 +78,7 @@ apply this skill there.
 ## Validation
 
 Assertions live in [`evals/evals.json`](evals/evals.json); run them with `umbraco-skill-evaluator`.
+[`evals/README.md`](evals/README.md) has the project fixture, the run-prompt rules and the results.
 Both approaches are **Asserted** by the runtime gate on the blank host:
 - `examples/built-in-routing/`: the composition's four routing properties, each over HTTP;
 - `examples/custom-routing/`: the segment provider, the short-link finder and the virtual route.

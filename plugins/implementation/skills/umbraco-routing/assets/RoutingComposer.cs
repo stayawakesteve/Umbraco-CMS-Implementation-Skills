@@ -12,9 +12,9 @@ public class RoutingComposer : IComposer
         // passes the page on to the next one.
         builder.UrlSegmentProviders().Insert<SkuUrlSegmentProvider>();
 
-        // Append() runs it after the built-in finders (URL, GUID path, umbracoUrlAlias, tracked
-        // redirects). Only InsertBefore<ContentFinderByUrlNew, T>() when a URL that matches a real
-        // page must be answered by your finder instead: it then runs on every page request.
+        // Append() runs it after the built-in finders. Only InsertBefore<ContentFinderByUrlNew, T>()
+        // when a URL that matches a real page must be answered by your finder instead: it then runs
+        // on every page request.
         builder.ContentFinders().Append<SkuShortLinkContentFinder>();
     }
 }

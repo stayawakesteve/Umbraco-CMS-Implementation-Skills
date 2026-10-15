@@ -21,16 +21,18 @@ URL pattern with no page behind it.
 
 ## The files
 
-Verified templates in [`../assets/`](../assets), all registered by `RoutingComposer.cs` or by attribute:
+Verified templates in [`../assets/`](../assets):
 
 - `SkuUrlSegmentProvider.cs`: a product's segment becomes `{name}-{sku}`.
 - `SkuShortLinkContentFinder.cs`: `/p/{sku}` answers 301 to that product.
 - `RoutingComposer.cs`: registers both.
 - `StoreFinderController.cs` + `storeFinderCity.cshtml`: `/stores/{city}`, a virtual page.
 
-Each is independent; copy only the ones the task needs. Replace `<Namespace>` and the placeholders
-(`<ProductDocTypeAlias>`, `<SkuPropertyAlias>`, `<ShortLinkPrefix>`, `<VirtualRoutePrefix>`,
-`<LandingDocTypeAlias>`) with the site's real aliases, and rename the classes to fit.
+The segment provider, the content finder and the virtual route are independent; copy only the ones
+the task needs, and delete the `RoutingComposer.cs` line for any class you don't copy. Replace
+`<Namespace>` and the placeholders (`<ProductDocTypeAlias>`, `<SkuPropertyAlias>`,
+`<ShortLinkPrefix>`, `<VirtualRoutePrefix>`, `<LandingDocTypeAlias>`) with the site's real aliases,
+and rename the classes to fit.
 
 ## Steps
 
@@ -62,11 +64,12 @@ providers in order until one returns a non-null segment, then falls back to its 
 ### Content finder (`IContentFinder`)
 
 Maps a URL that matched no page to a page, a redirect, or nothing. Umbraco runs finders in order and
-stops at the first that returns `true`. Built-in order on 17: `?umbPageId=`, URL, `/{guid}`,
+stops at the first that returns `true`. Built-in order on 17: `?umbPageID=`, URL, `/{guid}`,
 `umbracoUrlAlias`, tracked redirects.
 - **`Append<T>()`** unless your URL also matches a real page and must win; then
   `InsertBefore<ContentFinderByUrlNew, T>()`, and the finder runs on every page request.
-- **Check the prefix first** and return `false` fast. Cache or index any lookup that isn't cheap.
+- **Check the prefix first** and return `false` fast: every unmatched request runs through appended
+  finders. Cache or index any lookup that isn't cheap.
 - **Redirect or render.** `request.SetRedirectPermanent(url)` keeps one canonical URL;
   `request.SetPublishedContent(node)` renders the node at this URL (duplicate content, so only when
   this *is* the canonical URL, e.g. it pairs with an `IUrlProvider`).
@@ -91,9 +94,7 @@ the node already exists at that URL, hijack its route instead (`umbraco-templati
 - **`[Route("stores/{city}")]` is the registration.** Umbraco maps attribute routes; nothing else
   is needed. Without attribute routing, map a conventional route with `.ForUmbracoPage(findContent)`
   in an `UmbracoPipelineFilter` (see the docs), which doesn't support `[Route]`.
-- **`FindContent` returning `null` ends the request with a bare 404** before the action runs. Find
-  the node by Document Type, not id.
-- **The view model wraps the node** (`PublishedContentWrapped`), so the master layout still binds.
+- **`FindContent` returning `null` ends the request with a bare 404** before the action runs.
 - **Views:** `View("name", model)` resolves `Views/name.cshtml`.
 - A route that only returns JSON or XML doesn't need any of this: use a plain controller.
 
@@ -122,8 +123,7 @@ or a property when either can do it: this runs on every routed request.
 ## Verify
 
 Build, then request each URL: the new URL answers 200 with the right node, the old URL 404 or 301
-as intended, unknown values 404, and `Url()` on the node returns the new URL. If the site can't be
-run here, say so instead of claiming it works.
+as intended, unknown values 404, and `Url()` on the node returns the new URL.
 
 ## Done
 

@@ -30,7 +30,7 @@ The **alias and the property editor** both matter; Umbraco reads these by alias 
 | Alias | Editor | Effect | Notes |
 |---|---|---|---|
 | `umbracoUrlName` | Textstring | Replaces this page's segment | One segment: no `/`. Descendants' URLs change too. Varies by culture if the property does. |
-| `umbracoUrlAlias` | Textstring | Extra paths render this page in place (no redirect) | Comma-separated, no domain: `offers,promo/spring`. The address bar keeps the alias, so add a canonical link tag. |
+| `umbracoUrlAlias` | Textstring | Extra paths render this page in place (no redirect) | Comma-separated, no domain: `offers,promo/spring`. |
 | `umbracoRedirect` | **Content Picker** | **302** to the picked page | The router reads an id or a document UDI. A Multi URL Picker value is neither, so nothing happens. Use rewrite rules for a 301 or an external URL. |
 | `umbracoInternalRedirectId` | **Content Picker** | Renders the picked page at this URL (a rewrite) | The picked page's template renders, not this page's. |
 
@@ -48,13 +48,14 @@ Steps:
 
 ## Automatic redirects for renames and moves
 
-When a published page's URL changes (rename, move, `umbracoUrlName`, or a custom segment provider),
-Umbraco records the old URL for it and every descendant, and answers it with a **301** to the new
-URL. Editors manage them in Content → Redirect URL Management. Don't write redirects for these.
+When a published page's URL changes (rename, move, `umbracoUrlName`, or a republish after a segment
+provider's logic changed), Umbraco records the old URL for it and every descendant, and answers it
+with a **301** to the new URL. Editors manage them in Content → Redirect URL Management. Don't write
+redirects for these. Deploying a new segment provider records none: see
+[custom-routing.md](custom-routing.md).
 
 It doesn't cover URLs Umbraco never generated, such as an old site's paths. For those use rewrite
 rules (pattern-based) or a content finder (data-based, see [custom-routing.md](custom-routing.md)).
-`WebRouting:DisableRedirectUrlTracking: true` turns tracking off entirely.
 
 ## Settings
 
@@ -63,7 +64,7 @@ All under `Umbraco:CMS` in `appsettings.json`. Defaults shown.
 | Setting | Default | Use it to |
 |---|---|---|
 | `Global:HideTopLevelNodeFromPath` | `true` | Keep the root's own segment out of URLs (`/about/`, not `/home/about/`). |
-| `RequestHandler:AddTrailingSlash` | `true` | Generate `/about` instead of `/about/`. Both forms still route; add a rewrite rule to redirect one to the other. |
+| `RequestHandler:AddTrailingSlash` | `true` | Set `false` to generate `/about` instead of `/about/`. Both forms still route; add a rewrite rule to redirect one to the other. |
 | `RequestHandler:ConvertUrlsToAscii`, `UserDefinedCharCollection` | `try`, built-in list | Control how names become segments (`æ`, `+`, `&`). Changes apply as pages are republished. |
 | `WebRouting:UrlProviderMode` | `Auto` | Force `Absolute` or `Relative` URLs from `Url()`. |
 | `WebRouting:UseStrictDomainMatching` | `false` | Stop routing requests on hostnames not assigned to a site (e.g. the `*.azurewebsites.net` name). |
@@ -86,7 +87,7 @@ use ASP.NET Core's URL Rewriting Middleware: `app.UseRewriter(...)` in `Program.
 
 Request each changed URL and check the status and which page rendered: the new segment answers 200,
 the old segment 404 (or 301 if the page was already published under it), each alias 200,
-`umbracoRedirect` 302 with the right `Location`. If no runnable site is available, say so.
+`umbracoRedirect` 302 with the right `Location`.
 
 ## Done
 
