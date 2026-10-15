@@ -92,6 +92,16 @@ public class ExternalLoginsMembersTests
         Assert.That(AutoLink().OnExternalLogin!(NewMember(), LoginInfo(emailVerified: false)), Is.False);
     }
 
+    [Test]
+    public void An_unapproved_existing_member_cannot_be_auto_linked()
+    {
+        // Linking skips Umbraco's approval check, so it would otherwise bypass member approval.
+        MemberIdentityUser pending = MemberIdentityUser.CreateNew("member@example.test", "member@example.test", "Member", false, "Example Member");
+        pending.Id = "42";
+
+        Assert.Throws<InvalidOperationException>(() => AutoLink().OnAutoLinking!(pending, LoginInfo(emailVerified: true)));
+    }
+
     private static MemberExternalSignInAutoLinkOptions AutoLink() =>
         ReferenceSiteFixture.Factory.Services
             .GetRequiredService<IOptionsMonitor<MemberExternalLoginProviderOptions>>()

@@ -87,6 +87,14 @@ If the site can't be run, say which of these were not checked.
   For a provider that lets people claim addresses they don't own, that hands over the account.
   Refuse `email_verified: false` (the asset does) and don't accept multi-tenant Entra ID tokens
   for linking existing members.
+- **Pre-registered accounts.** If the site lets people register without confirming their email,
+  someone can register a customer's address first. When the real customer later signs in with
+  the provider, auto-linking attaches them to that account, and the person who registered it
+  keeps the password. Confirm emails at registration, or don't auto-link to members that have a
+  password and let them link from their profile instead.
+- **Approval is bypassed.** Linking skips Umbraco's approval and lockout check, so an existing
+  member awaiting approval, or locked out, is signed in by their first provider sign-in. Refuse
+  them in `OnAutoLinking` (the asset does).
 - **Members created but can't sign in.** Keep `defaultIsApproved: true`. The Member Type alias
   must exist. Default member groups should be the ones the site's public access rules check, or
   the new member can't reach protected pages.

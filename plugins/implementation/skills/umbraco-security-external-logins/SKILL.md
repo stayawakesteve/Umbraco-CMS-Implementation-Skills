@@ -51,7 +51,9 @@ Targets **Umbraco 17+**. Type names, callbacks and defaults were checked against
   provider sign-in links to any existing user or member with the same email. If the provider will
   assert an email the person doesn't own (an unverified address, or a multi-tenant Entra ID app
   accepting any tenant), that is an account takeover. Pin the authority to your tenant, restrict
-  email domains for the backoffice, and refuse `email_verified: false`. The assets do all three.
+  email domains for the backoffice, and refuse `email_verified: false`. Linking also skips
+  Umbraco's approval and lockout check, so refuse disabled accounts yourself. The assets do all
+  of this.
 - **Groups come from the provider, never from a default.** Give the backoffice no default user
   groups, map provider groups or roles to Umbraco group aliases, and sync them on every sign-in.
 - **Secrets stay out of source control.** Read `ClientSecret` from configuration backed by user

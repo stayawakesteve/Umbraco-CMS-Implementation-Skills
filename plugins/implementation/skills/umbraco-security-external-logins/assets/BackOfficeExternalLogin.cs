@@ -144,10 +144,24 @@ public class BackOfficeSsoLoginProviderOptions(IOptions<BackOfficeSsoSettings> s
             // email is linked. Throwing stops the link with the message shown on the login screen.
             OnAutoLinking = (user, loginInfo) =>
             {
+                // Linking signs the user in without Umbraco's usual approval and lockout check,
+                // so a disabled or locked-out user must be stopped here.
+                if (user.HasIdentity && (!user.IsApproved || user.IsLockedOut))
+                {
+                    throw new InvalidOperationException("This Umbraco user is disabled or locked out.");
+                }
+
                 string? refusal = BackOfficeSsoRules.Apply(user, loginInfo, sso);
                 if (refusal is not null)
                 {
                     throw new InvalidOperationException(refusal);
+                }
+
+                // New users are created unapproved, and the backoffice refuses unapproved users
+                // from their second sign-in on.
+                if (!user.HasIdentity)
+                {
+                    user.IsApproved = true;
                 }
             },
 

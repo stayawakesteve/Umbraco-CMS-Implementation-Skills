@@ -103,6 +103,13 @@ If the site can't be run, say which of these were not checked.
   saying "Default: Editor" is wrong. It applies only when a user is created. An alias that
   doesn't exist is dropped silently, so `"Editors"` (the display name) gives no group. Sync
   groups in `OnExternalLogin` instead; changes made there are saved with the sign-in.
+- **Users get in once, then are refused.** Auto-linking creates users unapproved, and the
+  backoffice only signs in approved users. The first sign-in works because linking skips that
+  check, and every later sign-in fails. Set `IsApproved = true` for a new user (`!HasIdentity`)
+  in `OnAutoLinking`, as the docs' Entra sample does.
+- **A disabled user gets back in.** Because linking skips the approval and lockout check, an
+  existing user who was disabled or locked out, but never linked, is signed in by their first
+  provider sign-in. Refuse them in `OnAutoLinking`.
 - **Everyone becomes an administrator.** A fixed `admin` in `defaultUserGroups` or `OnAutoLinking`
   makes every account in the tenant an administrator. Grant `admin` only through a mapped provider
   role.

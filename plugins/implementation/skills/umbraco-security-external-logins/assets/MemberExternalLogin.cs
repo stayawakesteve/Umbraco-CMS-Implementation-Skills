@@ -132,6 +132,13 @@ public class MemberSsoLoginProviderOptions(IOptions<MemberSsoSettings> settings)
             // email is linked. Throwing stops the link and shows the message on the login form.
             OnAutoLinking = (member, loginInfo) =>
             {
+                // Linking signs the member in without Umbraco's usual approval and lockout check,
+                // so an unapproved or locked-out member must be stopped here.
+                if (member.HasIdentity && (!member.IsApproved || member.IsLockedOut))
+                {
+                    throw new InvalidOperationException("This member account is not approved or is locked out.");
+                }
+
                 string? refusal = MemberSsoRules.Check(loginInfo);
                 if (refusal is not null)
                 {

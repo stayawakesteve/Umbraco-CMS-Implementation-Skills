@@ -143,6 +143,30 @@ public class ExternalLoginsUsersTests
             AutoLink().OnAutoLinking!(existingAdmin, LoginInfo("admin@example.test", ExampleHostWiringComposer.MappedProviderGroup, emailVerified: false)));
     }
 
+    [Test]
+    public void A_new_auto_linked_user_is_approved()
+    {
+        // Created unapproved, a user would get in once and be refused from the second sign-in on.
+        BackOfficeIdentityUser user = NewUser("editor@example.test");
+        Assert.That(user.IsApproved, Is.False, "precondition: Umbraco creates the user unapproved");
+
+        AutoLink().OnAutoLinking!(user, LoginInfo("editor@example.test", ExampleHostWiringComposer.MappedProviderGroup));
+
+        Assert.That(user.IsApproved, Is.True);
+    }
+
+    [Test]
+    public void A_disabled_existing_user_cannot_be_auto_linked()
+    {
+        // Linking skips Umbraco's approval check, so it would otherwise let a disabled user back in.
+        BackOfficeIdentityUser disabled = NewUser("editor@example.test");
+        disabled.Id = "42";
+        disabled.IsApproved = false;
+
+        Assert.Throws<InvalidOperationException>(() =>
+            AutoLink().OnAutoLinking!(disabled, LoginInfo("editor@example.test", ExampleHostWiringComposer.MappedProviderGroup)));
+    }
+
     private static ExternalSignInAutoLinkOptions AutoLink() =>
         ReferenceSiteFixture.Factory.Services
             .GetRequiredService<IOptionsMonitor<BackOfficeExternalLoginProviderOptions>>()
