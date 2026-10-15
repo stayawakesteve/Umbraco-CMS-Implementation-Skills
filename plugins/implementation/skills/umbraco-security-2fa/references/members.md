@@ -28,7 +28,7 @@ turn 2FA off.
 1. **Discover the project:** root namespace, the login page's template and the partial it renders,
    the members-only page that will host the setup, and whether a backoffice 2FA provider is
    already registered (search for `AddTwoFactorProvider`).
-2. **Install the package:** `dotnet add package GoogleAuthenticator` (3.x; the asset is tested on 3.2.0).
+2. **Install the package:** `dotnet add package GoogleAuthenticator`.
 3. **Write the provider:** copy the `.cs` asset. Replace `<Namespace>`, and `<IssuerName>` with the
    site name members should see in their app.
 4. **Add the code step to the login view.** After a correct password, `UmbLoginController` renders
@@ -45,13 +45,12 @@ turn 2FA off.
    one lands on the page originally requested. Check the member's **Two-factor authentication** box
    in the backoffice member editor.
 
-## Things the sample gets wrong
+## Docs corrections
 
 - **Users and members share one provider list.** `GetProviderNamesAsync` returns every registered
   `ITwoFactorProvider`, backoffice ones included. The docs view loops over all of them and calls the
   user provider's setup with a member key, which throws. The setup partial keeps only providers in
-  the member `IdentityOptions` token map. Give each side its own provider class and name; registering
-  the same name twice makes the 2FA services fail to start (duplicate key).
+  the member `IdentityOptions` token map.
 - **Turning 2FA off needs no code** in `UmbTwoFactorLoginController.Disable`, so a hijacked session
   can remove the second factor. Pointing the form elsewhere is not enough: Umbraco routes its own
   surface controllers, so that action still answers at `/umbraco/surface/UmbTwoFactorLogin/Disable`.
@@ -66,7 +65,7 @@ turn 2FA off.
 - **Offer or require?** Umbraco only offers 2FA. To require it, check
   `IMemberTwoFactorLoginService.GetProviderNamesAsync` after login and send members with nothing
   enabled to the setup page.
-- **Recovery.** There are no recovery codes. An editor can clear a member's 2FA by unticking
+- **Recovery.** An editor can clear a member's 2FA by unticking
   **Two-factor authentication** in the member editor. Agree who handles "I lost my phone" requests and
   how they confirm identity.
 - **External logins skip it.** `Umbraco:CMS:Security:MemberBypassTwoFactorForExternalLogins`

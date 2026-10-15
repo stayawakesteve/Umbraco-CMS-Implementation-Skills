@@ -20,8 +20,7 @@ The assets in this skill are that sample with the fixes listed under *Docs corre
 1. **Discover the project:** root namespace, Umbraco version, and whether any external login
    provider sets `DenyLocalLogin`. If one does, the backoffice hides 2FA setup for everyone, and MFA
    belongs in that identity provider instead.
-2. **Install the package:** `dotnet add package GoogleAuthenticator` (3.x; the asset is tested on
-   3.2.0). It works with Google, Microsoft and other TOTP authenticator apps.
+2. **Install the package:** `dotnet add package GoogleAuthenticator`. It works with Google, Microsoft and other TOTP authenticator apps.
 3. **Write the provider:** copy the `.cs` asset. Replace `<Namespace>`, and `<IssuerName>` with the
    name editors should see in their app, for example "Acme CMS".
 4. **Write the manifest** to `App_Plugins/TwoFactorProviders/umbraco-package.json` (or `wwwroot/App_Plugins/...`).
@@ -39,7 +38,7 @@ The assets in this skill are that sample with the fixes listed under *Docs corre
 - **Offer or require?** Umbraco only offers 2FA to users. Nothing forces an editor to enrol. If it
   must be mandatory, put the backoffice behind an identity provider that enforces MFA:
   [External login providers](https://docs.umbraco.com/umbraco-cms/run-in-production/security/external-login-providers.md).
-- **Recovery.** There are no recovery codes. A user with access to the Users section can switch off
+- **Recovery.** A user with access to the Users section can switch off
   another user's provider (the user's **Configure MFA** action, no code needed). Make sure more than
   one person can do that.
 - **SSO users skip it.** `Umbraco:CMS:Security:UserBypassTwoFactorForExternalLogins` defaults to
