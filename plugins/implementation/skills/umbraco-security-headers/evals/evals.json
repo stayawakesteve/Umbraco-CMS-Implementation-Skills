@@ -14,8 +14,8 @@
         "There are two different policies: one for backoffice requests under `/umbraco` that includes backoffice-specific sources (at least two of: `'unsafe-inline'` in style-src, `blob:` images, `https://news-dashboard.umbraco.com`, `https://marketplace.umbraco.com`), and one for the website that does not include the Umbraco news-dashboard or marketplace hosts (`data:` images on the website are fine)",
         "The middleware is registered from an `IComposer` through an `UmbracoPipelineFilter` using `PrePipeline` (so it runs before static files and media), and Program.cs is not edited",
         "The GTM inline script runs without `'unsafe-inline'` in script-src, either by a nonce or by a sha256 hash or external file. If it uses the `asp-csp-nonce` tag helper, `Views/_ViewImports.cshtml` registers it with `@addTagHelper *, Umbraco.Web.Common` (the assembly `Umbraco.Web.Common`, not `Umbraco.Cms.Web.Common`); if it uses a hash or external file, the answer ties that choice to the output cache",
-        "The site policy allows the external origins the layout uses: `https://www.googletagmanager.com` in script-src, `https://fonts.googleapis.com` in style-src and `https://fonts.gstatic.com` in font-src",
-        "The agent does not put `'strict-dynamic'` in the backoffice policy, and explains that it would stop the backoffice loading (for example because `'strict-dynamic'` makes the browser ignore `'self'`, and Umbraco's backoffice scripts are not all nonce-tagged)",
+        "The site policy lets the layout's third parties load: GTM through `https://www.googletagmanager.com` in script-src (or through `'strict-dynamic'` trusting the hashed or nonced GTM snippet), `https://fonts.googleapis.com` in style-src and `https://fonts.gstatic.com` in font-src",
+        "The enforced backoffice policy does not contain `'strict-dynamic'` (a report-only trial is fine), and the agent explains that enforcing it would stop the backoffice loading (for example because `'strict-dynamic'` makes the browser ignore `'self'`, and Umbraco's backoffice scripts are not all nonce-tagged)",
         "The agent addresses output caching and nonces: it says an output-cached page is served with the nonce it was rendered with (so the CSP must be cached and replayed with the same HTML, or the page must use a hash or external script instead of a nonce), rather than ignoring the interaction",
         "The rollout plan uses `Content-Security-Policy-Report-Only` first and only then switches to the enforcing `Content-Security-Policy` header",
         "If no buildable project or running site is available, the agent does not claim the code was compiled or that the headers were observed on a running site"
@@ -34,7 +34,7 @@
         "The agent removes the `Headers.Append(\"Content-Security-Policy\", ...)` line and explains that a second CSP header is enforced in addition to the first",
         "Framing protection becomes `SAMEORIGIN` (`X-Frame-Options`) and/or `frame-ancestors 'self'`, not `DENY`/`'none'`, and the agent links this to Preview, which shows the site in a same-origin iframe",
         "The agent removes `UseXXssProtection` (the X-XSS-Protection header) rather than keeping it",
-        "The cookie banner's inline script keeps working without `'unsafe-inline'`: it keeps the sha256 hash, or uses `asp-csp-nonce`, in which case the tag helper is registered with `@addTagHelper *, Umbraco.Web.Common` (not `Umbraco.Cms.Web.Common`)",
+        "The cookie banner's inline script keeps working without `'unsafe-inline'`: it keeps the sha256 hash, writes `nonce=\"@...GetNonce()\"` from an injected `ICspNonceService`, or uses `asp-csp-nonce`, in which case the tag helper is registered with `@addTagHelper *, Umbraco.Web.Common` (not `Umbraco.Cms.Web.Common`)",
         "If no buildable project or running site is available, the agent does not claim the change was compiled or that the backoffice was observed working"
       ]
     },
