@@ -10,7 +10,8 @@ description: >
   Production runtime mode won't start, enable CORS for a Delivery API or SPA front end, protect
   the Delivery API key or preview, add SSO, external login or 2FA, protect member-only pages,
   files or API endpoints, or restrict the backoffice.
-  SKIP: non-Umbraco projects, Umbraco versions below 17, and Umbraco Cloud platform settings.
+  SKIP: non-Umbraco projects, Umbraco versions below 17, Umbraco Cloud platform settings, and
+  backoffice UI extensions (login buttons, MFA screens, custom health checks).
 ---
 
 # Umbraco Security
@@ -27,8 +28,10 @@ interact, and the mistakes that make a site look secured without being secured.
 - **Auditing or hardening a site:** read [hardening.md](references/hardening.md) first. It is the
   checklist, and it links back to the other files for each item that fails.
 - **A health check is failing:** the Health Check dashboard's security checks map to
-  [security-headers.md](references/security-headers.md) (headers) and
-  [https.md](references/https.md) (HTTPS and application URL).
+  [security-headers.md](references/security-headers.md) (headers),
+  [https.md](references/https.md) (HTTPS and application URL) and
+  [hardening.md](references/hardening.md) (the imaging HMAC secret key). The header checks only
+  request the home page, so a pass says nothing about `/umbraco` or `/media`.
 - **Users or members?** Umbraco has two separate identity systems. *Users* sign in to the
   backoffice; *members* sign in to the website. They share no accounts, cookies, password rules
   or login pages. Settle which one the request is about before opening a reference file.
@@ -43,7 +46,7 @@ interact, and the mistakes that make a site look secured without being secured.
 | Backoffice login: SSO and external providers, 2FA, password and lockout rules, API users | [authentication-users.md](references/authentication-users.md) |
 | Website login: member registration and login, external providers, 2FA, Delivery API member tokens | [authentication-members.md](references/authentication-members.md) |
 | Who can see what: public access, member-only controllers, Delivery API keys, user permissions | [authorization.md](references/authorization.md) |
-| Production checklist: runtime mode, locking down `/umbraco`, rate limiting, secrets, uploads | [hardening.md](references/hardening.md) |
+| Production checklist: runtime mode, locking down `/umbraco`, routing settings, secrets, rate limiting, uploads and SVG, cookies, image URL signing, load balancing, Swagger | [hardening.md](references/hardening.md) |
 
 ## Best practices that apply to every topic
 
@@ -58,8 +61,8 @@ interact, and the mistakes that make a site look secured without being secured.
 - **Prove it on the wire.** A security change is done when an HTTP request shows it: the header
   is present, the redirect happens, the protected URL returns 401/403. A compiled change is not
   proof. Check `/umbraco` and a media URL as well as a content page.
-- **Secrets stay out of `appsettings.json` in source control.** See
-  [hardening.md](references/hardening.md) item 7 for what counts and where it goes.
+- **Secrets stay out of `appsettings.json` in source control.** See the *Secrets* item in
+  [hardening.md](references/hardening.md) for what counts and where it goes.
 - **Report honestly.** If the site could not be run, say which checks were not made rather than
   describing the configuration as verified.
 
@@ -67,11 +70,14 @@ interact, and the mistakes that make a site look secured without being secured.
 
 Targets **Umbraco 17+**. The docs links point at the current (17) documentation. Type names,
 configuration keys, routes and pipeline ordering were checked against the `Umbraco.Cms` 17.5.3
-source. `ICspNonceService`, `UseUmbracoCspNonceInjection()` and the `asp-csp-nonce` tag helper
-are recent; confirm they exist in the project's Umbraco version before relying on them.
+source. Some features are newer than 17.0, so check the project's version before relying on
+them: `ICspNonceService`, `UseUmbracoCspNonceInjection()` and the `asp-csp-nonce` tag helper need
+17.3+, and the 401/403 responses from `[UmbracoMemberAuthorize]` on API controllers need 17.4+.
 
 ## Validation
 
 Objective assertions live in [`evals/evals.json`](evals/evals.json); run them with
 `umbraco-skill-evaluator`. This skill ships no `assets/`, so no runtime gate applies: its
 coverage tier is **Documented**, meaning an eval graded the guidance and no code was run.
+`evals/files/` holds deliberately insecure fixture code for the audit eval. It is not compiled
+and must not be copied.

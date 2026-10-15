@@ -8,24 +8,26 @@ call the Content Delivery API, Media Delivery API or your own API controllers.
 - ASP.NET Core [Enable CORS](https://learn.microsoft.com/en-us/aspnet/core/security/cors) is the
   source for the policy API. **Umbraco has no front-end CORS setting and no CORS docs page**, so
   don't invent `Umbraco:CMS:*` keys for it.
-- [Content Delivery API](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/headless-and-apis/content-delivery-api/README.md)
+- [Content Delivery API](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/headless-and-apis/content-delivery-api.md)
   lists the request headers a client sends.
 
 ## What Umbraco already does
 
 Umbraco registers a CORS policy in exactly one case: when `Umbraco:CMS:Security:BackOfficeHost`
-is set. It then allows that origin to call the **Management API**, because the backoffice client
-is served from elsewhere (a Vite dev server, a proxied host). Umbraco applies it with an
-`UmbracoPipelineFilter` whose `PrePipeline` calls `app.UseCors(<policy>)`. Copy that pattern for
-your own policy. Never widen it to let a front end call the Management API: a public site should
-use the Delivery API, and a server-side integration should use an API user (see
-[authentication-users.md](authentication-users.md)).
+is set, because the backoffice client is then served from elsewhere (a Vite dev server, a proxied
+host). That policy allows the origin, with credentials, on **every** path, not just the
+Management API. Umbraco inserts it as the first `UmbracoPipelineFilter`, whose `PrePipeline` calls
+`app.UseCors(<policy>)`. ASP.NET Core's CORS middleware answers every preflight itself, so while
+`BackOfficeHost` is set, a second `UseCors` added later in `PrePipeline` never sees preflights.
+Don't set `BackOfficeHost` outside development, and never use it to let a front end call the
+Management API: a public site should use the Delivery API, and a server-side integration should
+use an API user (see [authentication-users.md](authentication-users.md)).
 
 ## Building the policy
 
 1. `services.AddCors(o => o.AddPolicy("<name>", ...))` in a composer or `Program.cs`.
-2. Apply it in `PrePipeline` (or before `app.UseUmbraco()`) so preflight `OPTIONS` requests are
-   answered before Umbraco's routing.
+2. Apply it before `app.UseUmbraco()` in `Program.cs` (or in `PrePipeline`) so preflight
+   `OPTIONS` requests are answered before Umbraco's routing.
 3. **Scope it to the API paths.** Wrap it in
    `app.UseWhen(ctx => ctx.Request.Path.StartsWithSegments("/umbraco/delivery/api"), b => b.UseCors("<name>"))`,
    adding your own API prefix. Otherwise every Razor page and the backoffice answer cross-origin
@@ -41,7 +43,9 @@ use the Delivery API, and a server-side integration should use an API user (see
    server-side callers, and allowing them from the browser invites someone to put the key there.
    To show private or preview content, call the API from the front end's server side and keep
    the key there (see [authorization.md](authorization.md)).
-6. **Credentials:** `AllowCredentials()` only if the browser must send cookies. ASP.NET Core
+6. **Methods:** the Delivery API only needs `GET`. Custom APIs that take `POST`/`PUT`/`DELETE`
+   need them in `WithMethods(...)`, or the preflight fails.
+7. **Credentials:** `AllowCredentials()` only if the browser must send cookies. ASP.NET Core
    rejects it combined with `AllowAnyOrigin()`. Bearer tokens in `Authorization` don't need it.
    Don't work around that rejection with `SetIsOriginAllowed(_ => true)` plus `AllowCredentials()`:
    that lets any site read responses made with the member's cookies.

@@ -1,13 +1,13 @@
 # Running these evals
 
-Run all four evals in `evals.json` together, with and without the skill, using the
+Run all six evals in `evals.json` together, with and without the skill, using the
 `umbraco-skill-evaluator` skill. Run them once on Haiku and once on Sonnet. A stronger model's
 baseline already knows most Umbraco 17 security settings, so a single strong-model run shows
 little difference between the two sides.
 
 ## Inputs
 
-Evals 1, 2 and 4 are prompt-only: there is no project to build. Eval 3 (`prelaunch-audit`) reviews
+Evals 1, 2, 4, 5 and 6 are prompt-only: there is no project to build. Eval 3 (`prelaunch-audit`) reviews
 the three files in `files/prelaunch-audit/`:
 
 | File | Planted defects |

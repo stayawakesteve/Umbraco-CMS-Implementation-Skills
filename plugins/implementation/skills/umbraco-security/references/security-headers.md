@@ -17,10 +17,9 @@ technology stack. Umbraco's Health Check dashboard reports on each of these.
 
 ## Where the middleware goes
 
-Headers must be set before the response starts, so add the middleware **before**
-`app.UseUmbraco()` in `Program.cs`. For something reusable or packaged, add it in an
-`UmbracoPipelineFilter`'s `PrePipeline`, registered from a composer through
-`Configure<UmbracoPipelineOptions>`. Middleware added **after** `UseUmbraco()` never sees most requests.
+Before `app.UseUmbraco()`, or in a `PrePipeline` filter registered from a composer through
+`Configure<UmbracoPipelineOptions>` (see the SKILL.md best practices). Headers must be set before
+the response starts.
 
 ## The rules the docs don't spell out
 
@@ -28,12 +27,22 @@ Headers must be set before the response starts, so add the middleware **before**
   needs: a script nonce, `'unsafe-inline'` styles, `blob:`/`data:` images, and the Umbraco news
   dashboard and marketplace hosts. A front end usually needs other sources (analytics, fonts, a
   CDN) and should not inherit the backoffice's `'unsafe-inline'`. Branch on
-  `context.Request.Path.StartsWithSegments("/umbraco")` and send a policy for each surface.
-- **The nonce is per request, and the backoffice is the only thing tagged automatically.** For
-  your own inline `<script>`/`<style>` in Razor views, add the `asp-csp-nonce` attribute (Umbraco's
-  `CspNonceTagHelper`, in `Umbraco.Cms.Web.Common`). That gives the tag the same nonce as the
-  header. Never hard-code a nonce or cache a page's HTML with a nonce baked in. Output caching
+  `context.Request.Path.StartsWithSegments("/umbraco")` and send a policy for each surface. That
+  branch also catches the Delivery API and `/umbraco/api`/`/umbraco/surface` controllers, which
+  is harmless for JSON responses.
+- **The nonce is per request, and Umbraco only tags its own scripts.** For your own inline
+  `<script>`/`<style>` in Razor views, add the `asp-csp-nonce` attribute (Umbraco's
+  `CspNonceTagHelper`). It needs `@addTagHelper *, Umbraco.Web.Common` (the assembly name) in
+  `Views/_ViewImports.cshtml`; without it the attribute renders as-is with no nonce and no error. Take
+  the nonce from `ICspNonceService` rather than generating your own, or Umbraco's own inline
+  scripts (and, in recent 17.x, the front-end preview badge) carry a different nonce and are
+  blocked. Never hard-code a nonce or cache a page's HTML with a nonce baked in. Output caching
   and a per-request nonce conflict, so decide which pages get which.
+- **Declare `script-src` explicitly.** `UseUmbracoCspNonceInjection()` adds the nonce to
+  `script-src` only. If the policy has no `script-src`, it appends `script-src 'nonce-…'` with no
+  `'self'`, which blocks the backoffice's own module scripts. A nonce in `style-src` makes
+  browsers ignore `'unsafe-inline'` there, which breaks the backoffice's inline styles, so keep
+  nonces out of the backoffice's `style-src`.
 - **Send one CSP header.** `Response.Headers.Append` next to NWebsec, a CDN rule or a second
   middleware produces two `Content-Security-Policy` headers. The browser enforces both, so the
   effective policy is the stricter combination and things break unpredictably. With NWebsec, call
@@ -41,8 +50,9 @@ Headers must be set before the response starts, so add the middleware **before**
 - **Roll out with `Content-Security-Policy-Report-Only` first.** Run it, read the violations in
   the browser console (or a `report-to` endpoint), and only then switch to the enforcing header.
   `UseUmbracoCspNonceInjection()` handles both header names.
-- **Framing:** use `X-Frame-Options: SAMEORIGIN`, as the docs do, or CSP `frame-ancestors 'self'`.
-  If you tighten this to `DENY` or `'none'`, test backoffice preview before shipping.
+- **Framing:** use `X-Frame-Options: SAMEORIGIN`, as the docs do, and CSP `frame-ancestors 'self'`
+  if you like. The health check only recognises `X-Frame-Options`, so `frame-ancestors` alone
+  fails it. If you tighten this to `DENY` or `'none'`, test backoffice preview before shipping.
 - **Don't add `X-XSS-Protection`.** It is deprecated, and the health check flags it when present.
 - **`Server`/`X-Powered-By` are added by the host, not by Umbraco.** Middleware can't remove them.
   Use `builder.WebHost.UseKestrel(o => o.AddServerHeader = false)` on Kestrel, or `web.config` on
@@ -56,7 +66,8 @@ Headers must be set before the response starts, so add the middleware **before**
   `Content-Security-Policy` header per response, `X-Content-Type-Options: nosniff`, and the
   framing header.
 - Sign in to the backoffice with the browser console open and confirm there are no CSP violations.
-- The Health Check dashboard's security group passes.
+- The Health Check dashboard's security group passes. It only requests the home page, so it is
+  no evidence about `/umbraco` or `/media`.
 
 **Related:** [cors.md](cors.md) (CORS is not a security header and doesn't
 replace one).

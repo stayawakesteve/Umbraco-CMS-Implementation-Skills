@@ -25,17 +25,26 @@ Management API. For website visitors, see [authentication-members.md](authentica
   Its `forProviderName` is the scheme name **with `Umbraco.` prepended**. If the button is
   missing, check the manifest before the C#.
 - **Callback paths** (`/signin-oidc`, `/signin-google`, ...) go in `Umbraco:CMS:Global:ReservedPaths`
-  so Umbraco doesn't try to route them as content. Register the same absolute callback URL, per
+  so Umbraco doesn't try to route them as content. Setting it replaces the default list, so
+  append to it (keep `~/app_plugins/,~/install/,~/mini-profiler-resources/,~/umbraco/,`). Register the same absolute callback URL, per
   environment, in the identity provider.
 - **Auto-linking** creates Umbraco users on first SSO login and assigns user groups in
   `OnAutoLinking`. Map groups from IdP claims rather than giving everyone a fixed group, and
-  never default to administrators. Auto-linked users have no local password. `DenyLocalLogin`
+  never default to administrators. `DefaultUserGroups` in `ExternalSignInAutoLinkOptions` is the
+  fixed fallback; per-claim mapping is `user.AddRole("<group alias>")` in `OnAutoLinking`, reading the claims
+  from the login info as the docs' "Transferring Claims" section shows. For example, add
+  `editor` when `loginInfo.Principal` has a `groups` claim with the Marketing group's ID; IdPs
+  usually send group IDs, not names, so map from configuration. That runs on first
+  sign-in only; changes made in `OnExternalLogin` for existing users are not saved for you. Auto-linked users have no local password. `DenyLocalLogin`
   then removes password login entirely, so keep one break-glass local admin, or the documented
   admin reset, available before turning it on.
 - Keep claims copied into the backoffice identity small. They live in the auth cookie, and
   tokens belong in storage (the docs show how).
 - Basic authentication with external providers or 2FA needs `BasicAuth:RedirectToLoginPage: true`.
   The browser's native prompt can't complete those flows.
+- **SSO logins skip Umbraco 2FA by default** (`UserBypassTwoFactorForExternalLogins` and
+  `MemberBypassTwoFactorForExternalLogins` are `true`). That is right when the IdP enforces MFA.
+  Set it to `false` if it doesn't.
 
 ## Two-factor authentication
 
@@ -48,7 +57,8 @@ separate decision. Settle it with the user, because the docs' sample only offers
 
 `Umbraco:CMS:Security:UserPassword` (length, character classes,
 `MaxFailedAccessAttemptsBeforeLockout`), `UserDefaultLockoutTimeInMinutes` (defaults to 30 days),
-`AllowPasswordReset`, `KeepUserLoggedIn`, `UserAllowConcurrentLogins`. If several sites share a
+`AllowPasswordReset`, `KeepUserLoggedIn`, `UserAllowConcurrentLogins`. Session length is
+`Umbraco:CMS:Global:TimeOut` (default 20 minutes), not a security setting. If several sites share a
 hostname (for example `localhost` on different ports), they share cookies. Give each site a unique
 `AuthCookieName` **and** `BackOfficeTokenCookie:SiteName`, or signing in to one signs you out of
 the other.

@@ -8,8 +8,8 @@ API access, and what editors may do in the backoffice.
 - **Public access** (protecting content for members or member groups): the "Member-only pages"
   section of [Member registration and login](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/tutorials/members-registration-and-login.md)
 - **Delivery API access:** `PublicAccess` and `ApiKey` in
-  [Content Delivery API](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/headless-and-apis/content-delivery-api/README.md)
-- **Backoffice permissions:** [Users](https://docs.umbraco.com/umbraco-cms/manage-and-publish-content/users-and-members/users/README.md)
+  [Content Delivery API](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/headless-and-apis/content-delivery-api.md)
+- **Backoffice permissions:** [Users](https://docs.umbraco.com/umbraco-cms/manage-and-publish-content/users-and-members/users.md)
   (user groups, sections, start nodes, granular permissions) and
   [Sensitive data](https://docs.umbraco.com/umbraco-cms/run-in-production/security/sensitive-data-on-members.md)
 
@@ -33,9 +33,18 @@ API access, and what editors may do in the backoffice.
 Put `[UmbracoMemberAuthorize]` on surface controllers and API controllers that act for a member.
 Its constructor takes three comma-delimited lists, **in this order**: `allowType` (member type
 aliases), `allowGroup` (member groups), `allowMembers` (member IDs). For example,
-`[UmbracoMemberAuthorize("", "Premium", "")]` allows the Premium group only. It returns 401 or 403
-for API controllers, and redirects for MVC/surface controllers. `[AllowAnonymous]` on an action
-opts that action out. Never check a member's group by hand from a query-string or form value.
+`[UmbracoMemberAuthorize("", "Premium", "")]` allows the Premium group only (namespace
+`Umbraco.Cms.Web.Common.Filters`). On 17.4+ it returns 401 or 403 for API controllers, meaning
+controllers marked `[ApiController]` or derived from `UmbracoApiController`; anything else is
+treated as MVC. For MVC/surface controllers it returns a forbid, which redirects
+to the member cookie's access-denied path (`/Account/AccessDenied` unless you set one), so build
+that page or configure the path. `[AllowAnonymous]` on an action opts that action out. It only
+recognises members signed in with the member cookie, not Delivery API member access tokens.
+Never check a member's group by hand from a query-string or form value.
+
+Cookie-authenticated member endpoints that change state need antiforgery validation.
+`SurfaceController` actions get it automatically; your own API controllers don't, so add
+`[ValidateAntiForgeryToken]` or use bearer tokens instead of the cookie.
 
 ## Delivery API access
 
