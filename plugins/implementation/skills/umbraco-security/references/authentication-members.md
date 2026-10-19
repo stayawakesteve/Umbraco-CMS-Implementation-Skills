@@ -13,7 +13,7 @@ backoffice editors, see [authentication-users.md](authentication-users.md).
 | Social or SSO login for members | [External login providers](https://docs.umbraco.com/umbraco-cms/run-in-production/security/external-login-providers.md), "Members" sections |
 | Members who exist only in the IdP | [Lightweight external members](https://docs.umbraco.com/umbraco-cms/run-in-production/security/lightweight-external-members.md) |
 | Two-factor authentication | [Two-factor authentication](https://docs.umbraco.com/umbraco-cms/run-in-production/security/two-factor-authentication.md), "Members" section |
-| Headless login (SPA, mobile, Next.js) | [Protected content in the Delivery API](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/headless-and-apis/content-delivery-api/protected-content-in-the-delivery-api/README.md) |
+| Headless login (SPA, mobile, Next.js) | [Protected content in the Delivery API](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/headless-and-apis/content-delivery-api/protected-content-in-the-delivery-api.md) |
 | Server-to-server access to protected content | [Server-to-server access](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/headless-and-apis/content-delivery-api/protected-content-in-the-delivery-api/server-to-server-access.md) |
 
 ## Razor sites: what trips people up
@@ -41,7 +41,8 @@ backoffice editors, see [authentication-users.md](authentication-users.md).
   then, protected content is still missing from or present in responses as before, and this is
   the commonly missed step.
 - The client uses Authorization Code + PKCE with `client_id` `umbraco-member`. The login page is
-  an Umbraco-rendered page, at `/Account/Login` by default; the docs show how to move it.
+  one you create: a content item at `/Account/Login` (the ASP.NET Core default) unless you move
+  it, as the docs show.
   The docs warn against public OIDC clients in web apps. For a server-rendered front end, prefer
   a confidential, server-side flow or server-to-server access (see the table above).
 - A SPA on another origin also needs CORS for the token and API calls

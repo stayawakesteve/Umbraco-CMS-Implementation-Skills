@@ -7,19 +7,21 @@ list and the files changed.
 
 ## Fetch first
 
-- [Umbraco security hardening](https://docs.umbraco.com/umbraco-cms/run-in-production/security/security-hardening.md):
+- [Lock down access to the Umbraco folder](https://docs.umbraco.com/umbraco-cms/run-in-production/security/lock-access-to-umbraco-folder.md):
   locking down `/umbraco` by IP on IIS.
 - [Umbraco security settings](https://docs.umbraco.com/umbraco-cms/run-in-production/security/security-settings.md):
   pointers to password, routing and Forms settings.
-- [Health Check](https://docs.umbraco.com/umbraco-cms/run-in-production/infrastructure-and-ops/health-check/README.md):
+- [Health Check](https://docs.umbraco.com/umbraco-cms/run-in-production/infrastructure-and-ops/health-check.md):
   run it first, and treat its results as the starting backlog.
 
 ## Checklist
 
 1. **Runtime mode `Production`** (`Umbraco:CMS:Runtime:Mode`). Umbraco then refuses to boot
-   unless the build is Release (JIT optimizer on), Models Builder mode is `Nothing`, Razor runtime
-   compilation is off, `UseHttps` is `true` and `UmbracoApplicationUrl` is set
-   ([https.md](https.md)). The startup error names the failing setting.
+   unless the build is Release (JIT optimizer on), Models Builder mode is `Nothing`, `UseHttps` is
+   `true` and `UmbracoApplicationUrl` is set ([https.md](https.md)). The startup error names the
+   failing setting. Production mode also turns off Razor runtime compilation, so views must be
+   compiled at build/publish time (no `RazorCompileOnBuild`/`RazorCompileOnPublish` set to `false`
+   in the project), or templates return 404.
 2. **HTTPS everywhere, HSTS on**: [https.md](https.md).
 3. **Security headers and CSP**: [security-headers.md](security-headers.md). Remove `Server` and
    `X-Powered-By`.
@@ -57,7 +59,7 @@ list and the files changed.
     or IP restriction, plus `noindex`. Never reuse the production Delivery API key.
 13. **Stay patched:** check the installed version against
     [Umbraco security advisories](https://github.com/umbraco/Umbraco-CMS/security/advisories)
-    and the [Trust Center](https://umbraco.com/about-us/trust-center/). Upgrade within the major
+    and the [Trust Center](https://umbraco.com/trust-center/). Upgrade within the major
     version promptly.
 14. **Regulated hosting:** follow the
     [FIPS setup](https://docs.umbraco.com/umbraco-cms/run-in-production/security/setup-umbraco-for-a-fips-server.md)
@@ -68,9 +70,10 @@ list and the files changed.
 Where the docs pages and Umbraco 17 disagree, follow this list:
 
 - **[Cookies](https://docs.umbraco.com/umbraco-cms/run-in-production/security/cookies.md)** says to
-  add the `AddSession` call "after `Build()`". Services can't be registered once the app is
-  built, so that throws. Register it before `builder.Build()`.
-- **[Security hardening](https://docs.umbraco.com/umbraco-cms/run-in-production/security/security-hardening.md)**:
-  the IIS rule exempts only `umbraco/api` and `umbraco/surface`. It predates Umbraco 14, so it also
-  blocks the Delivery API (`/umbraco/delivery/api`), the basic-auth pages and the Management API
-  (`/umbraco/management/api`). Add the ones the site uses to the exemption.
+  add the `AddSession` call "after `Build();`". `Program.cs` has two `Build()` calls: it means the
+  Umbraco builder chain's `.Build()`. After `builder.Build()`, services can't be registered and
+  the call throws. Register it before `builder.Build()`.
+- **[Lock down access to the Umbraco folder](https://docs.umbraco.com/umbraco-cms/run-in-production/security/lock-access-to-umbraco-folder.md)**:
+  the IIS rule exempts `umbraco/api`, `umbraco/surface` and `umbraco/delivery` only. It still
+  blocks the basic-auth login pages (`/umbraco/basic-auth`) and the Management API
+  (`/umbraco/management/api`) that API users call. Add the ones the site uses to the exemption.

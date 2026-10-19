@@ -8,8 +8,8 @@ API access, and what editors may do in the backoffice.
 - **Public access** (protecting content for members or member groups): the "Member-only pages"
   section of [Member registration and login](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/tutorials/members-registration-and-login.md)
 - **Delivery API access:** `PublicAccess` and `ApiKey` in
-  [Content Delivery API](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/headless-and-apis/content-delivery-api/README.md)
-- **Backoffice permissions:** [Users](https://docs.umbraco.com/umbraco-cms/manage-and-publish-content/users-and-members/users/README.md)
+  [Content Delivery API](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/headless-and-apis/content-delivery-api.md)
+- **Backoffice permissions:** [Users](https://docs.umbraco.com/umbraco-cms/manage-and-publish-content/users-and-members/users.md)
   (user groups, sections, start nodes, granular permissions) and
   [Sensitive data](https://docs.umbraco.com/umbraco-cms/run-in-production/security/sensitive-data-on-members.md)
 
