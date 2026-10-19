@@ -17,17 +17,18 @@ host (IIS, a reverse proxy, a load balancer, a CDN).
 
 ## What `UseHttps` does and doesn't do
 
-`UseHttps: true` covers the **backoffice** only. It makes the backoffice auth cookie secure-only,
-redirects backoffice controllers to HTTPS, refuses backoffice authorization over HTTP, and makes
-Umbraco's own generated links (notification emails, self-requests) use `https`. It does **not**
-redirect front-end pages. Front-end redirection needs `app.UseHttpsRedirection()` before
+`UseHttps` (which defaults to `true` in Umbraco 17) covers the **backoffice** only. It makes the
+backoffice auth and token cookies secure-only, makes the backoffice's OpenID Connect endpoints refuse
+plain HTTP, and makes the links in Umbraco's notification emails use `https`. It does **not**
+redirect anything, front-end pages included. Front-end redirection needs `app.UseHttpsRedirection()` before
 `app.UseUmbraco()`, or a host-level rule (IIS rewrite, proxy, CDN). Pick **one** place to
 redirect, because two layers that disagree produce redirect loops.
 
 ## Production runtime mode enforces it
 
-A site that won't start after switching to Production is usually missing `Global:UseHttps: true`
-or `WebRouting:UmbracoApplicationUrl`. The full list of boot requirements is in
+A site that won't start after switching to Production usually has `Global:UseHttps` set to
+`false` (the default is `true`, but templates and upgraded sites often set it `false` for
+development) or no `WebRouting:UmbracoApplicationUrl`. The full list of boot requirements is in
 [hardening.md](hardening.md) item 1.
 
 ## Behind TLS-terminating proxies (Azure Front Door, App Gateway, Cloudflare, nginx, Docker)

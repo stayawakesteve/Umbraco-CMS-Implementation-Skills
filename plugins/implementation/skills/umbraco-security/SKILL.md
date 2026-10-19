@@ -68,7 +68,7 @@ interact, and the mistakes that make a site look secured without being secured.
 Targets **Umbraco 17+**. The docs links point at the current (17) documentation. Type names,
 configuration keys, routes and pipeline ordering were checked against the `Umbraco.Cms` 17.5.3
 source. `ICspNonceService`, `UseUmbracoCspNonceInjection()` and the `asp-csp-nonce` tag helper
-are recent; confirm they exist in the project's Umbraco version before relying on them.
+arrived in Umbraco 17.3; confirm the project is on 17.3 or later before relying on them.
 
 ## Validation
 

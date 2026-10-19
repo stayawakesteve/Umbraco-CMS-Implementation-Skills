@@ -8,17 +8,20 @@ call the Content Delivery API, Media Delivery API or your own API controllers.
 - ASP.NET Core [Enable CORS](https://learn.microsoft.com/en-us/aspnet/core/security/cors) is the
   source for the policy API. **Umbraco has no front-end CORS setting and no CORS docs page**, so
   don't invent `Umbraco:CMS:*` keys for it.
-- [Content Delivery API](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/headless-and-apis/content-delivery-api/README.md)
+- [Content Delivery API](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/headless-and-apis/content-delivery-api.md)
   lists the request headers a client sends.
 
 ## What Umbraco already does
 
 Umbraco registers a CORS policy in exactly one case: when `Umbraco:CMS:Security:BackOfficeHost`
-is set. It then allows that origin to call the **Management API**, because the backoffice client
-is served from elsewhere (a Vite dev server, a proxied host). Umbraco applies it with an
-`UmbracoPipelineFilter` whose `PrePipeline` calls `app.UseCors(<policy>)`. Copy that pattern for
-your own policy. Never widen it to let a front end call the Management API: a public site should
-use the Delivery API, and a server-side integration should use an API user (see
+is set, because the backoffice client is served from elsewhere (a Vite dev server, a proxied host).
+Umbraco applies it with an `UmbracoPipelineFilter` whose `PrePipeline` calls `app.UseCors(<policy>)`
+with **no path scoping**, and the policy allows any header, any method and credentials. So setting
+`BackOfficeHost` to a front end's origin does make its CORS errors go away, but only by giving that
+origin credentialed cross-origin access to every path, the Management API included, and by
+registering it as a backoffice login host. Never use it as a front-end CORS setting. Copy the
+filter pattern for your own policy instead, scoped as below. A public site should use the Delivery
+API, and a server-side integration should use an API user (see
 [authentication-users.md](authentication-users.md)).
 
 ## Building the policy
