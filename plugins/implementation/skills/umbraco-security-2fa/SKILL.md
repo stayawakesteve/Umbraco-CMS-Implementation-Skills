@@ -30,8 +30,8 @@ Umbraco has two separate identity systems, and each gets 2FA its own way. Both u
 
 Settle which identity system the request is about before writing code: "editors", "admins",
 "backoffice" and "CMS login" mean A; "members", "customers", "my account" and "website login" mean
-B. If the user wants both, do both: they coexist. Open the reference for each one you build and start from its assets. The docs sample has
-mistakes that the references list and the assets fix.
+B. If the user wants both, do both: they coexist. Open the reference for each one you build and
+start from its assets. The docs sample has mistakes that the references list and the assets fix.
 
 ## Version compatibility
 

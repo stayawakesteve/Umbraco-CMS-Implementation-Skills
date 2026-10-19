@@ -39,7 +39,7 @@ The assets in this skill are that sample with the fixes listed under *Docs corre
   must be mandatory, put the backoffice behind an identity provider that enforces MFA:
   [External login providers](https://docs.umbraco.com/umbraco-cms/run-in-production/security/external-login-providers.md).
 - **Recovery.** A user with access to the Users section can switch off
-  another user's provider (the user's **Configure MFA** action, no code needed). Make sure more than
+  another user's provider (the user's **Configure 2FA** action, no code needed). Make sure more than
   one person can do that.
 - **SSO users skip it.** `Umbraco:CMS:Security:UserBypassTwoFactorForExternalLogins` defaults to
   `true`, so users signing in through an external provider are never asked for an Umbraco code.
