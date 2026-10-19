@@ -27,7 +27,7 @@ composer's type.
 |---|---|---|
 | Composing: components implement `IComponent` (`Initialize`/`Terminate`) | Obsolete in 17 (CS0618), scheduled for removal in 18 | `RuntimeAsyncComponentBase` or `IAsyncComponent`, per [startup-and-runtime-levels.md](startup-and-runtime-levels.md) |
 | Composing: the Runtime Levels list | Omits `Upgrading` (17.3+), during which components and startup notifications are deferred | See [startup-and-runtime-levels.md](startup-and-runtime-levels.md#the-runtime-levels-that-matter) |
-| Composing: modifying `HealthChecks()` with `Clear()` then re-adding | Silently drops checks that Umbraco or other packages add later | `HealthChecks().Exclude<T>()` for just the one check, per [collections-and-ordering.md](collections-and-ordering.md) |
+| Composing: modifying `HealthChecks()` with `Clear()` then re-adding | Right only for a deliberate allow-list, and it also drops checks that Umbraco or other packages add later | `HealthChecks().Exclude<T>()` for just the one check, per [collections-and-ordering.md](collections-and-ordering.md) |
 
 ## The files
 

@@ -6,6 +6,9 @@ namespace <Namespace>;
 
 // Startup/shutdown work for <Feature>. RuntimeAsyncComponentBase skips both methods unless the
 // runtime level is Run and Umbraco isn't restarting, so this never runs during install or upgrade.
+// It is also skipped on the in-process restart after an attended install/upgrade, so the work first
+// runs on the next process start. If the site needs it straight after the wizard, implement
+// IAsyncComponent directly and gate on IRuntimeState.Level == RuntimeLevel.Run only.
 public sealed class <Feature>Component : RuntimeAsyncComponentBase
 {
     private readonly ILogger<<Feature>Component> _logger;

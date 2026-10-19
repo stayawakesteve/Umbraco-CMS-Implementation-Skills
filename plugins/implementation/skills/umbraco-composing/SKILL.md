@@ -1,24 +1,23 @@
 ---
 name: umbraco-composing
 description: >
-  Register custom code into an Umbraco 17+ site at startup: composers, IUmbracoBuilder
-  extension methods, collection builders (content finders, URL providers, health checks),
-  composer ordering, disabling or replacing built-in implementations, and startup components
-  gated by runtime level. Use this whenever the user asks to "register a service or
-  notification handler in Umbraco", "create a composer", "add my content finder before
-  Umbraco's", "replace or remove a built-in Umbraco implementation", "make my composer run
-  after another one", "disable a package's composer", "run code when Umbraco starts", "only
-  run this once Umbraco is installed / not during an upgrade", "migrate our composers and
-  components from Umbraco 13", or reports that "IComponent is obsolete" or a startup
-  InvalidOperationException from the CreateUmbracoBuilder() chain. SKIP: non-Umbraco projects, Umbraco < 17, client-side
-  backoffice extensions registered through umbraco-package.json, and plain ASP.NET Core
-  middleware.
+  Register custom code into an Umbraco 17+ site at startup: composers, IUmbracoBuilder extension
+  methods, collection builders (content finders, URL providers, health checks), composer ordering,
+  disabling or replacing built-in implementations, and startup components gated by runtime level.
+  Use this whenever the user asks to "register a service or notification handler in Umbraco",
+  "create a composer", "add my content finder before Umbraco's", "replace or remove a built-in
+  Umbraco implementation", "make my composer run after another one", "disable a package's composer",
+  "run code when Umbraco starts", "only run this once Umbraco is installed / not during an upgrade",
+  "migrate our composers and components from Umbraco 13", or reports that "IComponent is obsolete"
+  or a startup InvalidOperationException from the CreateUmbracoBuilder() chain. SKIP: non-Umbraco
+  projects, Umbraco < 17, client-side backoffice extensions registered through umbraco-package.json,
+  and plain ASP.NET Core middleware.
 ---
 
 # Composing
 
 Registrations can live in two supported places. Both call the same `IUmbracoBuilder` extension
-method, so switching between them later is a one-line change.
+method, so switching between them later only changes where it's called from.
 
 | | **A — Composer** (default) | **B — `Program.cs`** |
 |---|---|---|

@@ -26,7 +26,8 @@ Each collection's kind determines which methods it has, so check the kind in the
 **Anchor to the core item, never to the list's position or to `Append`.** `Append` puts an item
 after Umbraco's own items. For `ContentFinders` that means a URL the core finders already match
 never reaches yours. `Insert()` with no index puts the item first, which is usually too early
-(it runs before `ContentFinderByPageIdQuery`).
+(it runs before `ContentFinderByPageIdQuery`), unless the requirement really is to run before every
+core finder.
 
 **The anchor must already be in the collection when the call runs, or boot fails.** Ordered, Set and
 Weighted builder calls change the list immediately. They aren't deferred to `.Build()`. So `InsertBefore`,
