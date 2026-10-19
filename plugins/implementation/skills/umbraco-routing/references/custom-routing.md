@@ -125,6 +125,12 @@ or a property when either can do it: this runs on every routed request.
 Build, then request each URL: the new URL answers 200 with the right node, the old URL 404 or 301
 as intended, unknown values 404, and `Url()` on the node returns the new URL.
 
+A plain `dotnet build` doesn't compile views in a stock Umbraco project. If you added one, check
+`Umbraco:CMS:ModelsBuilder:ModelsMode`: for `Nothing` or `SourceCode*` build with
+`-p:RazorCompileOnBuild=true`; for `InMemoryAuto` (the default) that build fails on a healthy site,
+so build normally and request a page that renders the view. Don't change `ModelsMode` to make a
+build pass.
+
 ## Done
 
 Tell the user what was registered and where, what happens to existing URLs and how they redirect, the URLs to test, and
