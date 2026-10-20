@@ -31,6 +31,9 @@ Two supported ways to send a CSP and the other security headers:
 Default to A. Choose B when the project already configures headers with NWebsec: extend that
 setup rather than adding a second source of the same headers. Never run both.
 
+**Before writing any code, open the reference for the approach you choose,** and for A start from
+the files in `assets/`. The steps, and the order the headers must be set in, are only there.
+
 ## Version compatibility
 
 Targets **Umbraco 17.3+**. `ICspNonceService`, `UseUmbracoCspNonceInjection()` and the
@@ -43,8 +46,9 @@ to 17.2 there is no nonce to use, so recommend upgrading before adding a CSP.
   the nonce, `style-src 'self' 'unsafe-inline'`, `img-src 'self' blob: data:
   https://news-dashboard.umbraco.com` and `frame-src 'self' https://marketplace.umbraco.com`. The
   website should get none of the Umbraco hosts and no `'unsafe-inline'`, except in `style-src`
-  when inline `style="…"` attributes (which can't take a nonce) can't be moved to CSS. Its own
-  sources (analytics, fonts, CDN) don't belong in the backoffice's.
+  when inline `style="…"` attributes (which can't take a nonce) can't be moved to CSS. Browsers
+  ignore `'unsafe-inline'` in a directive that also has a nonce, so in that case drop the nonce
+  from `style-src`. Its own sources (analytics, fonts, CDN) don't belong in the backoffice's.
 - **The nonce is per request.** Umbraco tags its backoffice import map with it. For your own
   inline `<script>`/`<style>`, add `asp-csp-nonce` and register the tag helper with
   `@addTagHelper *, Umbraco.Web.Common`. Note the assembly is `Umbraco.Web.Common`, not

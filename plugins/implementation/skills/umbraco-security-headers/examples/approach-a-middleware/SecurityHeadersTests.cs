@@ -29,6 +29,7 @@ public class SecurityHeadersTests
         Assert.Multiple(() =>
         {
             Assert.That(ScriptSrc(policy), Does.Contain("'nonce-"), "site script-src should allow nonce-tagged inline scripts");
+            Assert.That(Directive(policy, "style-src"), Does.Contain("'nonce-"), "site style-src should allow nonce-tagged inline styles");
             Assert.That(policy, Does.Not.Contain("'unsafe-inline'"), "the site must not inherit the backoffice's 'unsafe-inline'");
             Assert.That(policy, Does.Not.Contain("news-dashboard.umbraco.com"), "backoffice-only sources leaked into the site policy");
             Assert.That(SingleHeader(response, "X-Content-Type-Options"), Is.EqualTo("nosniff"));
@@ -119,6 +120,8 @@ public class SecurityHeadersTests
         return list[0];
     }
 
-    private static string ScriptSrc(string policy) =>
-        policy.Split(';').Select(d => d.Trim()).FirstOrDefault(d => d.StartsWith("script-src ")) ?? string.Empty;
+    private static string ScriptSrc(string policy) => Directive(policy, "script-src");
+
+    private static string Directive(string policy, string name) =>
+        policy.Split(';').Select(d => d.Trim()).FirstOrDefault(d => d.StartsWith(name + " ")) ?? string.Empty;
 }

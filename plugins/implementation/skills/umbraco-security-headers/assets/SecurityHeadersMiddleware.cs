@@ -90,12 +90,15 @@ public class SecurityHeadersMiddleware : IMiddleware
 
     // EDIT for your front end: add the origins your site loads from (analytics, fonts, CDN).
     // Keep 'unsafe-inline' out of script-src: tag your own inline scripts with asp-csp-nonce.
+    // The nonce in style-src covers <style asp-csp-nonce>. Browsers ignore 'unsafe-inline' in a
+    // directive that has a nonce, so if style="…" attributes force 'unsafe-inline' into
+    // style-src, take the style-src nonce out.
     // Output-cached pages reuse one nonce for every visitor until the cache entry expires, so
     // prefer a hash or an external file for inline scripts on those pages.
     private static string SitePolicy(string? nonce) => string.Join("; ",
         "default-src 'self'",
         $"script-src 'self' 'nonce-{nonce}'",
-        "style-src 'self'",
+        $"style-src 'self' 'nonce-{nonce}'",
         "img-src 'self' data:",
         "connect-src 'self'",
         "font-src 'self'",
