@@ -4,6 +4,16 @@ Visitors sign in to the website with an external provider ("Sign in with Google"
 are created on first sign-in. Existing members with the same email are linked. For backoffice
 editors, use [users.md](users.md) instead.
 
+## Contents
+
+- [Fetch first](#fetch-first): read when you need the docs pages to check before writing any member sign-in code.
+- [Steps](#steps): read when you are adding external sign-in for website members, from discovery to configuration.
+- [Verify](#verify): read when the code is in place and you need to check that it works.
+- [What trips people up](#what-trips-people-up): read when something fails (blank button, members who can't sign in, error pages) or when you need the security pitfalls of auto-linking.
+- [Swapping the handler](#swapping-the-handler): read when the provider uses `AddGoogle` or another OAuth handler instead of OpenID Connect.
+- [Headless front ends](#headless-front-ends): read when a Delivery API front end must sign members in with the same provider.
+- [Done](#done): read when you are ready to report back to the user.
+
 ## Fetch first
 
 - [External login providers](https://docs.umbraco.com/umbraco-cms/run-in-production/security/external-login-providers.md),

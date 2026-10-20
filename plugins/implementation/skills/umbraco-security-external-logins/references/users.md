@@ -4,6 +4,16 @@ Editors and administrators sign in to `/umbraco` with an external provider, and 
 created on first sign-in in the Umbraco groups their provider roles map to. For website visitors,
 use [members.md](members.md) instead.
 
+## Contents
+
+- [Fetch first](#fetch-first): read when you need the docs pages to check before writing any backoffice sign-in code.
+- [Docs corrections (Umbraco 17)](#docs-corrections-umbraco-17): read when a docs sample doesn't compile or behaves differently from what it says.
+- [Steps](#steps): read when you are adding external sign-in for backoffice users, from discovery to configuration.
+- [Verify](#verify): read when the code is in place and you need to check that it works.
+- [What trips people up](#what-trips-people-up): read when something fails (no button, errors on sign-in, users without groups, lockouts) or when you need the security pitfalls of auto-linking.
+- [Swapping the handler](#swapping-the-handler): read when the provider uses `AddMicrosoftAccount`, `AddGoogle` or another OAuth handler instead of OpenID Connect.
+- [Done](#done): read when you are ready to report back to the user.
+
 ## Fetch first
 
 - [External login providers](https://docs.umbraco.com/umbraco-cms/run-in-production/security/external-login-providers.md):
