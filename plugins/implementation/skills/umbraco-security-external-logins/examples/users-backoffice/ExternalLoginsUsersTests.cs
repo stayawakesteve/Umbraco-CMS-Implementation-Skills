@@ -94,6 +94,8 @@ public class ExternalLoginsUsersTests
     [Test]
     public void A_sign_in_from_an_allowed_domain_gets_the_mapped_group()
     {
+        // "editor" is also mapped from a second provider group the user doesn't have
+        // (ExampleHostWiringComposer.SecondProviderGroupForEditor): that must not remove it.
         BackOfficeIdentityUser user = NewUser("editor@example.test");
 
         bool allowed = AutoLink().OnExternalLogin!(user, LoginInfo("editor@example.test", ExampleHostWiringComposer.MappedProviderGroup));

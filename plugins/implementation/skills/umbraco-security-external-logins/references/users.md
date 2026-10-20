@@ -14,16 +14,16 @@ use [members.md](members.md) instead.
   ("Users" section) or
   [Google tutorial](https://docs.umbraco.com/umbraco-cms/run-in-production/tutorials/add-google-authentication.md).
 
-The docs' samples need correcting in three places, which the asset already does:
+## Docs corrections (Umbraco 17)
 
-- The Entra tutorial's inline alternative passes `EntraIdBackOfficeAuthenticationOptions.SchemeName`.
-  That class has no `SchemeName`, so the sample doesn't compile. The constant lives on the
-  provider-options class.
-- The generic "Transferring Claims" sample reads an undefined `externalLogin` variable. The
-  callback's second parameter, `loginInfo`, holds the claims.
-- `OAuthOptionsHelper.SetDefaultErrorEventHandling` only accepts `OAuthOptions` (Google,
-  Microsoft Account, GitHub). For `OpenIdConnectOptions`, wire `OnRemoteFailure` and
-  `OnAccessDenied` to `SetUmbracoRedirectWithFilteredParams`, as the asset does.
+The asset already does each of these.
+
+| Docs snippet | Problem | Use instead |
+|---|---|---|
+| Entra tutorial: the inline alternative passes `EntraIdBackOfficeAuthenticationOptions.SchemeName` | That class has no `SchemeName`, so the sample doesn't compile | The constant on the provider-options class |
+| External login providers: the "Transferring Claims" sample reads `externalLogin` | The variable is undefined | The callback's second parameter, `loginInfo`, holds the claims |
+| External login providers: the auto-link sample's comment `// Default: "Editor"` on `defaultUserGroups` | The default is no groups (`defaultUserGroups ?? []`) | Map groups from provider claims (see **Users with no sections** below) |
+| `OAuthOptionsHelper.SetDefaultErrorEventHandling` used with any handler | It only accepts `OAuthOptions` (Google, Microsoft Account, GitHub), not `OpenIdConnectOptions` | For OpenID Connect, wire `OnRemoteFailure` and `OnAccessDenied` to `SetUmbracoRedirectWithFilteredParams` |
 
 ## Steps
 
@@ -63,7 +63,8 @@ The docs' samples need correcting in three places, which the asset already does:
    `GroupMappings` keys are the values of the provider claim named in `GroupClaimType`. That
    defaults to `ClaimTypes.Role`, which is where Entra ID app roles (`roles`) arrive. Values are
    Umbraco group **aliases** (`admin`, `editor`, `writer`, `translator`, `sensitiveData`), not
-   display names.
+   display names. Several provider values can map to one alias; the group stays while any of
+   them is claimed.
 6. **Reserve the callback path.** Add `~/<callback-path>/` to `Umbraco:CMS:Global:ReservedPaths`,
    keeping the existing entries.
 7. **Register the redirect URI** at the provider as an absolute `https://` URL for each
@@ -97,8 +98,8 @@ The docs' samples need correcting in three places, which the asset already does:
   `TokenValidationParameters.NameClaimType = "name"`.
 - **"has not provided the email claim".** Auto-linking reads `ClaimTypes.Email`. Request the
   `email` scope. In Entra ID, an account without a mailbox needs the `email` optional claim.
-- **Users with no sections.** `defaultUserGroups` defaults to **none**; the docs' sample comment
-  saying "Default: Editor" is wrong. It applies only when a user is created. An alias that
+- **Users with no sections.** `defaultUserGroups` defaults to **none**, whatever the docs' sample
+  comment says. It applies only when a user is created. An alias that
   doesn't exist is dropped silently, so `"Editors"` (the display name) gives no group. Sync
   groups in `OnExternalLogin` instead; changes made there are saved with the sign-in.
 - **Users get in once, then are refused.** Auto-linking creates users unapproved, and the

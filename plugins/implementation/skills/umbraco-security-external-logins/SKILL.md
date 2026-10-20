@@ -40,6 +40,9 @@ The assets use the generic OpenID Connect handler, which works with any OIDC pro
 wants a provider-specific handler (`AddMicrosoftAccount`, `AddGoogle`), keep the Umbraco half of the
 asset and swap the handler as the reference describes.
 
+Before writing any code, open the approach's reference and start from its asset: the reference
+holds the placeholders, the configuration and the traps the asset already handles.
+
 ## Version compatibility
 
 Targets **Umbraco 17+**. Type names, callbacks and defaults were checked against the

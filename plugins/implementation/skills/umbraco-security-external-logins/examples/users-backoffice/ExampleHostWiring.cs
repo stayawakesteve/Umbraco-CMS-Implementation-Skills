@@ -30,6 +30,7 @@ public class ExampleHostWiringComposer : IComposer
     public const string ClientId = "example-backoffice-client";
     public const string AllowedDomain = "example.test";
     public const string MappedProviderGroup = "Umbraco.Editors";
+    public const string SecondProviderGroupForEditor = "Umbraco.ContentTeam";
 
     public void Compose(IUmbracoBuilder builder)
     {
@@ -39,7 +40,11 @@ public class ExampleHostWiringComposer : IComposer
             settings.ClientId = ClientId;
             settings.ClientSecret = "example-secret";
             settings.AllowedEmailDomains = [AllowedDomain];
-            settings.GroupMappings = new Dictionary<string, string> { [MappedProviderGroup] = "editor" };
+            settings.GroupMappings = new Dictionary<string, string>
+            {
+                [MappedProviderGroup] = "editor",
+                [SecondProviderGroupForEditor] = "editor",
+            };
         });
 
         builder.Services.PostConfigure<OpenIdConnectOptions>(

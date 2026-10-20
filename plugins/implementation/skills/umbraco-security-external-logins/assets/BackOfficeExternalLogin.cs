@@ -202,16 +202,18 @@ public static class BackOfficeSsoRules
         }
 
         // Add or remove only the groups named in GroupMappings, so groups an administrator assigned
-        // by hand in the backoffice are left alone.
+        // by hand in the backoffice are left alone. Several provider values can map to one Umbraco
+        // group: it is kept while any of them is claimed.
         var claimed = principal.FindAll(sso.GroupClaimType).Select(claim => claim.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        foreach ((string providerValue, string groupAlias) in sso.GroupMappings)
+        var granted = sso.GroupMappings.Where(mapping => claimed.Contains(mapping.Key)).Select(mapping => mapping.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (string groupAlias in sso.GroupMappings.Values.Distinct(StringComparer.OrdinalIgnoreCase))
         {
             IdentityUserRole<string>? current = user.Roles.FirstOrDefault(role => string.Equals(role.RoleId, groupAlias, StringComparison.OrdinalIgnoreCase));
-            if (claimed.Contains(providerValue) && current is null)
+            if (granted.Contains(groupAlias) && current is null)
             {
                 user.AddRole(groupAlias);
             }
-            else if (!claimed.Contains(providerValue) && current is not null)
+            else if (!granted.Contains(groupAlias) && current is not null)
             {
                 user.Roles.Remove(current);
             }
