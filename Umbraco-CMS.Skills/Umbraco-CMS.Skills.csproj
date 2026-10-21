@@ -22,6 +22,10 @@
     <ProjectReference Include="../plugins/implementation/skills/umbraco-composing/examples/approach-a-composer/Umbraco-Composing.Example.csproj" />
     <ProjectReference Include="../plugins/implementation/skills/umbraco-multilingual/examples/additional-cultures/Umbraco-Multilingual.AdditionalCultures.Example.csproj" />
     <ProjectReference Include="../plugins/implementation/skills/umbraco-security-2fa/examples/users/Umbraco-Security2fa.Users.Example.csproj" />
+    <ProjectReference Include="../plugins/implementation/skills/umbraco-debugging/examples/approach-a-sourcelink-probe/Umbraco-Debugging.SourceLinkProbe.Example.csproj" />
+    <ProjectReference Include="../plugins/implementation/skills/umbraco-debugging/examples/approach-b-profiler/Umbraco-Debugging.Profiler.Example.csproj" />
+    <ProjectReference Include="../plugins/implementation/skills/umbraco-security-external-logins/examples/users-backoffice/Umbraco-ExternalLogins.Users.Example.csproj" />
+    <ProjectReference Include="../plugins/implementation/skills/umbraco-security-external-logins/examples/members-website/Umbraco-ExternalLogins.Members.Example.csproj" />
     <!-- Compile-only examples are NOT referenced here — they would collide with the above (e.g.
          two controllers on GET /sitemap.xml). They're in the solution instead, so the build still
          compiles them. See each project's header. -->
