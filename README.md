@@ -53,6 +53,7 @@ workflow; the others link into them.
 | `umbraco-security-2fa` | Authenticator-app two-factor authentication for backoffice users and website members, with runtime-tested code |
 | `umbraco-debugging` | Steps into Umbraco's own source with Source Link (Visual Studio, Rider, VS Code), or profiles requests with debug mode and MiniProfiler |
 | `umbraco-security-external-logins` | Single sign-on through Entra ID, Google, Okta and other OpenID Connect providers, for backoffice users or website members, with safe auto-linking and group mapping |
+| `umbraco-design-fundamentals` | Stylesheets and scripts in `wwwroot`, rendering content and media in Razor, and a guided path for a whole design |
 
 ## Quick Start
 
