@@ -65,7 +65,11 @@ Folder to Workspace", Codex multi-root, etc.).
 | [`umbraco-composing`](plugins/implementation/skills/umbraco-composing/SKILL.md) | `implementation` | Register custom code into an Umbraco 17+ site at startup: composers, IUmbracoBuilder extension methods, collection builders (content finders, URL providers, health checks), composer ordering, disab... |
 | [`umbraco-custom-error-pages`](plugins/implementation/skills/umbraco-custom-error-pages/SKILL.md) | `implementation` | Implement custom 404 and 500 error pages in Umbraco 16.1+. Offers two 404 approaches: a multi-site-aware IContentLastChanceFinder (default) and the official docs' zero-code Error404Collection confi... |
 | [`umbraco-custom-maintenance-page`](plugins/implementation/skills/umbraco-custom-maintenance-page/SKILL.md) | `implementation` | Customize the page shown to visitors while Umbraco runs upgrade migrations. Covers Umbraco 17+ upgrade pages, including the unattended upgrade view introduced for Umbraco 17.3+, the documented Umbr... |
+| [`umbraco-debugging`](plugins/implementation/skills/umbraco-debugging/SKILL.md) | `implementation` | Debug an Umbraco 17 site in two ways. Step into Umbraco's own source from Visual Studio, Rider or VS Code with Source Link and the NuGet.org symbol server, or switch on Umbraco debug mode to profil... |
 | [`umbraco-multilingual`](plugins/implementation/skills/umbraco-multilingual/SKILL.md) | `implementation` | Set up and debug multilingual Umbraco 17+ Razor sites, where content exists in more than one language (culture). Covers languages and fallback, vary-by-culture Document Types, Culture and Hostnames... |
+| [`umbraco-notifications`](plugins/implementation/skills/umbraco-notifications/SKILL.md) | `implementation` | Run server-side C# when something happens in Umbraco 17+ (content saved, published, unpublished, moved, deleted, media or members changed, the application started), or raise your own notification f... |
+| [`umbraco-security-2fa`](plugins/implementation/skills/umbraco-security-2fa/SKILL.md) | `implementation` | Adds two-factor authentication (2FA/MFA) with an authenticator app (TOTP, Google or Microsoft Authenticator) to an Umbraco 17+ site, for backoffice users, website members, or both. Use this wheneve... |
+| [`umbraco-security-external-logins`](plugins/implementation/skills/umbraco-security-external-logins/SKILL.md) | `implementation` | Adds external login providers (single sign-on through OpenID Connect or OAuth: Microsoft Entra ID, Google, Okta, Auth0, Keycloak, GitHub) to Umbraco 17+, for backoffice users and for website member... |
 | [`umbraco-security-headers`](plugins/implementation/skills/umbraco-security-headers/SKILL.md) | `implementation` | Adds security headers to an Umbraco 17.3+ site: a Content Security Policy using Umbraco's per-request nonce, with separate backoffice and website policies, plus X-Frame-Options, X-Content-Type-Opti... |
 | [`umbraco-sitemap`](plugins/implementation/skills/umbraco-sitemap/SKILL.md) | `implementation` | Add an XML sitemap to an Umbraco 17+ site. Offers two approaches: the official docs Razor-template + Document Type approach, and a custom cached API controller that needs no backoffice setup. Use t... |
 | [`umbraco-templating`](plugins/implementation/skills/umbraco-templating/SKILL.md) | `implementation` | Server-rendered Umbraco 17 front-end: Razor templates and layouts, partial views, view components, route hijacking (RenderController + view model) and surface-controller form posts. Use when asked ... |
@@ -224,6 +228,10 @@ skill's `evals/files/requirements/` is pinned the same way). `umbraco-content-mo
 holds the rules, `umbraco-content-requirements-documentation` holds the format, the six-step change
 workflow (`references/change-workflow.md`) and the apply and verify steps; the other
 content-modelling skills link into those two rather than copying them.
+
+Implementation skills are also checked by `node scripts/check-skill-docs.mjs`: each links the Umbraco
+docs it's built on at least once, and a reference over 100 lines opens with a `## Contents` index. It
+reports warnings for now.
 
 Eval runs that leave an edited Umbraco project behind are also booted, with
 `node scripts/boot-check.mjs <project>`, because some mistakes compile and only fail at startup. How

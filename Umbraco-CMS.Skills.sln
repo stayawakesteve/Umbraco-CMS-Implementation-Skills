@@ -27,6 +27,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco-CMS.Skills.TestHost
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleFixtures.Shared", "ExampleFixtures.Shared\ExampleFixtures.Shared.csproj", "{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco-NotificationHandlers.Example", "plugins\implementation\skills\umbraco-notifications\examples\approach-a-handle-builtin\Umbraco-NotificationHandlers.Example.csproj", "{0B8C272E-BA7F-479F-A94B-DBBD3A2EE69B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco-NotificationHandlers.ApproachB.Example", "plugins\implementation\skills\umbraco-notifications\examples\approach-b-publish-custom\Umbraco-NotificationHandlers.ApproachB.Example.csproj", "{178F7DE0-3C38-4452-A6D6-211706EF5625}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "umbraco-composing", "umbraco-composing", "{195A2225-6E4E-5890-6907-0131F6A566E3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{ED2F904C-42CC-68C8-E4E3-F7EEFB05F4DF}"
@@ -117,6 +121,30 @@ Global
 		{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}.Release|x64.Build.0 = Release|Any CPU
 		{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}.Release|x86.ActiveCfg = Release|Any CPU
 		{E63E8E38-3D83-4230-869D-FF0C6FBB85B9}.Release|x86.Build.0 = Release|Any CPU
+		{0B8C272E-BA7F-479F-A94B-DBBD3A2EE69B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B8C272E-BA7F-479F-A94B-DBBD3A2EE69B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B8C272E-BA7F-479F-A94B-DBBD3A2EE69B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0B8C272E-BA7F-479F-A94B-DBBD3A2EE69B}.Debug|x64.Build.0 = Debug|Any CPU
+		{0B8C272E-BA7F-479F-A94B-DBBD3A2EE69B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0B8C272E-BA7F-479F-A94B-DBBD3A2EE69B}.Debug|x86.Build.0 = Debug|Any CPU
+		{0B8C272E-BA7F-479F-A94B-DBBD3A2EE69B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B8C272E-BA7F-479F-A94B-DBBD3A2EE69B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B8C272E-BA7F-479F-A94B-DBBD3A2EE69B}.Release|x64.ActiveCfg = Release|Any CPU
+		{0B8C272E-BA7F-479F-A94B-DBBD3A2EE69B}.Release|x64.Build.0 = Release|Any CPU
+		{0B8C272E-BA7F-479F-A94B-DBBD3A2EE69B}.Release|x86.ActiveCfg = Release|Any CPU
+		{0B8C272E-BA7F-479F-A94B-DBBD3A2EE69B}.Release|x86.Build.0 = Release|Any CPU
+		{178F7DE0-3C38-4452-A6D6-211706EF5625}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{178F7DE0-3C38-4452-A6D6-211706EF5625}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{178F7DE0-3C38-4452-A6D6-211706EF5625}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{178F7DE0-3C38-4452-A6D6-211706EF5625}.Debug|x64.Build.0 = Debug|Any CPU
+		{178F7DE0-3C38-4452-A6D6-211706EF5625}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{178F7DE0-3C38-4452-A6D6-211706EF5625}.Debug|x86.Build.0 = Debug|Any CPU
+		{178F7DE0-3C38-4452-A6D6-211706EF5625}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{178F7DE0-3C38-4452-A6D6-211706EF5625}.Release|Any CPU.Build.0 = Release|Any CPU
+		{178F7DE0-3C38-4452-A6D6-211706EF5625}.Release|x64.ActiveCfg = Release|Any CPU
+		{178F7DE0-3C38-4452-A6D6-211706EF5625}.Release|x64.Build.0 = Release|Any CPU
+		{178F7DE0-3C38-4452-A6D6-211706EF5625}.Release|x86.ActiveCfg = Release|Any CPU
+		{178F7DE0-3C38-4452-A6D6-211706EF5625}.Release|x86.Build.0 = Release|Any CPU
 		{90A71A5B-C8F4-4DA1-8DBE-10058B099159}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{90A71A5B-C8F4-4DA1-8DBE-10058B099159}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90A71A5B-C8F4-4DA1-8DBE-10058B099159}.Debug|x64.ActiveCfg = Debug|Any CPU
