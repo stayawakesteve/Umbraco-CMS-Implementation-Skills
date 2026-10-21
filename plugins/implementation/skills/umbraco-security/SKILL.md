@@ -1,34 +1,37 @@
 ---
 name: umbraco-security
 description: >
-  Secures Umbraco 17+ sites: HTTPS and reverse proxies, security headers and CSP, CORS for
-  headless front ends, backoffice user and member authentication, authorization and protected
-  content, and production hardening. Use this whenever the user asks to secure, harden or
-  security-review an Umbraco site, fix pen-test or security health check findings, add a Content
-  Security Policy or security headers, fix a blank backoffice after adding a CSP, force HTTPS or
-  fix a redirect loop behind Azure Front Door, Cloudflare or a load balancer, find out why
-  Production runtime mode won't start, enable CORS for a Delivery API or SPA front end, protect
-  the Delivery API key or preview, add SSO, external login or 2FA, protect member-only pages,
-  files or API endpoints, or restrict the backoffice.
-  SKIP: non-Umbraco projects, Umbraco versions below 17, and Umbraco Cloud platform settings.
+  Entry point for securing an Umbraco 17+ site: routes each security topic to the right guidance,
+  and covers HTTPS and reverse proxies, CORS for headless front ends, user and member login and
+  password rules, authorization and protected content, and production hardening itself. Use this
+  whenever the user asks to secure, harden or security-review an Umbraco site, fix pen-test or
+  security health check findings, force HTTPS or fix a redirect loop behind Azure Front Door,
+  Cloudflare or a load balancer, find out why Production runtime mode won't start, enable CORS for
+  a Delivery API or SPA front end, protect the Delivery API key or preview, protect member-only
+  pages, files or API endpoints, or restrict the backoffice. SKIP: a CSP or security headers on
+  their own (use umbraco-security-headers), SSO or external logins (umbraco-security-external-logins),
+  two-factor authentication (umbraco-security-2fa), non-Umbraco projects, Umbraco versions below
+  17, and Umbraco Cloud platform settings.
 ---
 
 # Umbraco Security
 
-An index for security work on an Umbraco site. Each row points at one reference file, which adds
-what the docs pages leave out: where the code goes in Umbraco's pipeline, which settings
+The entry point for security work on an Umbraco site. Three topics have a skill of their own, with
+runtime-tested code: send those there. Every other row points at one reference file here, which
+adds what the docs pages leave out: where the code goes in Umbraco's pipeline, which settings
 interact, and the mistakes that make a site look secured without being secured.
 
 ## How to use this index
 
-- **Building a feature** (add CSP, enable CORS, add SSO): open the one matching reference file,
-  fetch the docs page it names, then implement. The reference files give no full code samples
-  on purpose: the docs carry the current API.
+- **Building a feature:** find its row below. For a CSP or security headers, SSO or external
+  logins, or 2FA, open that skill instead. Otherwise open the one matching reference file, fetch
+  the docs page it names, then implement. The reference files give no full code samples on
+  purpose: the docs carry the current API.
 - **Auditing or hardening a site:** read [hardening.md](references/hardening.md) first. It is the
   checklist, and it links back to the other files for each item that fails.
 - **A health check is failing:** the Health Check dashboard's security checks map to
-  [security-headers.md](references/security-headers.md) (headers) and
-  [https.md](references/https.md) (HTTPS and application URL).
+  [`umbraco-security-headers`](../umbraco-security-headers/SKILL.md) (headers) and [https.md](references/https.md) (HTTPS and
+  application URL).
 - **Users or members?** Umbraco has two separate identity systems. *Users* sign in to the
   backoffice; *members* sign in to the website. They share no accounts, cookies, password rules
   or login pages. Settle which one the request is about before opening a reference file.
@@ -38,10 +41,12 @@ interact, and the mistakes that make a site look secured without being secured.
 | Goal | Reference |
 |---|---|
 | Force HTTPS, HSTS, TLS behind a proxy or load balancer, application URL | [https.md](references/https.md) |
-| Content Security Policy, X-Frame-Options, nosniff, removing `Server` headers | [security-headers.md](references/security-headers.md) |
+| Content Security Policy, X-Frame-Options, nosniff, removing `Server` headers | The [`umbraco-security-headers`](../umbraco-security-headers/SKILL.md) skill |
 | Let a browser app on another origin call the Delivery API or custom APIs | [cors.md](references/cors.md) |
-| Backoffice login: SSO and external providers, 2FA, password and lockout rules, API users | [authentication-users.md](references/authentication-users.md) |
-| Website login: member registration and login, external providers, 2FA, Delivery API member tokens | [authentication-members.md](references/authentication-members.md) |
+| SSO and external login providers (Entra ID, Google, Okta, any OpenID Connect), for users or members | The [`umbraco-security-external-logins`](../umbraco-security-external-logins/SKILL.md) skill |
+| Two-factor authentication, for users or members | The [`umbraco-security-2fa`](../umbraco-security-2fa/SKILL.md) skill |
+| Backoffice login: password and lockout rules, sessions, custom password checks, API users | [authentication-users.md](references/authentication-users.md) |
+| Website login: member registration and login, Delivery API member tokens | [authentication-members.md](references/authentication-members.md) |
 | Who can see what: public access, member-only controllers, Delivery API keys, user permissions | [authorization.md](references/authorization.md) |
 | Production checklist: runtime mode, locking down `/umbraco`, rate limiting, secrets, uploads | [hardening.md](references/hardening.md) |
 
@@ -67,8 +72,7 @@ interact, and the mistakes that make a site look secured without being secured.
 
 Targets **Umbraco 17+**. The docs links point at the current (17) documentation. Type names,
 configuration keys, routes and pipeline ordering were checked against the `Umbraco.Cms` 17.5.3
-source. `ICspNonceService`, `UseUmbracoCspNonceInjection()` and the `asp-csp-nonce` tag helper
-arrived in Umbraco 17.3; confirm the project is on 17.3 or later before relying on them.
+source.
 
 ## Validation
 

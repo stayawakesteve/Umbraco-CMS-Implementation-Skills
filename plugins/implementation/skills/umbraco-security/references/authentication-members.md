@@ -3,6 +3,9 @@
 How website visitors register and sign in, on Razor sites and headless front ends. For
 backoffice editors, see [authentication-users.md](authentication-users.md).
 
+Social, SSO and lightweight external members have their own skill, [`umbraco-security-external-logins`](../../umbraco-security-external-logins/SKILL.md),
+and so does two-factor authentication, [`umbraco-security-2fa`](../../umbraco-security-2fa/SKILL.md). Use those for either.
+
 ## Fetch first (pick the page for the task)
 
 | Task | Docs page |
@@ -10,9 +13,6 @@ backoffice editors, see [authentication-users.md](authentication-users.md).
 | Registration, login, logout, login status in Razor | [Member registration and login](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/tutorials/members-registration-and-login.md) |
 | Members, member types, member groups | [Members](https://docs.umbraco.com/umbraco-cms/manage-and-publish-content/users-and-members/members.md) |
 | Current member in code | [IMemberManager](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/templating-and-rendering/querying/imembermanager.md) |
-| Social or SSO login for members | [External login providers](https://docs.umbraco.com/umbraco-cms/run-in-production/security/external-login-providers.md), "Members" sections |
-| Members who exist only in the IdP | [Lightweight external members](https://docs.umbraco.com/umbraco-cms/run-in-production/security/lightweight-external-members.md) |
-| Two-factor authentication | [Two-factor authentication](https://docs.umbraco.com/umbraco-cms/run-in-production/security/two-factor-authentication.md), "Members" section |
 | Headless login (SPA, mobile, Next.js) | [Protected content in the Delivery API](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/headless-and-apis/content-delivery-api/protected-content-in-the-delivery-api.md) |
 | Server-to-server access to protected content | [Server-to-server access](https://docs.umbraco.com/umbraco-cms/develop-with-umbraco/headless-and-apis/content-delivery-api/protected-content-in-the-delivery-api/server-to-server-access.md) |
 
@@ -47,13 +47,5 @@ backoffice editors, see [authentication-users.md](authentication-users.md).
   a confidential, server-side flow or server-to-server access (see the table above).
 - A SPA on another origin also needs CORS for the token and API calls
   ([cors.md](cors.md)).
-
-## External and lightweight members
-
-Member external logins are registered with `AddMemberExternalLogins` and
-`SchemeForMembers(...)`. This is a different builder from the backoffice one, so a provider set
-up for editors does not log in members. Lightweight external members skip content-entity storage
-entirely. Read the docs' trade-offs (no backoffice editing, groups held differently) before
-choosing it.
 
 **Related:** [authorization.md](authorization.md) (what a signed-in member can then reach).

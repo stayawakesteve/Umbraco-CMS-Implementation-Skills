@@ -23,7 +23,7 @@ list and the files changed.
    compiled at build/publish time (no `RazorCompileOnBuild`/`RazorCompileOnPublish` set to `false`
    in the project), or templates return 404.
 2. **HTTPS everywhere, HSTS on**: [https.md](https.md).
-3. **Security headers and CSP**: [security-headers.md](security-headers.md). Remove `Server` and
+3. **Security headers and CSP**: the [`umbraco-security-headers`](../../umbraco-security-headers/SKILL.md) skill. Remove `Server` and
    `X-Powered-By`.
 4. **Restrict `/umbraco` by IP or VPN** where editors work from known networks. Exempt the public
    endpoints that live under `/umbraco` (see *Docs corrections*), or the front end breaks. For a
