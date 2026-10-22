@@ -1,15 +1,17 @@
 ---
 name: umbraco-common-pitfalls
 description: >
-  Reference guide to anti-patterns, performance traps, and common mistakes in Umbraco
-  development. Covers DI vs. statics, static references to request-scoped instances,
-  DescendantsOrSelf() on large trees, over-querying, services in Razor views, volatile content
-  nodes, startup processing, Examine N+1, RenderTemplateAsync misuse, constructor logic, eager
-  loading, missing cache, memory pressure, and Models Builder misuse.
-  Use this whenever the user asks about "common pitfalls", "performance issues", "anti-patterns",
-  "memory leaks", "best practices for Umbraco code", "avoid mistakes in Umbraco",
-  "why is my Umbraco site slow", or asks to review or audit Umbraco code for correctness.
-  SKIP: non-Umbraco projects.
+  Checklist of Umbraco anti-patterns and performance traps to check first when troubleshooting
+  or reviewing Umbraco code. Use whenever someone is diagnosing a problem on an Umbraco site, even
+  if they don't know the cause or never say "pitfall": slow pages or backoffice, high CPU or
+  memory, timeouts, frequent restarts or slow startup, content or data shown to the wrong user,
+  stale content, Examine indexes out of sync or slow to rebuild, or "something is wrong and I
+  don't know why". Also use when writing or reviewing Umbraco controllers, views, composers,
+  notification handlers, Examine events or Models Builder code. Covers statics and request-scoped
+  instances, DescendantsOrSelf() on large trees, over-querying, services in Razor views, volatile
+  data in content nodes, startup work, Examine N+1, RenderTemplateAsync, constructor logic, eager
+  loading, missing caches, memory pressure and Models Builder misuse.
+  SKIP: non-Umbraco projects; install, upgrade or configuration errors with a clear error message.
 ---
 
 # Common Pitfalls & Anti-Patterns
@@ -29,14 +31,25 @@ its section in the docs page (*Docs section*).
   open only the reference files that match. Several pitfalls often appear together (for example
   `DescendantsOrSelf()` and repeated `Model.Root()` calls), so check the *Related* links at the
   end of each file.
-- **Diagnosing a symptom** (slow page, memory growth, data bleed): match the symptom to the
-  category below, then open the pitfalls in that category.
+- **Diagnosing a symptom** (slow page, memory growth, data bleed), even when the cause is
+  unknown: start from the symptom table below and open the pitfalls it lists.
 - **Writing new code:** check the pitfalls in the categories the code touches, and apply the fix
   before claiming correctness.
 - **When to fetch the docs:** if the reference file's example covers the fix, answer from it;
   there is no need to fetch anything. Fetch the docs page only when the fix depends on something
   the reference file doesn't show, such as a different API, an edge case, or a context the example
   doesn't cover. Then read the named section instead of filling the gap from memory.
+
+## Start from a symptom
+
+| Symptom | Check first |
+|---|---|
+| Slow pages or partials | [descendantsorself-large-trees](references/descendantsorself-large-trees.md), [over-querying](references/over-querying.md), [services-in-razor-views](references/services-in-razor-views.md), [missing-lookup-cache](references/missing-lookup-cache.md), [logic-in-constructors](references/logic-in-constructors.md), [rendertemplateasync-misuse](references/rendertemplateasync-misuse.md) |
+| High memory, GC pauses | [memory-pressure-allocations](references/memory-pressure-allocations.md), [static-request-scoped-instances](references/static-request-scoped-instances.md), [eager-loading](references/eager-loading.md) |
+| Wrong user's data, stale content | [static-request-scoped-instances](references/static-request-scoped-instances.md), [singletons-and-statics](references/singletons-and-statics.md) |
+| Slow startup, slow restarts | [expensive-startup-processing](references/expensive-startup-processing.md) |
+| Index out of sync, slow or failing rebuilds | [unnecessary-examine-rebuilds](references/unnecessary-examine-rebuilds.md), [service-lookups-in-examine-events](references/service-lookups-in-examine-events.md) |
+| Slows down under write load, cache churn | [volatile-data-as-content](references/volatile-data-as-content.md) |
 
 ## Dependency injection & lifetimes
 

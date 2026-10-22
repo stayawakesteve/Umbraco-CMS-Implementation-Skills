@@ -54,7 +54,29 @@ Two reasons the split exists, and neither is about tidiness:
   naming scheme dodges that.
 
 Because there is one host per approach kind, **a skill may document at most two approaches**. That cap
-is what keeps the host count at two as skills are added.
+is what keeps the host count at two as skills are added. An *approach* is a competing implementation
+of the same feature; deployment scenarios that share one `examples/` project (umbraco-configuration's
+profiles) add no host and are not capped.
+
+## When neither host can boot it: the Bound tier
+
+Some deliverables are configuration the reference hosts cannot run — Production runtime mode, a
+load-balanced topology, a cloud platform. Layer 2 ("it serves") is unreachable for these, and an HTTP
+assertion would prove something other than what the skill ships. Gate them as **Bound** instead:
+
+- The JSON still ships in `assets/` and is still projected at build time (it is embedded in the
+  example assembly), so layers 1, 3 and 4 hold.
+- The fixture binds each file into the pinned Umbraco's own options classes with
+  `ErrorOnUnknownConfiguration`, and runs Umbraco's own validators over the result. It never touches
+  the host's shared client.
+- Include a negative control (a deliberately broken profile the validators reject), or the fixture
+  passes for any input.
+- Any C# shipped alongside still follows the host table above, and on a shared host must be inert
+  unless configured — with a test proving it.
+- The skill may claim "accepted by the pinned Umbraco's configuration model". It may not claim
+  "runs" or "tested on <platform>".
+
+`umbraco-configuration` is the reference: see its `examples/golden-configs/`.
 
 ## What you add
 
@@ -133,6 +155,29 @@ Two behaviours worth knowing: an asset listed in `assets` but missing from disk 
 an unknown top-level key (a typo'd `requires`, say) is silently ignored — so if a precondition
 never seems to run, check the spelling first.
 
+## Views that aren't templates (blank host)
+
+A package migration can only register **templates**. A skill's partials and view-component views
+aren't templates, so the example installs them as the user would: by writing the file. The
+harness embeds the projected asset and writes it to the host's content root on
+`UmbracoApplicationStartedNotification`, at the path the skill's reference gives:
+- `Views/Partials/<name>.cshtml` for a partial;
+- `Views/Shared/Components/<Name>/Default.cshtml` for a view component.
+
+Compare contents before writing, so runtime compilation isn't invalidated on every boot.
+`umbraco-templating`'s `examples/render-pipeline/` does this. Two things go with it:
+
+- **Ignore what you write.** The blank host's `.gitignore` covers runtime-written views. Add an
+  entry for any new folder you write to, or every test run leaves untracked files behind.
+- **Views compile at request time.** The blank host compiles Razor at runtime, so a broken view
+  passes the build and fails only when a page renders it. Assert on rendered markup, not a status
+  code alone.
+- **Reproduce real-project view setup inside your example, not the shared host.** A bare `@model`
+  only fails (CS1061) under a `_ViewImports.cshtml` that declares a non-generic base page.
+  `umbraco-templating`'s harness writes a folder-scoped `_ViewImports.cshtml` with one into
+  `Views/Partials` and `Views/Shared`, beside the views it installs. Leave the blank host's shared
+  `Views/_ViewImports.cshtml` stock; a change there alters how every other example renders.
+
 ## Writing the fixture
 
 Model it on `SitemapTests.cs` or `CustomErrorPagesTests.cs`. The essentials:
@@ -149,6 +194,22 @@ Model it on `SitemapTests.cs` or `CustomErrorPagesTests.cs`. The essentials:
   can rebuild stale output *and cache it*. `SitemapCacheInvalidationTests` documents this trap in
   detail; the short version is that a key lookup or the Delivery API are not stand-ins for the
   traversal your code performs.
+
+- **Form posts** (surface controllers):
+  - create a second client with `AllowAutoRedirect = false` from the shared factory, so cookies
+    persist and the redirect stays observable;
+  - GET the page and read the `__RequestVerificationToken` and `ufprt` hidden inputs from the
+    rendered form;
+  - POST them with the fields;
+  - assert both paths: invalid → 200 with inline errors and the typed values kept; valid → 302 to
+    the page, then a GET shows the success message once and a second GET doesn't.
+
+  `TemplatingBlankTests.cs` is a worked example.
+- **Content seeded at startup is indexed asynchronously.** On a fresh database, the content
+  preconditions read the Delivery API's query endpoint, which reads Examine. That can run before
+  the newest example's nodes are indexed, so the first run fails a precondition that passes on
+  every rerun. Front-end routing reads the published cache and isn't affected. If you see this,
+  it's the shared harness, not your example.
 
 **Then prove the test can fail.** Break the thing it checks — point a `requires` alias at a
 nonexistent Document Type, or change a cache key — confirm it goes red, and revert. A test that
