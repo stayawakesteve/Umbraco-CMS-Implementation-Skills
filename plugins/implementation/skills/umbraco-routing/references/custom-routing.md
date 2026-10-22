@@ -4,6 +4,21 @@ C# that changes how Umbraco builds URLs (outbound) or matches them (inbound). Ch
 [built-in routing](built-in-routing.md) can't express the rule: a URL computed from a property, or a
 URL pattern with no page behind it.
 
+## Contents
+
+- [Building blocks](#building-blocks-fetch-the-docs-before-implementing): read first, for the docs page behind each block.
+- [Docs corrections](#docs-corrections-umbraco-17): read when a docs snippet uses numeric ids, a one-overload segment provider, or a `ContentModel` route model.
+- [The files](#the-files): read when copying the assets and filling in their placeholders.
+- [Steps](#steps): read for the order of work.
+- [URL segment provider](#url-segment-provider-iurlsegmentprovider): read when a page's own segment must change, and before deploying one to a live site.
+- [Content finder](#content-finder-icontentfinder): read when a URL that matches no page must render or redirect, such as short links or old URLs.
+- [Custom URL provider](#custom-url-provider-iurlprovider): read when the URL can't be expressed as a segment change.
+- [Virtual-page route](#virtual-page-route-ivirtualpagecontroller): read when a URL pattern renders data that isn't in Umbraco.
+- [File extensions](#file-extensions): read when the URL ends in `.xml`, `.html` or another extension.
+- [Changing a request after routing](#changing-a-request-after-routing-routingrequestnotification): read when the template, redirect or culture must change after the page is found.
+- [Verify](#verify): read when checking the result, including how to build Razor views.
+- [Done](#done): read for what to report back.
+
 ## Building blocks (fetch the docs before implementing)
 
 - **Outbound pipeline, `IUrlSegmentProvider`, `IUrlProvider`:** [Outbound Request Pipeline](https://docs.umbraco.com/umbraco-cms/17.latest/develop-with-umbraco/application-code/backend-and-custom-logic/routing/request-pipeline/outbound-pipeline.md)
