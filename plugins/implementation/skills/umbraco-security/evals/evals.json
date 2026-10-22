@@ -2,23 +2,6 @@
   "skill_name": "umbraco-security",
   "evals": [
     {
-      "id": 1,
-      "name": "csp-nwebsec-output-cache",
-      "prompt": "Since we upgraded our Umbraco site to 17 the backoffice loads as a blank white page, and the browser console is full of 'Refused to execute inline script because it violates the following Content Security Policy directive'. The front end is fine. We set up the CSP a while ago with NWebsec in Program.cs, right after builder.Build():\n\n```csharp\napp.UseCsp(o => o\n    .DefaultSources(s => s.Self())\n    .ScriptSources(s => s.Self().CustomSources(\"https://www.googletagmanager.com\"))\n    .StyleSources(s => s.Self())\n    .ImgSources(s => s.Self().CustomSources(\"data:\")));\napp.UseXfo(o => o.Deny());\n```\n\nOur front-end layout has one inline <script> for the GTM dataLayer, which we currently allow by adding a hash. A colleague's fix is to add 'unsafe-inline' to script-src everywhere. We also switched on Umbraco's website output caching last month to speed up the marketing pages, and Cloudflare sits in front adding its own X-Frame-Options header. What's the right fix? Please give me the Program.cs changes and any view changes, and tell me what else in this setup will bite us.",
-      "expected_output": "The agent rejects adding 'unsafe-inline' scripts site-wide. It keeps NWebsec and adds Umbraco's UseUmbracoCspNonceInjection() after UseCsp() so the backoffice's per-request nonce lands in the existing CSP header, instead of appending a second header. It allows what the backoffice needs (the documented image and frame sources, and unsafe-inline styles), ideally on a separate /umbraco policy. The dataLayer script moves to the asp-csp-nonce tag helper. It warns that a per-request nonce conflicts with cached HTML from output caching. It flags X-Frame-Options DENY (app) conflicting with Cloudflare's header, so there is one source and SAMEORIGIN, testing backoffice preview. Rollout starts with Report-Only.",
-      "files": [],
-      "expectations": [
-        "The agent advises against adding 'unsafe-inline' to script-src as the fix",
-        "The fix calls Umbraco's `UseUmbracoCspNonceInjection()` after NWebsec's `UseCsp()` (or otherwise puts the `ICspNonceService` nonce into the single existing CSP header), rather than appending a second Content-Security-Policy header",
-        "The backoffice gets the extra sources it needs, at least `blob:`/`data:` images or the Umbraco news-dashboard/marketplace hosts or `'unsafe-inline'` styles, scoped to `/umbraco` or explicitly called out as backoffice requirements",
-        "The inline dataLayer script is allowed without `'unsafe-inline'`: via Umbraco's `asp-csp-nonce` tag helper / `ICspNonceService` nonce on pages that are not output-cached, or via a hash or external script file where the page is output-cached, with the choice tied to the caching",
-        "The agent warns that a per-request CSP nonce conflicts with Umbraco's website output caching or any other HTML caching (a cached page carries a stale nonce), and says how to handle it",
-        "The agent flags that X-Frame-Options is set in two places (NWebsec `UseXfo` and Cloudflare) and recommends a single source, and/or warns that `DENY` can break backoffice preview, recommending `SAMEORIGIN`",
-        "The rollout advice uses `Content-Security-Policy-Report-Only` (or NWebsec's report-only CSP) before enforcing",
-        "If no buildable project is available, the agent does not claim the change was compiled or the backoffice was observed working"
-      ]
-    },
-    {
       "id": 2,
       "name": "cors-spa-preview-and-members",
       "prompt": "Umbraco 17 headless setup: a React SPA on https://app.contoso.com calls the Content Delivery API on https://cms.contoso.com straight from the browser. Three things:\n1. CORS errors on every call. A contractor told us to set `Umbraco:CMS:Security:BackOfficeHost` to `https://app.contoso.com` because 'that's the Umbraco CORS setting', and we've done that, but still nothing.\n2. Editors want a Preview button in the SPA to show unpublished drafts. The plan is to keep `PublicAccess: true` and have the SPA send the `Api-Key` header plus `Preview: true` when someone clicks Preview, with the key in the SPA's .env.\n3. Members will log in through the Delivery API member authorization so the SPA can show protected content; the SPA will send the access token as a bearer token.\nPlease give me the Umbraco-side code and config, and sanity-check the plan.",

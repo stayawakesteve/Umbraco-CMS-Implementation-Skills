@@ -60,5 +60,5 @@ proxy already adds HSTS, don't add it twice with different values.
 - `curl -I https://<site>/` → `Strict-Transport-Security` present (non-development only).
 - The Health Check dashboard's HTTPS and application-URL checks pass.
 
-**Related:** [security-headers.md](security-headers.md) (HSTS sits alongside the other headers),
+**Related:** the [`umbraco-security-headers`](../../umbraco-security-headers/SKILL.md) skill (HSTS sits alongside the other headers),
 [hardening.md](hardening.md) (runtime mode).
